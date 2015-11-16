@@ -1,6 +1,6 @@
 {
-  "name": "hoc-rpi-sphero",
-  "version": "0.0.0",
+  "name": "hour-of-code-rpi-node-sphero",
+  "version": "0.1.0",
   "private": true,
   "scripts": {
     "start": "node ./bin/www"
