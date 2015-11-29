@@ -24,84 +24,119 @@
 
 </head>
 <body>
+    <div class="container-fluid">
+        <div class="row" style="margin-top:20px; margin-bottom:20px;">
+            <div class="col-xs-6 text-center">
 
-    Your Name
-    <input type="text" id="student_name" value="" />  <!-- FIXME: rest must be hidden when empty -->
+                <label>Your Name:  &nbsp;</label>   <!-- TODO: By default come up randomly from a set of funny names, with -2|3|4... -->
+                <input type="text" id="student_name" size="40" value="Mama Bear" />  <!-- FIXME: rest must be hidden when empty -->
 
-    <br/>
+            </div>
+            <div class="col-xs-6 text-left">
 
-    <div style="text-align:center;">
-        Choose your Sphero
-        <select id="rpi_sphero">
-            <option value="green_dark" >RPi Green - Sphero Dark Green</option>
-            <option value="green_light">RPi Green - Sphero Light Green</option>
-            <option value="blue_dark"  disabled="disabled">RPi Blue  - Sphero Dark Blue</option>
-            <option value="blue_light" selected="selected">RPi Blue  - Sphero Light Blue</option>
-            <!-- FIXME -->
-        </select>
-    </div>
+                <label>Choose your Sphero: &nbsp;</label>
+                <select id="rpi_sphero" onchange="this.className=this.options[this.selectedIndex].className" class="blue-bg-txt">
+                    <option value="green_dark"  class="green-bg-txt">RPi Green - Sphero Dark Green</option>
+                    <option value="green_light" class="green-bg-txt">RPi Green - Sphero Light Green</option>
+                    <option value="blue_dark"   class="blue-bg-txt"  disabled="disabled">RPi Blue  - Sphero Dark Blue</option>
+                    <option value="blue_light"  class="blue-bg-txt"  selected="selected">RPi Blue  - Sphero Light Blue</option>
+                    <!-- FIXME -->
+                </select>
 
-    <br/>
+            </div>
+        </div><!-- row -->
 
-    <!-- Nav bar with Beginners first, Advanced next. 2 different background colors. Last nav switches from one to another -->
+        <br/>
 
-    <!--
-        BEGINNER
-        1. Roll straight
-        2. Turn
-        3. Round 8
-        4. Follow other Rpi
-        5. Flashes color (but comes back to original!)
+        <!-- Nav bar with Beginners first, Advanced next. 2 different background colors. Last nav switches from one to another -->
 
-        ADVANCED
-        1. Random move, stays inside the square
-        2. Follow 1st RPi by anticipating to hit
-        3. Smarter Sumo algo!
-    -->
+        <!--
+            BEGINNER
+            1. Roll straight
+            2. Turn
+            3. Round 8
+            4. Follow other Rpi
+            5. Flashes color (but comes back to original!)
 
-    <!-- JS Editor -->
-    <div id="code_mirror_id"></div>
+            ADVANCED
+            1. Random move, stays inside the square
+            2. Follow 1st RPi by anticipating to hit
+            3. Smarter Sumo algo!
+        -->
 
+        <div class="row hidden" style="margin-top:10px; margin-bottom:10px;">
+            <div class="col-xs-12">
+                <pre class="pre-scrollable">
+                        var x=1;
+                        function youyou() {
 
+                        }
+                </pre>
+            </div>
+            <div class="col-xs-3 col-xs-offset-9">
+                <div class="btn">Use as source in code editor</div>
+            </div>
+        </div>
 
-    <!-- ===== Buttons for HELP, HISTORY, PUSH ===== -->
-
-    <div id="trigger_help" class="btn">View Help</div>
-    <div id="trigger_history" class="btn">View Code History</div>
-
-    <!-- Button Send code to Sphero : student-name + which Sphero + Code  -->
-    <div id="push_to_sphero" class="btn">Send code to RPi &amp; Sphero</div>
-
-
-    <!-- JS HELP (Button with side panel)  -->
-    <div id="slider_help" style="background-color:yellow;">
-        This is the Help Section
-        TODO!!!
-    </div>
-
+        <!-- JS Editor -->
+        <div id="code_mirror_id"></div>
 
 
-    <!-- (Button with side panel) Editor History: everything is backed up in localStorage... not too much data? Diff only ?
-         Every 30s, every click on Nav, every push to Sphero  -->
-    <div id="slider_history"  style="background-color:purple;">
-         This is the History Section
-         TODO!!!
-    </div>
 
+        <!-- ===== Buttons for HELP, HISTORY, PUSH ===== -->
+        <div class="row" style="margin-top:20px; margin-bottom:20px;">
+
+            <div class="col-xs-5 text-left">
+                <button id="trigger_help" class="btn btn-info">Documentation &amp; Help</button>
+                <button id="trigger_history" class="btn btn-default">Retrieve Code History</button>
+            </div>
+
+            <!-- Button Send code to Sphero : student-name + which Sphero + Code  -->
+            <div class="col-xs-2 col-xs-offset-1 text-right">
+                <button id="stop_sphero" class="btn btn-danger">STOP Sphero</button>
+            </div>
+
+            <div class="col-xs-4  text-left">
+                <button id="push_to_sphero" class="btn btn-success">Send code to RPi &amp; Sphero</button>
+            </div>
+
+        </div>
+
+
+        <!-- JS HELP (Button with side panel)  -->
+        <div id="slider_help" style="background-color:yellow;">
+            This is the Help Section
+            TODO!!!
+        </div>
+
+
+
+        <!-- (Button with side panel) Editor History: everything is backed up in localStorage... not too much data? Diff only ?
+             Every 30s, every click on Nav, every push to Sphero  -->
+        <div id="slider_history"  style="background-color:purple;">
+             This is the History Section
+             TODO!!!
+        </div>
+
+
+    </div><!-- Main container (full-width) -->
 
 
     <!-- Description Footer -->
     <div class="footer">
         <div class="container">
-            <div class="col-lg-3 col-md-3 hidden-xs hidden-sm">
-                <img src="images/logo_250.png" width="172" height="125" />
-            </div><!-- .col-lg-3 -->
-            <div class="col-lg-9 col-md-9 col-xs-12">
-                <h2>Blub</h2>
-                <p>Use the <i>Keyboard</i> of your computer...</p>
-            </div><!-- .col-lg-9 -->
+            <div class="row">
+                <div class="col-lg-3 col-md-3 hidden-xs hidden-sm">
+                    <img src="images/logo_250.png" width="172" height="125" />
+                </div><!-- .col-lg-3 -->
+                <div class="col-lg-9 col-md-9 col-xs-12">
+                    <h2>Blub</h2>
+                    <p>Use the <i>Keyboard</i> of your computer...</p>
+                </div><!-- .col-lg-9 -->
+            </div>
         </div><!-- .container -->
     </div><!-- .footer -->
+
 
 
     <!-- ======= JS LIBs: jQuery + Bootstrap + CodeMirror + SlideReveal + ... ======= -->
@@ -146,5 +181,6 @@
     <!-- FIXME JS recording code, from browserify -->
     <script src="js/browser.js"></script>
 
+</div>
 </body>
 </html>

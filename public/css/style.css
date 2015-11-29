@@ -1,0 +1,33 @@
+
+
+label {
+    font-weight: normal !important;
+}
+
+#student_name {
+    color: purple;
+}
+
+.green-bg-txt {
+    background-color: green;
+    color: white;
+}
+.purple-bg-txt {
+    background-color: purple;
+    color: white;
+}
+.blue-bg-txt {
+    background-color: blue;
+    color: white;
+}
+
+/*
+body {
+  padding: 50px;
+  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+}
+
+a {
+  color: #00B7FF;
+}
+*/
