@@ -2,8 +2,21 @@
   "name": "hour-of-code-rpi-node-sphero",
   "version": "0.1.0",
   "private": true,
+  "browserify-shim": {
+      "jquery": "global:jQuery"
+  },
+  "browserify": {
+      "transform": [
+          "browserify-shim"
+      ]
+  },
   "scripts": {
-    "start": "node ./bin/www"
+      "start": "node ./bin/www",
+      "debug": "node-debug ./bin/www",
+      "build": "browserify src/record-browser/index.js -o public/js/record-browser.js & browserify src/browser/index.js -o public/js/browser.js",
+      "watch": "watchify -v -d src/record-browser/index.js -o public/js/record-browser.js & watchify -v -d src/browser/index.js -o public/js/browser.js",
+      "EricComments"  : " // run on the command-line by  $ npm run-script build   (or watch, etc...)  ",
+      "EricComments-2": " // node-debug is equivalent to launching node --debug-brk and opening node-inspector "
   },
   "dependencies": {
     "body-parser": "~1.13.2",
@@ -18,5 +31,10 @@
     "serialport": "^2.0.5",
     "serve-favicon": "~2.3.0",
     "ws": "^0.8.0"
+  },
+  "devDependencies": {
+    "browserify": "^10.2.4",
+    "browserify-shim": "^3.8.9",
+    "watchify": "^3.2.3"
   }
 }
