@@ -3,88 +3,137 @@
 /**
  * Module dependencies.
  */
-
 var app = require('../app');
-var debug = require('debug')('sphero:server');
+var debug = require('debug')('hour-of-code-rpi-node-sphero:server');
 var http = require('http');
+
+// To help parse url location.query easily.  See https://nodejs.org/docs/latest/api/url.html
+var url = require('url');
+
+/// WebSocket Server module [npm install --save ws]
+var WebSocketServer = require('ws').Server;
+var onWsConnection  = require('../routes/websocket-server').onWsConnection;
+
 
 /**
  * Get port from environment and store in Express.
  */
-
 var port = normalizePort(process.env.PORT || '3000');
 app.set('port', port);
 
 /**
  * Create HTTP server.
  */
-
 var server = http.createServer(app);
+
+/// and WebSocket Server, restricted to /ws/* path
+var wsServer = new WebSocketServer({ server: server });
+wsServer.on( 'connection',  function ( ws ) {
+    try {
+        var location = url.parse( ws.upgradeReq.url, true );
+        if ( location && location.pathname && location.pathname.startsWith("/ws/") ) {
+            onWsConnection(ws);
+        } else {
+            console.log("WebSocketServer connection on wrong URL, should start by /ws/ [%s]", JSON.stringify(location) );
+        }
+    }
+    catch (exc) {
+        console.error( "\nTRY-CATCH ERROR in www: " + exc.stack + "\n" );
+    }
+});
+
+    /*** Doc
+        BROADCAST (Server sending broadcast data)
+                wsServer.broadcast = function broadcast(data) {
+                  wsServer.clients.forEach( function each(client) {
+                    client.send(data);
+                  });
+                };
+    ***/
+
 
 /**
  * Listen on provided port, on all network interfaces.
  */
-
 server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
 
+
+/**
+ *  (Eric) From now on, does not allow the Node.js server to crash from an uncaught exception
+ *
+ *  uncaughtException should be used to perform synchronous cleanup before shutting down the process.
+ *  It is not safe to resume normal operation after uncaughtException.
+ *  If you do use it, restart your application after every unhandled exception!
+ *  You have been warned.
+ */
+process.on('uncaughtException', function(err) {
+   console.error('\n\nFATAL ERROR !!!! -- Caught exception: ' + err);
+   try {
+       console.trace( "\nMore info (console.trace):" );
+       console.error( "\n\nError Stack-trace:\n" + err.stack + "\n" );
+   }
+   catch (exc) {}
+});
+
+
+
+
 /**
  * Normalize a port into a number, string, or false.
  */
+function normalizePort(val)
+{
+    var port = parseInt(val, 10);
 
-function normalizePort(val) {
-  var port = parseInt(val, 10);
-
-  if (isNaN(port)) {
-    // named pipe
-    return val;
-  }
-
-  if (port >= 0) {
-    // port number
-    return port;
-  }
-
-  return false;
+    if (isNaN(port)) {
+        // named pipe
+        return val;
+    }
+    if (port >= 0) {
+        // port number
+        return port;
+    }
+    return false;
 }
 
 /**
  * Event listener for HTTP server "error" event.
  */
+function onError(error)
+{
+    if (error.syscall !== 'listen') {
+        throw error;
+    }
 
-function onError(error) {
-  if (error.syscall !== 'listen') {
-    throw error;
-  }
-
-  var bind = typeof port === 'string'
+    var bind = typeof port === 'string'
     ? 'Pipe ' + port
     : 'Port ' + port;
 
-  // handle specific listen errors with friendly messages
-  switch (error.code) {
-    case 'EACCES':
-      console.error(bind + ' requires elevated privileges');
-      process.exit(1);
-      break;
-    case 'EADDRINUSE':
-      console.error(bind + ' is already in use');
-      process.exit(1);
-      break;
-    default:
-      throw error;
-  }
+    // handle specific listen errors with friendly messages
+    switch (error.code) {
+         case 'EACCES':
+         console.error(bind + ' requires elevated privileges');
+         process.exit(1);
+         break;
+         case 'EADDRINUSE':
+         console.error(bind + ' is already in use');
+         process.exit(1);
+         break;
+         default:
+         throw error;
+    }
 }
 
 /**
  * Event listener for HTTP server "listening" event.
  */
-
-function onListening() {
-  var addr = server.address();
-  var bind = typeof addr === 'string'
-    ? 'pipe ' + addr
-    : 'port ' + addr.port;
-  debug('Listening on ' + bind);
+function onListening()
+{
+     var addr = server.address();
+     var bind = typeof addr === 'string'
+     ? 'pipe ' + addr
+     : 'port ' + addr.port;
+     debug('Listening on ' + bind);
 }

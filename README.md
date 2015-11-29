@@ -17,9 +17,9 @@ Otherwise, to retrieve this project on your existing Raspberry Pi/PC/Mac:
     Use GitHub Desktop software on PC & Mac, or the command line <br/>
     `git clone https://github.com/ea167/hour-of-code-rpi-node-sphero.git`
 
-* Make sure you have Node.JS and npm installed: [Node website](http://nodejs.org)
+* Make sure you have Node.js and npm installed: [Node.js website](http://nodejs.org)
 
 * In your folder, install node modules dependencies with<br/>
     `npm install`
 
-**UNDER CONSTRUCTION**
+**UNDER CONSTRUCTION...**
