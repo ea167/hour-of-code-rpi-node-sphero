@@ -10,8 +10,13 @@
     <meta name="author" content="Eric Amram">
     <meta name="description" content="Open source project for the Hour of Code, Sun Dec 6, 2015">
 
+
+    <!-- Bootstrap CSS. See http://codemirror.net -->
     <link href="lib/bootstrap-3.3.6-dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="lib/bootstrap-3.3.6-dist/css/bootstrap-theme.min.css" rel="stylesheet">
+
+    <!-- CodeMirror CSS. See http://codemirror.net -->
+    <link rel="stylesheet" href="lib/codemirror-5.9/lib/codemirror.css">
 
     <!-- FIXME !!! -->
     <link href="css/style.css" rel="stylesheet">
@@ -19,8 +24,71 @@
 </head>
 <body>
 
-    <!-- Description Header -->
-    <div class="header">
+    Name of the student
+    <input type="text" id="student_name" value="" />  <!-- FIXME: rest must be hidden when empty -->
+
+    <br/>
+
+    Choose your sphero
+    <select id="rpi_sphero">
+        <option value="green_dark" >RPi Green - Sphero Dark Green</option>
+        <option value="green_light">RPi Green - Sphero Light Green</option>
+        <option value="blue_dark"  disabled="disabled">RPi Blue  - Sphero Dark Blue</option>
+        <option value="blue_light" selected="selected">RPi Blue  - Sphero Light Blue</option>
+        <!-- FIXME -->
+    </select>
+
+    <br/>
+
+    <!-- Nav bar with Beginners first, Advanced next. 2 different background colors. Last nav switches from one to another -->
+
+    <!--
+        BEGINNER
+        1. Roll straight
+        2. Turn
+        3. Round 8
+        4. Follow other Rpi
+        5. Flashes color (but comes back to original!)
+
+        ADVANCED
+        1. Random move, stays inside the square
+        2. Follow 1st RPi by anticipating to hit
+        3. Smarter Sumo algo!
+    -->
+
+    <!-- JS Editor -->
+    <div id="code_mirror_id"></div>
+
+
+
+    <!-- ===== Buttons for HELP, HISTORY, PUSH ===== -->
+
+    <div id="trigger_help" class="btn">View Help</div>
+    <div id="trigger_history" class="btn">View Code History</div>
+
+    <!-- Button Send code to Sphero : student-name + which Sphero + Code  -->
+    <div id="push_to_sphero" class="btn">Send code to RPi &amp; Sphero</div>
+
+
+    <!-- JS HELP (Button with side panel)  -->
+    <div id="slider_help">
+        This is the Help Section
+        TODO!!!
+    </div>
+
+
+
+    <!-- (Button with side panel) Editor History: everything is backed up in localStorage... not too much data? Diff only ?
+         Every 30s, every click on Nav, every push to Sphero  -->
+    <div id="slider_history">
+         This is the History Section
+         TODO!!!
+    </div>
+
+
+
+    <!-- Description Footer -->
+    <div class="footer">
         <div class="container">
             <div class="col-lg-3 col-md-3 hidden-xs hidden-sm">
                 <img src="images/logo_250.png" width="172" height="125" />
@@ -30,17 +98,43 @@
                 <p>Use the <i>Keyboard</i> of your computer...</p>
             </div><!-- .col-lg-9 -->
         </div><!-- .container -->
-    </div><!-- .header -->
+    </div><!-- .footer -->
 
 
+    <!-- ======= JS LIBs: jQuery + Bootstrap + CodeMirror + SlideReveal + ... ======= -->
 
-
-
-
-    <!-- ======= JS LIBs: jQuery + Bootstrap ======= -->
     <!--   Place js files at the end of the document -->
     <script src="lib/jquery-2.1.4.min.js"></script>
     <script src="lib/bootstrap-3.3.6-dist/js/bootstrap.min.js"></script>
+
+    <!-- CodeMirror. See http://codemirror.net -->
+    <script src="lib/codemirror-5.9/lib/codemirror.js"></script>
+
+    <!-- SlideReveal jQuery plugin. See http://nnattawat.github.io/slideReveal/ -->
+    <script src="dist/jquery.slidereveal.min.js"></script>
+
+    <script type="text/javascript">
+        // --- Init CodeMirror
+        var codeMirrorEditor = CodeMirror( document.getElementById("code_mirror_id"), {
+            value: " // Type your code here\n //function myScript(){return 100;}\n",
+            lineNumbers: true,
+            mode:  "javascript"
+        });
+
+        // --- Init SlideReveal
+        $('#slider_help').slideReveal({
+          trigger: $("#trigger_help"),
+          position: "right",            // width: 500,
+          push: false,
+          overlay: true
+        });
+        $('#slider_history').slideReveal({
+          trigger: $("#trigger_history"),
+          position: "right",            // width: 500,
+          push: false,
+          overlay: true
+        });
+    </script>
 
         <!-- Other JS libs -->
         <!--script src="js/FIXME.js"></script-->
