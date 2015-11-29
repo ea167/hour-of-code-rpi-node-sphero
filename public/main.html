@@ -29,7 +29,7 @@
 
     <br/>
 
-    Choose your sphero
+    Choose your Sphero
     <select id="rpi_sphero">
         <option value="green_dark" >RPi Green - Sphero Dark Green</option>
         <option value="green_light">RPi Green - Sphero Light Green</option>
@@ -71,7 +71,7 @@
 
 
     <!-- JS HELP (Button with side panel)  -->
-    <div id="slider_help">
+    <div id="slider_help" style="background-color:yellow;">
         This is the Help Section
         TODO!!!
     </div>
@@ -80,7 +80,7 @@
 
     <!-- (Button with side panel) Editor History: everything is backed up in localStorage... not too much data? Diff only ?
          Every 30s, every click on Nav, every push to Sphero  -->
-    <div id="slider_history">
+    <div id="slider_history"  style="background-color:purple;">
          This is the History Section
          TODO!!!
     </div>
@@ -111,7 +111,7 @@
     <script src="lib/codemirror-5.9/lib/codemirror.js"></script>
 
     <!-- SlideReveal jQuery plugin. See http://nnattawat.github.io/slideReveal/ -->
-    <script src="dist/jquery.slidereveal.min.js"></script>
+    <script src="lib/jquery.slidereveal.min.js"></script>
 
     <script type="text/javascript">
         // --- Init CodeMirror
@@ -123,16 +123,15 @@
 
         // --- Init SlideReveal
         $('#slider_help').slideReveal({
-          trigger: $("#trigger_help"),
-          position: "right",            // width: 500,
-          push: false,
-          overlay: true
+          trigger: $("#trigger_help"),      // width: 500,
+          position: "right",                // overlay: true,
+          push: false
         });
         $('#slider_history').slideReveal({
-          trigger: $("#trigger_history"),
-          position: "right",            // width: 500,
-          push: false,
-          overlay: true
+          trigger: $("#trigger_history"),   // width: 500,
+          position: "right",
+          overlay: true,
+          push: false
         });
     </script>
 
