@@ -17,6 +17,7 @@
 
     <!-- CodeMirror CSS. See http://codemirror.net -->
     <link rel="stylesheet" href="lib/codemirror-5.9/lib/codemirror.css">
+    <link rel="stylesheet" href="lib/codemirror-5.9/theme/elegant.css">
 
     <!-- FIXME !!! -->
     <link href="css/style.css" rel="stylesheet">
@@ -24,19 +25,21 @@
 </head>
 <body>
 
-    Name of the student
+    Your Name
     <input type="text" id="student_name" value="" />  <!-- FIXME: rest must be hidden when empty -->
 
     <br/>
 
-    Choose your Sphero
-    <select id="rpi_sphero">
-        <option value="green_dark" >RPi Green - Sphero Dark Green</option>
-        <option value="green_light">RPi Green - Sphero Light Green</option>
-        <option value="blue_dark"  disabled="disabled">RPi Blue  - Sphero Dark Blue</option>
-        <option value="blue_light" selected="selected">RPi Blue  - Sphero Light Blue</option>
-        <!-- FIXME -->
-    </select>
+    <div style="text-align:center;">
+        Choose your Sphero
+        <select id="rpi_sphero">
+            <option value="green_dark" >RPi Green - Sphero Dark Green</option>
+            <option value="green_light">RPi Green - Sphero Light Green</option>
+            <option value="blue_dark"  disabled="disabled">RPi Blue  - Sphero Dark Blue</option>
+            <option value="blue_light" selected="selected">RPi Blue  - Sphero Light Blue</option>
+            <!-- FIXME -->
+        </select>
+    </div>
 
     <br/>
 
@@ -107,8 +110,9 @@
     <script src="lib/jquery-2.1.4.min.js"></script>
     <script src="lib/bootstrap-3.3.6-dist/js/bootstrap.min.js"></script>
 
-    <!-- CodeMirror. See http://codemirror.net -->
+    <!-- CodeMirror. See http://codemirror.net FIXME: Use a module loader !!! -->
     <script src="lib/codemirror-5.9/lib/codemirror.js"></script>
+    <script src="lib/codemirror-5.9/mode/javascript/javascript.js"></script>
 
     <!-- SlideReveal jQuery plugin. See http://nnattawat.github.io/slideReveal/ -->
     <script src="lib/jquery.slidereveal.min.js"></script>
@@ -116,8 +120,9 @@
     <script type="text/javascript">
         // --- Init CodeMirror
         var codeMirrorEditor = CodeMirror( document.getElementById("code_mirror_id"), {
-            value: " // Type your code here\n //function myScript(){return 100;}\n",
+            value: " // Type your code here\n function myScript(){return 100;}\n",
             lineNumbers: true,
+            indentUnit: 4,
             mode:  "javascript"
         });
 
