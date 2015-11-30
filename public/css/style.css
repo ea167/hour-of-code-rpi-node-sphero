@@ -9,6 +9,18 @@ label {
     font-weight: bold;
 }
 
+#code_mirror_id {
+    margin-top: 20px;
+    /* min-height: 500px; */
+}
+
+.page-header {
+    margin-top: 0px;
+    background: -webkit-linear-gradient( #a7e4dd, #fff );
+    background: -moz-linear-gradient( #a7e4dd, #fff );
+    background: linear-gradient( #a7e4dd, #fff );
+}
+
 .green-bg-txt {
     background-color: green;
     color: white;
