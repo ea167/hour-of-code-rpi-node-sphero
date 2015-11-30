@@ -77,4 +77,7 @@ function initBrowserSocket()
          $.unsubscribe('socketstop');
      };
 
+     return socket;
 }
+
+module.exports = initBrowserSocket;
