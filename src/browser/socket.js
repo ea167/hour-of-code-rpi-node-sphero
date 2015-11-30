@@ -80,4 +80,4 @@ function initBrowserSocket()
      return socket;
 }
 
-module.exports = initBrowserSocket;
+exports.initBrowserSocket = initBrowserSocket;

@@ -35,12 +35,14 @@ UserCodingWSP.prototype.parent       = WebSocketProcessor.prototype;         // 
 UserCodingWSP.prototype.onConnectionEstablished = function() {
     this.parent.onConnectionEstablished.call(this);
 
+/*  FIXME
     var _this = this;
     var closureFuncSendBestWords = this.closureFuncSendBestWords = function () {
         _this.sendBestWords();
     };
     this.sendBestWords();
     AE.on( 'new-cloud-words', closureFuncSendBestWords );
+*/
 };
 
 
