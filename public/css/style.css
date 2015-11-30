@@ -6,6 +6,7 @@ label {
 
 #student_name {
     color: purple;
+    font-weight: bold;
 }
 
 .green-bg-txt {

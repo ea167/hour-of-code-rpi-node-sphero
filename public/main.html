@@ -84,7 +84,7 @@
 
 
         <!-- ===== Buttons for HELP, HISTORY, PUSH ===== -->
-        <div class="row" style="margin-top:20px; margin-bottom:20px;">
+        <div class="row" style="margin-top:20px; margin-bottom:20px; vertical-align:bottom;">
 
             <div class="col-xs-5 text-left">
                 <button id="trigger_help" class="btn btn-info">Documentation &amp; Help</button>
@@ -96,18 +96,29 @@
                 <button id="stop_sphero" class="btn btn-danger">STOP Sphero</button>
             </div>
 
-            <div class="col-xs-4  text-left">
-                <button id="push_to_sphero" class="btn btn-success">Send code to RPi &amp; Sphero</button>
+            <div class="col-xs-4 text-left">
+                <button id="push_to_sphero" class="btn btn-success btn-lg">Send code to RPi &amp; Sphero</button>
             </div>
 
         </div>
 
 
         <!-- JS HELP (Button with side panel)  -->
-        <div id="slider_help" style="background-color:yellow;">
-            This is the Help Section
-            TODO!!!
+        <div id="slider_help" class="panel panel-default" style="background-color:yellow;">
+            <div class="panel-heading" style="padding:0px;">
+                <button type="button" class="close" style="margin-top:0px; padding-top:0px;"
+                    onclick="$('#slider_help').slideReveal('hide');">
+                    <span style="font-size:16px; font-weight:normal">close</span> &times;</button>
+                <h4 class="bg-info text-center" style="padding:25px 10px 15px 10px; margin:0px;">
+                    Documentation &amp; Help
+                </h4>
+            </div>
+            <div class="panel-body">
+                This is the Help Section
+                TODO!!!
+            </div>
         </div>
+
 
 
 
@@ -123,7 +134,7 @@
 
 
     <!-- Description Footer -->
-    <div class="footer">
+    <div class="page-footer">
         <div class="container">
             <div class="row">
                 <div class="col-lg-3 col-md-3 hidden-xs hidden-sm">
