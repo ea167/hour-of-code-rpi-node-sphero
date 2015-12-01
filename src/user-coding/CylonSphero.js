@@ -31,7 +31,8 @@ CylonSphero.prototype.setColor = function( spheroColor )
 {
     console.log( 'CylonSphero setColor [%s] received', spheroColor );
     this.spheroColor    = spheroColor;
-    //this.cylonRobot. FIXME ;
+    // FIXME ;
+    this.sphero.color( spheroColor );
 };
 
 
