@@ -5,7 +5,7 @@ var url = require('url');
 
 /** -----------------------------------------------------
  * WebSocketProcessor
- * @arg processorName "audio" for /ws/audio/
+ * @arg processorName "usercoding" for /ws/usercoding/
  * @arg ws  the websocket object
  */
 function WebSocketProcessor(wspName, ws, sendStateListening) {
@@ -18,7 +18,7 @@ function WebSocketProcessor(wspName, ws, sendStateListening) {
 /// Eric method called when websocket is established at the very beginning
 WebSocketProcessor.prototype.onConnectionEstablished = function() {
     if ( this._sendStateListening ) {
-        // Send that we are listening
+        // Send acknowledgment that we are listening
         this.ws.send( JSON.stringify({"state":"listening"}) );
         console.log('WebSocketProcessor CONNECTION [%s] {state:listening} sent', this.wspName);
     } else {

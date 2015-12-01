@@ -13,7 +13,7 @@ var WebSocketProcessor      = require('../WebSocketProcessor');
 
 /** -----------------------------------------------------
  * WebSocketProcessor UserCodingWSP
- * @arg processorName "wordcloud" for /ws/wordcloud/
+ * @arg processorName "usercoding" for /ws/usercoding/
  * @arg ws  the websocket object
  */
 function UserCodingWSP( ws ) {
@@ -25,7 +25,7 @@ function UserCodingWSP( ws ) {
 
 // Inheritance of public methods and setting proper parent relationship. See http://phrogz.net/js/classes/OOPinJS2.html
 UserCodingWSP.prototype              = new WebSocketProcessor();
-UserCodingWSP.prototype.constructor  = UserCodingWSP;                         // reset the constructor property
+UserCodingWSP.prototype.constructor  = UserCodingWSP;                        // reset the constructor property
 UserCodingWSP.prototype.parent       = WebSocketProcessor.prototype;         // keep pointer to ancestor class
 
 
@@ -48,21 +48,23 @@ UserCodingWSP.prototype.onConnectionEstablished = function() {
 
 UserCodingWSP.prototype.onClose = function(data, flags) {
     this.parent.onClose.call(this, data, flags);
-    AE.removeListener( 'new-cloud-words', this.closureFuncSendBestWords );
+
+    /// AE.removeListener( 'new-cloud-words', this.closureFuncSendBestWords );
 };
 
 UserCodingWSP.prototype.onError = function(data, flags) {
     this.parent.onError.call(this, data, flags);
-    AE.removeListener( 'new-cloud-words', this.closureFuncSendBestWords );
+
+    ///AE.removeListener( 'new-cloud-words', this.closureFuncSendBestWords );
 };
 
 
-/// When receiving data and audio - Trigger Speech-To-Text cloud service
+/// When receiving data
 UserCodingWSP.prototype.onMessage = function(data, flags) {
     // flags.binary will be set if a binary data is received.
     // flags.masked will be set if the data was masked.
     if ( flags && flags.binary ) {
-        console.log('UserCodingWSP WS received: BINARY length %s saved to WAV file', data.length);
+        console.log('UserCodingWSP WS received: BINARY length %s', data.length);
 
         // Nothing to do ???
     }
@@ -77,6 +79,18 @@ UserCodingWSP.prototype.onMessage = function(data, flags) {
             // Close the server socket
             this.ws.close();
         }
+        else if (dataObj.action == "push-code") {
+            // --- Receiving code for Sphero!
+
+
+            // Archive it
+
+            
+        }
+        else if (dataObj.action == "stop-code") {
+            // --- Stop the Sphero!
+
+        }
     }
 };
 
@@ -84,7 +98,7 @@ UserCodingWSP.prototype.onMessage = function(data, flags) {
 /** +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  *  Send info to WS socket
  */
-UserCodingWSP.prototype.sendBestWords = function()
+UserCodingWSP.prototype.sendBlabla = function()
 {
     try {
 /*
@@ -98,7 +112,7 @@ UserCodingWSP.prototype.sendBestWords = function()
         }
 */
     }
-    catch (exc) { console.error( "\nTRY-CATCH ERROR in UserCodingWSP.sendBestWords: " + exc.stack + "\n" ); }
+    catch (exc) { console.error( "\nTRY-CATCH ERROR in UserCodingWSP.sendBlabla: " + exc.stack + "\n" ); }
     return false;
 };
 
