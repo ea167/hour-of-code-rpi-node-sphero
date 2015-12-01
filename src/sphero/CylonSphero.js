@@ -15,7 +15,7 @@ var SE = global.spheroEvents;                   // Replaces jQuery $ events here
 
 
 /**
- *  CylonSphero stores available Spheros (after testing a ping on them)
+ *  CylonSphero stores all available Spheros (after testing a ping on them)
  *    and allow Spheros to be controlled by browser code
  *
  *          TODO: creating new thread

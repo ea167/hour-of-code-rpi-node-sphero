@@ -12,6 +12,8 @@ var SE = global.spheroEvents;                   // Replaces jQuery $ events here
 
 // TODO: Global console
 //      SE.on("node-user-log", ... send to browser ... )
+//      SE.on("node-user-warn", ... send to browser ... )
+//      SE.on("node-user-error", ... send to browser ... )
 
 
 /** -----------------------------------------------------
