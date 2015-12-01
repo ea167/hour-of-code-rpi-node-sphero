@@ -1,13 +1,37 @@
+/**
+ *  Command the Sphero via established bluetooth connection on /dev/rfcommX
+ *    Use Cylon lib             http://cylonjs.com/
+ *    TODO: Use thread library  https://github.com/audreyt/node-webworker-threads
+ */
+
 var Cylon = require('cylon');
 
+// Sphero & log events
+var SpheroEvents    = require('../sphero/SpheroEvents');
+var SE = global.spheroEvents;                   // Replaces jQuery $ events here
 
-/** -----------------------------------------------------
- *  CylonSphero groups essential interfaces to make the Sphero move
- *  @arg spheroIndex from 0 (typically 0 or 1)
- *  @arg spheroColor rgb hex, eg: 0x00FF00
+// Every time a bluetooth device is found:
+//   SE.emit( "bt-device-connected", JSON.stringify({ "macAddress": macAddress, "channel": channel }) );
+
+
+/**
+ *  CylonSphero stores available Spheros (after testing a ping on them)
+ *    and allow Spheros to be controlled by browser code
+ *
+ *          TODO: creating new thread
+ *          TODO: Sphero color
+ *          TODO: RPi Network
  */
-function CylonSphero( spheroIndex, spheroColor )
+function CylonSphero()
 {
+    // TODO!!!
+    // SE.emit( "bt-device-connected", JSON.stringify({ "macAddress": macAddress, "channel": channel }) );
+    SE.on( "bt-device-connected", function(deviceDesc) {
+
+        // FIXME
+    });
+
+
     spheroIndex = Number(spheroIndex);
     if ( spheroIndex < 0 || spheroIndex > 9 ) {
         throw new Error('Wrong spheroIndex in CylonSphero');
@@ -23,7 +47,7 @@ function CylonSphero( spheroIndex, spheroColor )
                             .on( 'error', console.log )
                             .on( 'ready', function(my) {} );            // FIXME: Color + TAIL !!!!!
 
-    /// this.cylonRobot.start();
+    /// Cylon.start();   // Global to all spheros!
 }
 
 

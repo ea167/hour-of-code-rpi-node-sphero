@@ -5,10 +5,13 @@ var url  = require('url');
 // Eric class to structure WebSocket processing
 var WebSocketProcessor      = require('../WebSocketProcessor');
 
-//var GlobalResults           = require('../store/GlobalResults');
-//var AudioEvents             = require('../transcript/AudioEvents');
-//var AE = global.audioEvents;        // Replaces jQuery $ events here
+// Sphero & log events
+var SpheroEvents            = require('../sphero/SpheroEvents');
+var SE = global.spheroEvents;                   // Replaces jQuery $ events here
 
+
+// TODO: Global console
+//      SE.on("node-user-log", ... send to browser ... )
 
 
 /** -----------------------------------------------------
@@ -85,7 +88,7 @@ UserCodingWSP.prototype.onMessage = function(data, flags) {
 
             // Archive it
 
-            
+
         }
         else if (dataObj.action == "stop-code") {
             // --- Stop the Sphero!

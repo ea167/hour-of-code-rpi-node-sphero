@@ -3,9 +3,9 @@
 /**
  * Module dependencies.
  */
-var app = require('../app');
-var debug = require('debug')('hour-of-code-rpi-node-sphero:server');
-var http = require('http');
+var app     = require('../app');
+var debug   = require('debug')('hour-of-code-rpi-node-sphero:server');
+var http    = require('http');
 
 // To help parse url location.query easily.  See https://nodejs.org/docs/latest/api/url.html
 var url = require('url');
@@ -14,19 +14,23 @@ var url = require('url');
 var WebSocketServer = require('ws').Server;
 var onWsConnection  = require('../routes/websocket-server').onWsConnection;
 
+// Bluetooth Connections and CylonSphero
+var BluetoothConnections    = require('../src/sphero/BluetoothConnections');
+var CylonSphero             = require('../src/sphero/CylonSphero');
 
-/**
- * Get port from environment and store in Express.
+
+/** ****************************************************************************
+ *     Create HTTP server
  */
+
+// Get port from environment and store in Express
 var port = normalizePort(process.env.PORT || '3000');
 app.set('port', port);
 
-/**
- * Create HTTP server.
- */
+// --- Create HTTP server
 var server = http.createServer(app);
 
-/// and WebSocket Server, restricted to /ws/* path
+// --- and WebSocket Server, restricted to /ws/* path
 var wsServer = new WebSocketServer({ server: server });
 wsServer.on( 'connection',  function ( ws ) {
     try {
@@ -52,12 +56,12 @@ wsServer.on( 'connection',  function ( ws ) {
     ***/
 
 
-/**
- * Listen on provided port, on all network interfaces.
- */
+
+// --- Listen on provided port, on all network interfaces.
 server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
+
 
 
 /**
@@ -79,6 +83,18 @@ process.on('uncaughtException', function(err) {
 
 
 
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ *    SPHEROs: connect through Bluetooth automatically and launch their Cylon loop
+ *              Messaging through SpheroEvents
+ */
+global.cylonSphero          = new CylonSphero();
+global.bluetoothConnections = new BluetoothConnections();
+
+
+
+
+
+// =============================== HELPERS =====================================
 
 /**
  * Normalize a port into a number, string, or false.
