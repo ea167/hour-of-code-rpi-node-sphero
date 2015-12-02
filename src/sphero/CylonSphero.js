@@ -4,6 +4,9 @@
  *    TODO: Use thread library  https://github.com/audreyt/node-webworker-threads
  */
 
+// To exec 'sudo rfcomm connect rfcommX {channel}'
+var childProcess = require('child_process');
+
 var Cylon = require('cylon');
 global.Cylon = global.Cylon || Cylon;       // To simplify in the callbacks and avoid closures
 
@@ -26,10 +29,12 @@ var SE = global.spheroEvents;                   // Replaces jQuery $ events here
 function CylonSphero()
 {
     // class attributes
+    this.rfcommChildExecs       = [];
     this.spheroChannels         = [];
     this.spheroCommPorts        = [];
     this.spheroCylonRobots      = [];
     this.spheroMacAddress2Index = [];       // Associative array. Allows to deduplicate!
+
 
     // Closure for on(...)
     var _this = this;
@@ -83,12 +88,22 @@ function onBluetoothDeviceConnected( _this, deviceDescription )
             return;
         }
 
-        // --- Create the corresponding Cylon.robot
+        // --- Bind the /dev/rfcommX commPort!
         var idx = _this.spheroChannels.length;
-        ///var commPort = "/dev/rfcomm" + deviceInfo.channel;   // channel is a number
-        ///var commPort = "/dev/tty" + deviceInfo.channel;         // channel is a number
-        var commPort = "1";   // channel is a number
+        var commPort = "/dev/rfcomm" + idx;
 
+        // Exec 'sudo rfcomm connect rfcommX {channel}'
+        var cmdExec = "sudo rfcomm connect rfcomm"+idx+" "+deviceInfo.channel
+        _this.rfcommChildExecs[idx] =  childProcess.exec( cmdExec,
+            function (error, stdout, stderr) {
+                console.log('Exec rfcomm stdout: ' + stdout);
+                console.warn('Exec rfcomm stderr: ' + stderr);
+                if (error !== null) {
+                  console.error('Exec rfcomm ERROR: ' + error);
+                }
+        });
+
+        // --- Create the corresponding Cylon.robot
         var cylonRobot = global.Cylon.robot({ name: ('Sphero-' + idx) })
                 .connection( 'sphero', { adaptor: 'sphero', port: commPort })
                 .device('sphero', { driver: 'sphero' })
@@ -100,8 +115,7 @@ function onBluetoothDeviceConnected( _this, deviceDescription )
                     initCylonRobot( _this, my.sphero );
 
                     console.log(my);
-                    console.log("");
-                    console.log(my.sphero);
+                    console.log("\n\n");
 
 
                     // Test // FIXME
@@ -144,6 +158,8 @@ function onBluetoothDeviceConnected( _this, deviceDescription )
 function initCylonRobot( _this, mySphero )
 {
     console.log( 'initCylonRobot [null? %s]\n', (!_this) );
+
+    mySphero.setAutoReconnect( 1, 60, function(){} );       // 1 for yes, 60 sec, cb    // Doc http://cylonjs.com/documentation/drivers/sphero/ 
 
     // FIXME
 };
