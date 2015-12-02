@@ -24,7 +24,7 @@ function BluetoothConnections()
         btSerial.findSerialPortChannel( macAddress, function(channel) {
 
             // Success callback when serial port found for this device. Otherwise just ignore!
-            console.log( "Bluetooth device macAddress [%s] has port channel [%s] \n  Trying to connect...\n", macAddress, channel );
+            console.log( "Bluetooth device macAddress [%s] has port channel [%s] \n  Trying to connect...", macAddress, channel );
             btSerial.connect( macAddress, channel, function() {
 
                 // --- Success callback when CONNECTED to this device
@@ -46,7 +46,7 @@ function BluetoothConnections()
             },
             // --- Error callback when connection failed for this device
             function () {
-                console.warn( "Bluetooth device connection FAILED for macAddress [%s] with port channel [%s]\n", macAddress, channel );
+                console.log( "Bluetooth device connection FAILED for macAddress [%s] with port channel [%s]. Ignoring!\n", macAddress, channel );
             });
         },
         // --- Error callback when no serial ports found for this device
@@ -56,12 +56,27 @@ function BluetoothConnections()
     });
 
 
+    // --- INQUIRE repeatedly
+    var isInquiring = false;
+
     btSerial.on('finished', function () {
         console.log('------- Bluetooth Serial INQUIRE finished -------');
+        isInquiring = false;
     });
 
     // --- Start the bluetooth scanning!
-    btSerial.inquire();
+    function btSerialInquire() {
+        if (isInquiring) {
+            console.warn( "btSerialInquire already/still inquiring!" );
+        }
+        btSerial.inquire();
+        isInquiring = true;
+    }
+    // Right now
+    btSerialInquire();
+
+    // And then repeatedly every 60 seconds
+    setInterval( btSerialInquire, 60000 );
 
 
     // --- If we need to close the connections. Warning: in the module code, it looks that close() may take a macAddress as argument
