@@ -77,7 +77,7 @@ function onBluetoothDeviceConnected( _this, deviceDescription )
 
         // --- Check it is not a duplicate that we already connected to
         if ( _this.spheroMacAddress2Index[ deviceInfo.macAddress ] ) {
-            // FIXME: we should check the connection is still open!
+            // TODO: we should check the connection is still open!
 
             console.log( "This Sphero [%s] is already connected, ignoring", deviceInfo.macAddress );
             return;
@@ -85,17 +85,30 @@ function onBluetoothDeviceConnected( _this, deviceDescription )
 
         // --- Create the corresponding Cylon.robot
         var idx = _this.spheroChannels.length;
-        ///var commPort = "/dev/rfcomm" + deviceInfo.channel;      // channel is a number
-        var commPort = "/dev/tty" + deviceInfo.channel;      // channel is a number
+        ///var commPort = "/dev/rfcomm" + deviceInfo.channel;   // channel is a number
+        var commPort = "/dev/tty" + deviceInfo.channel;         // channel is a number
 
         var cylonRobot = global.Cylon.robot({ name: ('Sphero-' + idx) })
                 .connection( 'sphero', { adaptor: 'sphero', port: commPort })
                 .device('sphero', { driver: 'sphero' })
-                .on( 'error', console.warn );
-        console.log("CylonRobot index=["+ idx+"] created, MacAddress [%s] from Orbotix => assume a Sphero!\n", deviceInfo.macAddress);
+                .on( 'error', console.warn )
+                .on( 'ready', function(my) {
+                    console.log("CylonRobot ["+ my.sphero.name+"] ready, start some calibration/rolling!");
 
-        // Init the cylonRobot with all eventListeners + initialization code (startCalibration)
-        initCylonRobot( _this, cylonRobot );
+                    // Init the cylonRobot with all eventListeners + initialization code (startCalibration)
+                    initCylonRobot( _this, my.sphero );
+
+                    // Test // FIXME
+                    my.sphero.color( 0x00FF00 );
+
+                    every((1).second(), function() {
+                        my.sphero.roll(60, Math.floor(Math.random() * 360));
+                    });
+                    //
+                    // my.sphero.startCalibration();
+                });
+
+        console.log("CylonRobot index=["+ idx+"] created, MacAddress [%s] from Orbotix => assume a Sphero!\n", deviceInfo.macAddress);
 
         // --- Now we know it is a Sphero, save info as class attributes for this Sphero
         _this.spheroChannels.push( deviceInfo.channel );
@@ -104,28 +117,13 @@ function onBluetoothDeviceConnected( _this, deviceDescription )
         _this.spheroMacAddress2Index[ deviceInfo.macAddress ] = idx;
 
 
-        // --- Starts the Sphero
-        cylonRobot.sphero.on( 'ready', function(my) {
-            console.log("CylonRobot ["+ my.sphero.name+"] ready, start some calibration/rolling!");
-
-            // Test // FIXME
-            var sph = my.sphero;
-            //
-            my.sphero.color( 0x00FF00 );
-
-            every((1).second(), function() {
-                my.sphero.roll(60, Math.floor(Math.random() * 360));
-            });
-            //
-            sph.roll(600, 0);
-            // sph.startCalibration();
-        });
-
         // Sphero color ????
         // FIXME
 
         // --- Start Cylon: global to all spheros!
         global.Cylon.start();
+
+        // setTimeout( function(){ cylonRobot.sphero.roll(600, 0); }, 5000 );
 //        global.Cylon.start();       // FIXME: to test whether it provokes an error
     }
     catch (exc) { console.error( "\nTRY-CATCH ERROR in CylonSphero onBluetoothDeviceConnected: " + exc.stack + "\n" ); }
@@ -137,9 +135,9 @@ function onBluetoothDeviceConnected( _this, deviceDescription )
 /**
  *  Init the Cylon Robot object with collision, data-streaming, ...     // FIXME
  */
-function initCylonRobot( _this, cylonRobot )
+function initCylonRobot( _this, mySphero )
 {
-    console.log( 'initCylonRobot\n' );
+    console.log( 'initCylonRobot [null? %s]\n', (!_this) );
 
     // FIXME
 };
