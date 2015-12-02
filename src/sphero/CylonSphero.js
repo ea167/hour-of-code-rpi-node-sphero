@@ -95,7 +95,7 @@ function onBluetoothDeviceConnected( _this, deviceDescription )
 
         // --- Start Cylon: global to all spheros!
         global.Cylon.start();
-//        global.Cylon.start();       // FIXME: to test whether it provokes an error
+        global.Cylon.start();       // FIXME: to test whether it provokes an error
     }
     catch (exc) { console.error( "\nTRY-CATCH ERROR in CylonSphero onBluetoothDeviceConnected: " + exc.stack + "\n" ); }
     return;
