@@ -71,8 +71,8 @@ function onBluetoothDeviceConnected( _this, deviceDescription )
                     // Test // FIXME
                     my.sphero.color( 0x00FF00 );
 
-                    eval( "function testNothing() { my.sphero.color( 0xFF0000 ); } " );
                     eval( "function testNothing() { my.sphero.startCalibration(); } " );
+                    eval( "function testNothing() { my.sphero.color( 0xFF0000 ); } " );
 
                     every((1).second(), function() {
                         my.sphero.roll(60, Math.floor(Math.random() * 360));
