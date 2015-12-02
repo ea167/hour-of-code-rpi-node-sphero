@@ -24,14 +24,26 @@ var SE = global.spheroEvents;                   // Replaces jQuery $ events here
  */
 function CylonSphero()
 {
-    // TODO!!!
-    // SE.emit( "bt-device-connected", JSON.stringify({ "macAddress": macAddress, "channel": channel }) );
-    SE.on( "bt-device-connected", function(deviceDesc) {
+    // class attributes
+    this.spheroChannels         = [];
+    this.spheroCommPorts        = [];
+    this.spheroCylonRobots      = [];
+    this.spheroMacAddress2Index = [];       // Associative array. Allows to deduplicate!
 
-        // FIXME
+    // Closure for on(...)
+    var _this = this;
+
+    // When new device detected: SE.emit( "bt-device-connected", JSON.stringify({ "macAddress": macAddress, "channel": channel }) );
+    SE.on( "bt-device-connected", function(deviceDescription) {
+        onBluetoothDeviceConnected( _this, deviceDescription );
     });
 
+    // --- Start Cylon: global to all spheros!
+    Cylon.start();
+    return;
+}
 
+/***
     spheroIndex = Number(spheroIndex);
     if ( spheroIndex < 0 || spheroIndex > 9 ) {
         throw new Error('Wrong spheroIndex in CylonSphero');
@@ -46,9 +58,90 @@ function CylonSphero()
                             .device('sphero', { driver: 'sphero' })
                             .on( 'error', console.log )
                             .on( 'ready', function(my) {} );            // FIXME: Color + TAIL !!!!!
+***/
 
-    /// Cylon.start();   // Global to all spheros!
+
+
+
+/**
+ *  SE.on( "bt-device-connected", ...)
+ */
+function onBluetoothDeviceConnected( _this, deviceDescription )
+{
+    try {
+        var deviceInfo = JSON.parse( deviceDescription );
+        if ( !deviceInfo.channel ) {
+            console.error("ERROR in CylonSphero onBluetoothDeviceConnected: channel is null for device [%s]", deviceDescription.macAddress);
+            return;
+        }
+
+        // FIXME: What is the channel format ????
+        console.log("Channel object is:");
+        console.log( deviceInfo.channel );
+
+        // FIXME: Check whether we already have a record for this macAddress !!!!!!
+        //      In this case, no need to recreate !!!!!
+
+        // --- Create the corresponding Cylon.robot
+        var idx = _this.spheroChannels.length;
+        var commPort = "/dev/rfcomm" + deviceInfo.channel;                        // FIXME
+
+        var cylonRobot = Cylon.robot({ name: 'Sphero-' + idx })
+                .connection( 'sphero', { adaptor: 'sphero', port: commPort })
+                .device('sphero', { driver: 'sphero' })
+                .on( 'error', console.warn );
+        console.log("CylonRobot created with index ["+ idx+"], but is it a Sphero? Test it!");
+
+        // --- Test it is a Sphero
+        cylonRobot.on( 'ready', function(my) {
+            console.log("CylonRobot ["+ my.sphero.name+"], ready, start a ping to check whether it is a Sphero");
+            var _my     = my;                       // Closure
+            var _deviceInfo = deviceInfo;           // Closure
+            var __this  = _this;                    // Closure
+            // Ping and wait async. If does not return at this point and end up with an error,
+            //      then we will need to restart Node to connect to that Sphero...      // FIXME: setInterval for btSerial.inquire ??? Then must deduplicate!
+            my.sphero.ping( function() {
+                console.log("CylonRobot ["+ _my.sphero.name+"], ok, it is a Sphero!!");
+                var cylonRobot  = _my;
+                var _this       = __this;
+                var deviceInfo  = _deviceInfo;
+
+                // --- Ok, we can finalize Sphero initialization
+
+                // Init the cylonRobot with all eventListeners + initialization code (startCalibration)  // ?? FIXME ??
+                initCylonRobot( _this, cylonRobot );
+
+                // --- Now we know it is a Sphero, save info as class attributes for this Sphero
+                _this.spheroChannels.push( deviceInfo.channel );
+                _this.spheroCommPorts.push( commPort );
+                _this.spheroCylonRobots.push( cylonRobot );
+                _this.spheroMacAddress2Index[ deviceInfo.macAddress ] = _this.spheroCylonRobots.length - 1;
+
+            });
+        });
+
+        // Sphero color ????
+        // FIXME
+
+    }
+    catch (exc) { console.error( "\nTRY-CATCH ERROR in CylonSphero onBluetoothDeviceConnected: " + exc.stack + "\n" ); }
+    return;
 }
+
+
+
+/**
+ *  Init the Cylon Robot object with collision, data-streaming, ...     // FIXME
+ */
+function initCylonRobot( _this, cylonRobot );
+{
+    console.log( 'initCylonRobot' );
+
+    // FIXME
+};
+
+
+
 
 
 CylonSphero.prototype.setColor = function( spheroColor )

@@ -46,7 +46,7 @@ function BluetoothConnections()
             },
             // --- Error callback when connection failed for this device
             function () {
-                console.log( "Bluetooth device connection FAILED for macAddress [%s] with port channel [%s]\n", macAddress, channel );
+                console.warn( "Bluetooth device connection FAILED for macAddress [%s] with port channel [%s]\n", macAddress, channel );
             });
         },
         // --- Error callback when no serial ports found for this device
@@ -57,7 +57,7 @@ function BluetoothConnections()
 
 
     btSerial.on('finished', function () {
-        console.log('===== Bluetooth Serial INQUIRE finished =====');
+        console.log('------- Bluetooth Serial INQUIRE finished -------');
     });
 
     // --- Start the bluetooth scanning!
