@@ -87,7 +87,7 @@ function onBluetoothDeviceConnected( _this, deviceDescription )
         var idx = _this.spheroChannels.length;
         ///var commPort = "/dev/rfcomm" + deviceInfo.channel;   // channel is a number
         ///var commPort = "/dev/tty" + deviceInfo.channel;         // channel is a number
-        var commPort = "/dev/rfcomm0";   // channel is a number
+        var commPort = "1";   // channel is a number
 
         var cylonRobot = global.Cylon.robot({ name: ('Sphero-' + idx) })
                 .connection( 'sphero', { adaptor: 'sphero', port: commPort })
