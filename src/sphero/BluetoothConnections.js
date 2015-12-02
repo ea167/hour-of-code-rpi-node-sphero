@@ -3,6 +3,8 @@
  *      to create Cylon robots on each one found as Sphero
  */
 
+// To exec 'sudo rfcomm connect rfcommX {macAddress}'
+var childProcess = require('child_process');
 
 // Use https://www.npmjs.com/package/bluetooth-serial-port
 var bluetoothSerialPort = require('bluetooth-serial-port');
@@ -15,7 +17,9 @@ var SE = global.spheroEvents;                   // Replaces jQuery $ events here
 
 function BluetoothConnections()
 {
-    var btSerial = new bluetoothSerialPort.BluetoothSerialPort();
+    var btSerial    = new bluetoothSerialPort.BluetoothSerialPort();
+    var rfcommIndex = 1;    // Starts at 1 to avoid collisions
+    var childProcs  = [];
 
     btSerial.on('found', function(macAddress, name) {
         // --- Any bluetooth device found. Orbotix, Inc. OUI (macAddress Prefix) is 68:86:E7
@@ -24,6 +28,44 @@ function BluetoothConnections()
             console.log( "   Bt device NOT A SPHERO! Ignoring macAddress [%s]", macAddress );
             return;
         }
+
+        // --- Connect to the Sphero through exec 'sudo rfcomm ...'
+        //      Exec 'sudo rfcomm connect rfcommX {macAddress}'
+        var rfcommDev   = "/dev/rfcomm" + rfcommIndex;
+        var cmdExec     = "sudo rfcomm connect rfcomm"+ rfcommIndex +" "+ macAddress;
+        rfcommIndex     = (1 + rfcommIndex) & 64;           // Limit the value to 63 and loop otherwise (if conflict, will fail and retry)
+        var cmdOk       = true;
+
+        childProcs.push( childProcess.exec( cmdExec,
+            function (error, stdout, stderr) {
+                console.log('Exec rfcomm stdout: ' + stdout);
+                console.warn('Exec rfcomm stderr: ' + stderr);
+                if (error !== null) {
+                    cmdOk = false;
+                    console.error('Exec rfcomm ERROR: ' + error);
+                }
+        }) );
+
+        // --- Delay by 5s so we roughly know whether Rpi has successfully CONNECTED to this Sphero
+        setTimeout( function() {
+            if ( !cmdOk ) {
+                console.log( "Bluetooth Sphero connection FAILED for macAddress [%s] with rfcommDev [%s]. Recycling.\n", macAddress, rfcommDev );
+                return;
+            }
+
+            console.log( "Bluetooth device macAddress [%s] with rfcommDev [%s] CONNECTED\n", macAddress, rfcommDev );
+            SE.emit("node-user-log", "Bluetooth device macAddress ["+ macAddress +"] with rfcommDev ["+ rfcommDev +"] CONNECTED");
+
+            // Signal so that CylonSphero (and others) can use this channel. They will have to check that it is actually a Sphero!
+            SE.emit( "bt-device-connected", JSON.stringify({ "macAddress": macAddress, "rfcommDev": rfcommDev }) );
+        }, 5000 );
+
+    }); // end of btSerial.on('found',...)
+
+
+/***
+    /dev/rfcommX not created by default on RPi => connection problems.
+    => Workaround through exec rfcomm
 
         // @param channel is a number
         btSerial.findSerialPortChannel( macAddress, function(channel) {
@@ -41,7 +83,7 @@ function BluetoothConnections()
                 // Signal so that CylonSphero (and others) can use this channel. They will have to check that it is actually a Sphero!
                 SE.emit( "bt-device-connected", JSON.stringify({ "macAddress": macAddress, "channel": channel }) );
                 return;
-                /**
+                / **
                     // Here we could send data, and hook to receive data
                     btSerial.write(new Buffer('my data', 'utf-8'), function(err, bytesWritten) {
                         if (err) console.log(err);
@@ -49,7 +91,7 @@ function BluetoothConnections()
                     btSerial.on('data', function(buffer) {
                         console.log(buffer.toString('utf-8'));
                     });
-                **/
+                ** /
             },
             // --- Error callback when connection failed for this device
             function () {
@@ -61,6 +103,7 @@ function BluetoothConnections()
             console.log( "Bluetooth device macAddress [%s] has NO port channel. Ignoring!\n", macAddress );
         });
     }); // end of btSerial.on('found',...)
+***/
 
 
     // --- INQUIRE repeatedly

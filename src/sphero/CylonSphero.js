@@ -4,9 +4,6 @@
  *    TODO: Use thread library  https://github.com/audreyt/node-webworker-threads
  */
 
-// To exec 'sudo rfcomm connect rfcommX {channel}'
-var childProcess = require('child_process');
-
 var Cylon = require('cylon');
 global.Cylon = global.Cylon || Cylon;       // To simplify in the callbacks and avoid closures
 
@@ -15,7 +12,7 @@ var SpheroEvents    = require('../sphero/SpheroEvents');
 var SE = global.spheroEvents;                   // Replaces jQuery $ events here
 
 // Every time a bluetooth device is found:
-//   SE.emit( "bt-device-connected", JSON.stringify({ "macAddress": macAddress, "channel": channel }) );
+//   SE.emit( "bt-device-connected", JSON.stringify({ "macAddress": macAddress, "rfcommDev": rfcommDev }) );
 
 
 /**
@@ -29,41 +26,20 @@ var SE = global.spheroEvents;                   // Replaces jQuery $ events here
 function CylonSphero()
 {
     // class attributes
-    this.rfcommChildExecs       = [];
-    this.spheroChannels         = [];
     this.spheroCommPorts        = [];
+    this.spheroMacAddresses     = [];
     this.spheroCylonRobots      = [];
-    this.spheroMacAddress2Index = [];       // Associative array. Allows to deduplicate!
-
+    // this.spheroMacAddress2Index = []; // Associative array to deduplicate: No need, inquire() does not return the ones connected
 
     // Closure for on(...)
     var _this = this;
 
-    // When new device detected: SE.emit( "bt-device-connected", JSON.stringify({ "macAddress": macAddress, "channel": channel }) );
+    // When new device detected
     SE.on( "bt-device-connected", function(deviceDescription) {
         onBluetoothDeviceConnected( _this, deviceDescription );
     });
     return;
 }
-
-/***
-    spheroIndex = Number(spheroIndex);
-    if ( spheroIndex < 0 || spheroIndex > 9 ) {
-        throw new Error('Wrong spheroIndex in CylonSphero');
-    }
-
-    this.spheroIndex    = spheroIndex;
-    this.commPort       = "/dev/rfcomm" + spheroIndex;
-    this.spheroColor    = spheroColor;
-
-    this.cylonRobot     = Cylon.robot({ name: 'Sphero-'+spheroIndex })
-                            .connection( 'sphero', { adaptor: 'sphero', port: this.commPort })
-                            .device('sphero', { driver: 'sphero' })
-                            .on( 'error', console.log )
-                            .on( 'ready', function(my) {} );            // FIXME: Color + TAIL !!!!!
-***/
-
-
 
 
 /**
@@ -73,39 +49,17 @@ function onBluetoothDeviceConnected( _this, deviceDescription )
 {
     try {
         var deviceInfo = JSON.parse( deviceDescription );
-        if ( !deviceInfo.channel || !deviceInfo.macAddress ) {
-            console.error("ERROR in CylonSphero onBluetoothDeviceConnected: channel is null for device [%s]", deviceDescription.macAddress);
+        if ( !deviceInfo.rfcommDev || !deviceInfo.macAddress ) {
+            console.error("ERROR in CylonSphero onBluetoothDeviceConnected: rfcommDev/macAddress is null for [%s]", deviceInfo.macAddress);
             return;
         }
-        // When new device detected: SE.emit( "bt-device-connected", JSON.stringify({ "macAddress": macAddress, "channel": channel }) );
-        //      channel is a number
-
-        // --- Check it is not a duplicate that we already connected to
-        if ( _this.spheroMacAddress2Index[ deviceInfo.macAddress ] ) {
-            // TODO: we should check the connection is still open!
-
-            console.log( "This Sphero [%s] is already connected, ignoring", deviceInfo.macAddress );
-            return;
-        }
-
-        // --- Bind the /dev/rfcommX commPort!
-        var idx = _this.spheroChannels.length;
-        var commPort = "/dev/rfcomm" + idx;
-
-        // Exec 'sudo rfcomm connect rfcommX {channel}'
-        var cmdExec = "sudo rfcomm watch rfcomm"+idx+" "+deviceInfo.channel
-        _this.rfcommChildExecs[idx] =  childProcess.exec( cmdExec,
-            function (error, stdout, stderr) {
-                console.log('Exec rfcomm stdout: ' + stdout);
-                console.warn('Exec rfcomm stderr: ' + stderr);
-                if (error !== null) {
-                  console.error('Exec rfcomm ERROR: ' + error);
-                }
-        });
+        // When new device detected: SE.emit( "bt-device-connected", JSON.stringify({ "macAddress": macAddress, "rfcommDev": rfcommDev }) );
 
         // --- Create the corresponding Cylon.robot
+        var idx = _this.spheroCommPorts.length;
+
         var cylonRobot = global.Cylon.robot({ name: ('Sphero-' + idx) })
-                .connection( 'sphero', { adaptor: 'sphero', port: commPort })
+                .connection( 'sphero', { adaptor: 'sphero', port: deviceInfo.rfcommDev })
                 .device('sphero', { driver: 'sphero' })
                 .on( 'error', console.warn )
                 .on( 'ready', function(my) {
@@ -131,10 +85,9 @@ function onBluetoothDeviceConnected( _this, deviceDescription )
         console.log("CylonRobot index=["+ idx+"] created, MacAddress [%s] from Orbotix => assume a Sphero!\n", deviceInfo.macAddress);
 
         // --- Now we know it is a Sphero, save info as class attributes for this Sphero
-        _this.spheroChannels.push( deviceInfo.channel );
-        _this.spheroCommPorts.push( commPort );
+        _this.spheroMacAddresses.push( deviceInfo.macAddress );
+        _this.spheroCommPorts.push( deviceInfo.rfcommDev );
         _this.spheroCylonRobots.push( cylonRobot );
-        _this.spheroMacAddress2Index[ deviceInfo.macAddress ] = idx;
 
 
         // Sphero color ????
