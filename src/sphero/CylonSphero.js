@@ -71,6 +71,7 @@ function onBluetoothDeviceConnected( _this, deviceDescription )
                     // Test // FIXME
                     my.sphero.color( 0x00FF00 );
 
+                    /*
                     eval( "function testNothing() { my.sphero.startCalibration(); } " );
                     eval( "function testNothing() { my.sphero.color( 0xFF0000 ); } " );
 
@@ -80,6 +81,7 @@ function onBluetoothDeviceConnected( _this, deviceDescription )
                     //
                     // my.sphero.startCalibration();
                     testNothing();
+                    */
                 });
 
         console.log("CylonRobot index=["+ idx+"] created, MacAddress [%s] from Orbotix => assume a Sphero!\n", deviceInfo.macAddress);
@@ -92,6 +94,9 @@ function onBluetoothDeviceConnected( _this, deviceDescription )
 
         // Sphero color ????
         // FIXME
+
+        // Test FIXME
+        setTimeout( function(){ cylonRobot.sphero.color( 0xFF00FF ); }, 5000 );
 
         // --- Start Cylon: global to all spheros!
         global.Cylon.start();
