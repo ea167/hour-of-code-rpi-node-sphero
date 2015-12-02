@@ -21,7 +21,7 @@ function BluetoothConnections()
         // --- Any bluetooth device found. Orbotix, Inc. OUI (macAddress Prefix) is 68:86:E7
         console.log( "Bluetooth device found: name [%s] at macAddress [%s]", name, macAddress );     // But not only paired!
         if ( !macAddress || !macAddress.toString().toUpperCase().startsWith("68:86:E7")) {
-            console.log( "Bluetooth device NOT A SPHERO! Ignoring macAddress [%s]", macAddress );
+            console.log( "   Bt device NOT A SPHERO! Ignoring macAddress [%s]", macAddress );
             return;
         }
 
