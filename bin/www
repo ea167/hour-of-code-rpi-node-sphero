@@ -1,5 +1,9 @@
 #!/usr/bin/env node
 
+///
+//  NOTICE: the user running node.js must be able to exec "sudo rfcomm" to connect to Sphero
+///
+
 /**
  * Module dependencies.
  */
