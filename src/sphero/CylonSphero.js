@@ -117,6 +117,11 @@ function onBluetoothDeviceConnected( _this, deviceDescription )
                 _this.spheroCylonRobots.push( cylonRobot );
                 _this.spheroMacAddress2Index[ deviceInfo.macAddress ] = _this.spheroCylonRobots.length - 1;
 
+                // Test // FIXME
+                var sph = cylonRobot.sphero;
+                //
+                sph.roll(60, 0);
+                // sph.startCalibration();
             });
         });
 
