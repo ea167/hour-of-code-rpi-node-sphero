@@ -68,10 +68,6 @@ function onBluetoothDeviceConnected( _this, deviceDescription )
                     // Init the cylonRobot with all eventListeners + initialization code (startCalibration)
                     initCylonRobot( _this, my.sphero );
 
-                    console.log(my);
-                    console.log("\n\n");
-
-
                     // Test // FIXME
                     my.sphero.color( 0x00FF00 );
 
@@ -99,7 +95,7 @@ function onBluetoothDeviceConnected( _this, deviceDescription )
 
         // --- Start Cylon: global to all spheros!
         global.Cylon.start();
-        global.Cylon.start();       // FIXME: to test whether it provokes an error
+//        global.Cylon.start();       // FIXME: to test whether it provokes an error
     }
     catch (exc) { console.error( "\nTRY-CATCH ERROR in CylonSphero onBluetoothDeviceConnected: " + exc.stack + "\n" ); }
     return;
