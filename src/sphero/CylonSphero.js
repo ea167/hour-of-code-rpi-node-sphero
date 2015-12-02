@@ -105,7 +105,7 @@ function onBluetoothDeviceConnected( _this, deviceDescription )
 
 
         // --- Starts the Sphero
-        cylonRobot.on( 'ready', function(my) {
+        cylonRobot.sphero.on( 'ready', function(my) {
             console.log("CylonRobot ["+ my.sphero.name+"] ready, start some calibration/rolling!");
 
             // Test // FIXME
@@ -139,7 +139,7 @@ function onBluetoothDeviceConnected( _this, deviceDescription )
  */
 function initCylonRobot( _this, cylonRobot )
 {
-    console.log( 'initCylonRobot' );
+    console.log( 'initCylonRobot\n' );
 
     // FIXME
 };
