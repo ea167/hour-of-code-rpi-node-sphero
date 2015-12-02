@@ -33,7 +33,7 @@ function BluetoothConnections()
         //      Exec 'sudo rfcomm connect rfcommX {macAddress}'
         var rfcommDev   = "/dev/rfcomm" + rfcommIndex;
         var cmdExec     = "sudo rfcomm connect rfcomm"+ rfcommIndex +" "+ macAddress;
-        rfcommIndex     = (1 + rfcommIndex) & 64;           // Limit the value to 63 and loop otherwise (if conflict, will fail and retry)
+        rfcommIndex     = (1 + rfcommIndex) & 63;           // Limit the value to 63 and loop otherwise (if conflict, will fail and retry)
         var cmdOk       = true;
 
         childProcs.push( childProcess.exec( cmdExec,
