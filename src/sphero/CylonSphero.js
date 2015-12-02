@@ -5,6 +5,7 @@
  */
 
 var Cylon = require('cylon');
+global.Cylon = global.Cylon || Cylon;       // To simplify in the callbacks and avoid closures
 
 // Sphero & log events
 var SpheroEvents    = require('../sphero/SpheroEvents');
@@ -86,7 +87,7 @@ function onBluetoothDeviceConnected( _this, deviceDescription )
         var idx = _this.spheroChannels.length;
         var commPort = "/dev/rfcomm" + deviceInfo.channel;                        // FIXME
 
-        var cylonRobot = Cylon.robot({ name: 'Sphero-' + idx })
+        var cylonRobot = global.Cylon.robot({ name: 'Sphero-' + idx })
                 .connection( 'sphero', { adaptor: 'sphero', port: commPort })
                 .device('sphero', { driver: 'sphero' })
                 .on( 'error', console.warn );
