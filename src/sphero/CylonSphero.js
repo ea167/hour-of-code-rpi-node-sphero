@@ -98,6 +98,11 @@ function onBluetoothDeviceConnected( _this, deviceDescription )
                     // Init the cylonRobot with all eventListeners + initialization code (startCalibration)
                     initCylonRobot( _this, my.sphero );
 
+                    console.log(my);
+                    console.log("");
+                    console.log(my.sphero);
+
+
                     // Test // FIXME
                     my.sphero.color( 0x00FF00 );
 
