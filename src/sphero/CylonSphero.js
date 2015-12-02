@@ -75,11 +75,15 @@ function onBluetoothDeviceConnected( _this, deviceDescription )
                     // Test // FIXME
                     my.sphero.color( 0x00FF00 );
 
+                    eval( "function testNothing() { my.sphero.color( 0xFF0000 ); } " );
+                    eval( "function testNothing() { my.sphero.startCalibration(); } " );
+
                     every((1).second(), function() {
                         my.sphero.roll(60, Math.floor(Math.random() * 360));
                     });
                     //
                     // my.sphero.startCalibration();
+                    testNothing();
                 });
 
         console.log("CylonRobot index=["+ idx+"] created, MacAddress [%s] from Orbotix => assume a Sphero!\n", deviceInfo.macAddress);
@@ -95,14 +99,16 @@ function onBluetoothDeviceConnected( _this, deviceDescription )
 
         // --- Start Cylon: global to all spheros!
         global.Cylon.start();
-
-        // setTimeout( function(){ cylonRobot.sphero.roll(600, 0); }, 5000 );
-//        global.Cylon.start();       // FIXME: to test whether it provokes an error
+        global.Cylon.start();       // FIXME: to test whether it provokes an error
     }
     catch (exc) { console.error( "\nTRY-CATCH ERROR in CylonSphero onBluetoothDeviceConnected: " + exc.stack + "\n" ); }
     return;
 }
 
+function testNothing()
+{
+    console.log("\n\n @@@@@ NOTHING! @@@@@");
+}
 
 
 /**
