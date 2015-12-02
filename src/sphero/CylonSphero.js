@@ -93,7 +93,7 @@ function onBluetoothDeviceConnected( _this, deviceDescription )
         var commPort = "/dev/rfcomm" + idx;
 
         // Exec 'sudo rfcomm connect rfcommX {channel}'
-        var cmdExec = "sudo rfcomm connect rfcomm"+idx+" "+deviceInfo.channel
+        var cmdExec = "sudo rfcomm watch rfcomm"+idx+" "+deviceInfo.channel
         _this.rfcommChildExecs[idx] =  childProcess.exec( cmdExec,
             function (error, stdout, stderr) {
                 console.log('Exec rfcomm stdout: ' + stdout);
@@ -159,7 +159,7 @@ function initCylonRobot( _this, mySphero )
 {
     console.log( 'initCylonRobot [null? %s]\n', (!_this) );
 
-    mySphero.setAutoReconnect( 1, 60, function(){} );       // 1 for yes, 60 sec, cb    // Doc http://cylonjs.com/documentation/drivers/sphero/ 
+    mySphero.setAutoReconnect( 1, 60, function(){} );       // 1 for yes, 60 sec, cb    // Doc http://cylonjs.com/documentation/drivers/sphero/
 
     // FIXME
 };
