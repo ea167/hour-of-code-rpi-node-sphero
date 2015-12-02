@@ -68,9 +68,10 @@ function BluetoothConnections()
     function btSerialInquire() {
         if (isInquiring) {
             console.warn( "btSerialInquire already/still inquiring!" );
+            return;
         }
-        btSerial.inquire();
         isInquiring = true;
+        btSerial.inquire();
     }
     // Right now
     btSerialInquire();
