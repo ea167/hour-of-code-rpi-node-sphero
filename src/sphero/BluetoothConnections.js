@@ -46,7 +46,7 @@ function BluetoothConnections()
                 }
         }) );
 
-        // --- Delay by 10s so we roughly know whether Rpi has successfully CONNECTED to this Sphero
+        // --- Delay by 7s so we roughly know whether Rpi has successfully CONNECTED to this Sphero
         setTimeout( function() {
             if ( !cmdOk ) {
                 console.log( "Bluetooth Sphero connection FAILED for macAddress [%s] with rfcommDev [%s]. Recycling.\n", macAddress, rfcommDev );
@@ -58,7 +58,7 @@ function BluetoothConnections()
 
             // Signal so that CylonSphero (and others) can use this channel. They will have to check that it is actually a Sphero!
             SE.emit( "bt-device-connected", JSON.stringify({ "macAddress": macAddress, "rfcommDev": rfcommDev }) );
-        }, 10000 );
+        }, 7000 );
 
     }); // end of btSerial.on('found',...)
 

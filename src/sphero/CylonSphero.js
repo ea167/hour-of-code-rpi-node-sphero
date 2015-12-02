@@ -95,7 +95,7 @@ function onBluetoothDeviceConnected( _this, deviceDescription )
 
         // --- Start Cylon: global to all spheros!
         global.Cylon.start();
-        global.Cylon.start();       // FIXME: to test whether it provokes an error
+        // global.Cylon.start();       // When called a second time, IT WORKS, with just the error "Serialport not open" (as already open)
     }
     catch (exc) { console.error( "\nTRY-CATCH ERROR in CylonSphero onBluetoothDeviceConnected: " + exc.stack + "\n" ); }
     return;
