@@ -1,5 +1,5 @@
 /**
- *  Command the Sphero via established bluetooth connection on /dev/rfcommX
+ *  Command the Sphero via established bluetooth connection on /dev/ttyX
  *    Use Cylon lib             http://cylonjs.com/
  *    TODO: Use thread library  https://github.com/audreyt/node-webworker-threads
  */
@@ -111,8 +111,8 @@ function onBluetoothDeviceConnected( _this, deviceDescription )
             // Test // FIXME
             var sph = my.sphero;
             //
-            sph.roll(60, 0);
-            // sph.startCalibration();
+            sph.roll(600, 0);
+            sph.startCalibration();
         });
 
         // Sphero color ????
