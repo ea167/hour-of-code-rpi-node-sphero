@@ -138,7 +138,7 @@ function onBluetoothDeviceConnected( _this, deviceDescription )
 /**
  *  Init the Cylon Robot object with collision, data-streaming, ...     // FIXME
  */
-function initCylonRobot( _this, cylonRobot );
+function initCylonRobot( _this, cylonRobot )
 {
     console.log( 'initCylonRobot' );
 
