@@ -28,6 +28,8 @@ function BluetoothConnections()
         // @param channel is a number
         btSerial.findSerialPortChannel( macAddress, function(channel) {
 
+            // TODO: What happens with Spheros that are not paired ???
+
             // Success callback when serial port found for this device. Otherwise just ignore!
             console.log( "Bluetooth device macAddress [%s] has port channel [%s] \n  Trying to connect...", macAddress, channel );
             btSerial.connect( macAddress, channel, function() {

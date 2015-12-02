@@ -88,7 +88,7 @@ function onBluetoothDeviceConnected( _this, deviceDescription )
         ///var commPort = "/dev/rfcomm" + deviceInfo.channel;      // channel is a number
         var commPort = "/dev/tty" + deviceInfo.channel;      // channel is a number
 
-        var cylonRobot = global.Cylon.robot({ name: 'Sphero-' + idx })
+        var cylonRobot = global.Cylon.robot({ name: ('Sphero-' + idx) })
                 .connection( 'sphero', { adaptor: 'sphero', port: commPort })
                 .device('sphero', { driver: 'sphero' })
                 .on( 'error', console.warn );
@@ -111,8 +111,14 @@ function onBluetoothDeviceConnected( _this, deviceDescription )
             // Test // FIXME
             var sph = my.sphero;
             //
+            my.sphero.color( 0x00FF00 );
+
+            every((1).second(), function() {
+                my.sphero.roll(60, Math.floor(Math.random() * 360));
+            });
+            //
             sph.roll(600, 0);
-            sph.startCalibration();
+            // sph.startCalibration();
         });
 
         // Sphero color ????
