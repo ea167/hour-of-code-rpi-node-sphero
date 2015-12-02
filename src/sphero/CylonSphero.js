@@ -38,9 +38,6 @@ function CylonSphero()
     SE.on( "bt-device-connected", function(deviceDescription) {
         onBluetoothDeviceConnected( _this, deviceDescription );
     });
-
-    // --- Start Cylon: global to all spheros!
-    Cylon.start();
     return;
 }
 
@@ -129,6 +126,9 @@ function onBluetoothDeviceConnected( _this, deviceDescription )
         // Sphero color ????
         // FIXME
 
+        // --- Start Cylon: global to all spheros!
+        global.Cylon.start();
+        global.Cylon.start();       // FIXME: to test whether it provokes an error
     }
     catch (exc) { console.error( "\nTRY-CATCH ERROR in CylonSphero onBluetoothDeviceConnected: " + exc.stack + "\n" ); }
     return;
