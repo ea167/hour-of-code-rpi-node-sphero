@@ -18,9 +18,14 @@ function BluetoothConnections()
     var btSerial = new bluetoothSerialPort.BluetoothSerialPort();
 
     btSerial.on('found', function(macAddress, name) {
-        // --- Any bluetooth device found
+        // --- Any bluetooth device found. Orbotix, Inc. OUI (macAddress Prefix) is 68:86:E7
         console.log( "Bluetooth device found: name [%s] at macAddress [%s]", name, macAddress );     // But not only paired!
+        if ( !macAddress || !macAddress.toString().toUpperCase().startsWith("68:86:E7")) {
+            console.log( "Bluetooth device NOT A SPHERO! Ignoring macAddress [%s]", macAddress );
+            return;
+        }
 
+        // @param channel is a number
         btSerial.findSerialPortChannel( macAddress, function(channel) {
 
             // Success callback when serial port found for this device. Otherwise just ignore!
@@ -53,7 +58,7 @@ function BluetoothConnections()
         function() {
             console.log( "Bluetooth device macAddress [%s] has NO port channel. Ignoring!\n", macAddress );
         });
-    });
+    }); // end of btSerial.on('found',...)
 
 
     // --- INQUIRE repeatedly
