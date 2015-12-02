@@ -158,6 +158,10 @@ CylonSphero.prototype.setColor = function( spheroColor )
 };
 
 
+module.exports = CylonSphero;
+
+
+
 
 /*********************************
     Examples

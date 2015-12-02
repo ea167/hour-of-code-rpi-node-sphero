@@ -71,3 +71,6 @@ function BluetoothConnections()
     });
 
 }
+
+
+module.exports = BluetoothConnections;
