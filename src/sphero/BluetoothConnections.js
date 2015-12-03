@@ -20,12 +20,21 @@ function BluetoothConnections()
     var btSerial    = new bluetoothSerialPort.BluetoothSerialPort();
     var rfcommIndex = 1;    // Starts at 1 to avoid collisions
     var childProcs  = [];
+    global.currentNumberOfSpherosConnected = 0;         // To enforce limit of global.MAX_NUMBER_OF_SPHEROS
 
     btSerial.on('found', function(macAddress, name) {
+
         // --- Any bluetooth device found. Orbotix, Inc. OUI (macAddress Prefix) is 68:86:E7
         console.log( "Bluetooth device found: name [%s] at macAddress [%s]", name, macAddress );     // But not only paired!
         if ( !macAddress || !macAddress.toString().toUpperCase().startsWith("68:86:E7")) {
             console.log( "   Bt device NOT a Sphero! Ignoring macAddress [%s]", macAddress );
+            return;
+        }
+
+        // --- No more than global.MAX_NUMBER_OF_SPHEROS
+        if ( global.currentNumberOfSpherosConnected >= global.MAX_NUMBER_OF_SPHEROS ) {
+            console.warn( "Soft MAX number of Spheros [%s / %s] REACHED, Ignoring macAddress [%s]",
+                global.currentNumberOfSpherosConnected, global.MAX_NUMBER_OF_SPHEROS, macAddress );
             return;
         }
 
@@ -53,6 +62,7 @@ function BluetoothConnections()
                 return;
             }
 
+            global.currentNumberOfSpherosConnected++;
             console.log( "Bluetooth device macAddress [%s] with rfcommDev [%s] CONNECTED\n", macAddress, rfcommDev );
             SE.emit("node-user-log", "Bluetooth device macAddress ["+ macAddress +"] with rfcommDev ["+ rfcommDev +"] CONNECTED");
 
@@ -115,7 +125,13 @@ function BluetoothConnections()
     });
 
     // --- Start the bluetooth scanning!
-    function btSerialInquire() {
+    function btSerialInquire()
+    {
+        if ( global.currentNumberOfSpherosConnected >= global.MAX_NUMBER_OF_SPHEROS ) {
+            console.info( "Max number of Spheros [%s / %s] REACHED, skipping btSerialInquire",
+                global.currentNumberOfSpherosConnected, global.MAX_NUMBER_OF_SPHEROS );
+            return;
+        }
         if (isInquiring) {
             console.warn( "btSerialInquire already/still inquiring!" );
             return;

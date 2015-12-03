@@ -2,7 +2,12 @@
 
 ///
 //  NOTICE: the user running node.js must be able to exec "sudo rfcomm" to connect to Sphero
+//
+//  Here is defined a limit of number of Spheros to connect, useful when you have several Raspberry Pis
+//      Feel free to put this limit very high if you want to connect more Spheros to a single RPi
 ///
+global.MAX_NUMBER_OF_SPHEROS    = 2;
+
 
 /**
  * Module dependencies.

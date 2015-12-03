@@ -26,10 +26,10 @@ var SE = global.spheroEvents;                   // Replaces jQuery $ events here
 function CylonSphero()
 {
     // class attributes
-    this.spheroCommPorts        = [];
+    this.spheroCommPorts        = [];   // When not connected, the value is null
     this.spheroMacAddresses     = [];
-    this.spheroCylonRobots      = [];
-    // this.spheroMacAddress2Index = []; // Associative array to deduplicate: No need, inquire() does not return the ones connected
+    this.spheroCylonRobots      = [];   // When not connected, the value is null
+    this.spheroMacAddress2Index = [];   // Associative array to reuse the same index in case of disconnection. Note: inquire() does not return the ones already connected
 
     // Closure for on(...)
     var _this = this;
@@ -55,8 +55,8 @@ function onBluetoothDeviceConnected( _this, deviceDescription )
         }
         // When new device detected: SE.emit( "bt-device-connected", JSON.stringify({ "macAddress": macAddress, "rfcommDev": rfcommDev }) );
 
-        // --- Create the corresponding Cylon.robot
-        var idx = _this.spheroCommPorts.length;
+        // --- Create the corresponding Cylon.robot, and use the same index if was connected before
+        var idx = _this.spheroMacAddress2Index[ deviceInfo.macAddress ] || _this.spheroCommPorts.length;
 
         var cylonRobot = global.Cylon.robot({ name: ('Sphero-' + idx) })
                 .connection( 'sphero', { adaptor: 'sphero', port: deviceInfo.rfcommDev })
@@ -93,10 +93,10 @@ function onBluetoothDeviceConnected( _this, deviceDescription )
         console.log("CylonRobot index=["+ idx+"] created, MacAddress [%s] from Orbotix => assume a Sphero!\n", deviceInfo.macAddress);
 
         // --- Now we know it is a Sphero, save info as class attributes for this Sphero
-        _this.spheroMacAddresses.push( deviceInfo.macAddress );
-        _this.spheroCommPorts.push( deviceInfo.rfcommDev );
-        _this.spheroCylonRobots.push( cylonRobot );
-
+        _this.spheroMacAddresses[idx]   = deviceInfo.macAddress;
+        _this.spheroCommPorts[idx]      = deviceInfo.rfcommDev;
+        _this.spheroCylonRobots[idx]    = cylonRobot;
+        _this.spheroMacAddress2Index[ deviceInfo.macAddress ] = idx;
 
         // Sphero color ????
         // FIXME
@@ -127,8 +127,28 @@ function initCylonRobot( _this, mySphero )
 {
     console.log( "CylonRobot [%s] initialization\n", mySphero.hocIndex );
 
-    // --- AutoReconnect
-    mySphero.setAutoReconnect( 1, 30, function(){} );       // 1 for yes, 60 sec, cb    // Doc http://cylonjs.com/documentation/drivers/sphero/
+    // --- AutoReconnect & InactivityTimeout
+    mySphero.setAutoReconnect( 1, 20, function(err, data) {         // 1 for yes, 20 sec, cb    // Doc https://github.com/hybridgroup/cylon-sphero/blob/master/lib/commands.js
+        console.log( "CylonRobot [%s] AutoReconnect error/data:", mySphero.hocIndex );
+        console.log( err || data );
+    });
+    mySphero.setInactivityTimeout( 1800, function(err, data) {      // 30 minutes, cb    // Doc https://github.com/hybridgroup/cylon-sphero/blob/master/lib/commands.js
+        console.log( "CylonRobot [%s] InactivityTimeout error/data:", mySphero.hocIndex );
+        console.log( err || data );
+    });
+    mySphero.stopOnDisconnect( true, function(err, data) {
+        console.log( "CylonRobot [%s] stopOnDisconnect error/data:", mySphero.hocIndex );
+        console.log( err || data );
+    });
+    mySphero.on( "disconnect", function() {
+        console.log( "CylonRobot [%s] DISCONNECTED", mySphero.hocIndex );
+        global.currentNumberOfSpherosConnected--;
+        SE.emit( "sphero-disconnect", JSON.stringify({ "spheroIndex": mySphero.hocIndex }) );
+        // Reset array values
+        _this.spheroCommPorts[ mySphero.hocIndex ]      = null;      // When not connected, the value is null
+        _this.spheroCylonRobots[ mySphero.hocIndex ]    = null;      // When not connected, the value is null
+        // delete this; ???
+    });
 
     // --- Data streaming
     mySphero.on( "dataStreaming", function(data) {
@@ -160,27 +180,47 @@ function initCylonRobot( _this, mySphero )
         console.log( "CylonRobot [%s] COLLISION", mySphero.name );
         SE.emit( "sphero-collision", JSON.stringify({ "spheroIndex": mySphero.hocIndex }) );
     });
-    mySphero.detectCollisions();
+    mySphero.detectCollisions( function(err, data) {
+        console.log( "CylonRobot [%s] detectCollisions error/data:", mySphero.hocIndex );
+        console.log( err || data );
+    });
 
 
-    // --- Others ???
+    // --- Battery info
+    mySphero.on("powerStateInfo", function(data) {                   // Doc "getPowerState" https://github.com/hybridgroup/cylon-sphero/blob/master/lib/commands.js
+        console.log( "CylonRobot [%s] powerStateInfo", mySphero.name );
+        console.log( data );
+        if ( data.batteryState == 0x03 ) {
+            SE.emit( "sphero-battery-low", JSON.stringify({ "spheroIndex": mySphero.hocIndex }) );
+        } else if ( data.batteryState == 0x04 ) {
+            SE.emit( "sphero-battery-critical", JSON.stringify({ "spheroIndex": mySphero.hocIndex }) );
+        }
+    });
+    // Power notifications are async notifications
+    mySphero.setPowerNotification( true, function(err, data) {      // sphero asynchronously notifies of power state periodically (every 10 seconds, or immediately when a change occurs)
+        console.log( "CylonRobot [%s] setPowerNotification error/data:", mySphero.hocIndex );
+        console.log( err || data );
+    });
 
-    bot.sphero.on("data", function(data) {
+
+    // ----- Generic. Others ???
+
+    mySphero.on("data", function(data) {
         console.log( "CylonRobot [%s] DATA, with args: ", mySphero.name );
         console.log(data);
     });
 
-    bot.sphero.on("update", function(data) {
+    mySphero.on("update", function(data) {
         console.log( "CylonRobot [%s] UPDATE, eventName [%s], with args: ", mySphero.name, data );
         console.log(data);
     });
 
-    bot.sphero.on("response", function(data) {
+    mySphero.on("response", function(data) {
         console.log( "CylonRobot [%s] RESPONSE, with args: ", mySphero.name );
         console.log(data);
     });
 
-    bot.sphero.on("async", function(data) {
+    mySphero.on("async", function(data) {
         console.log( "CylonRobot [%s] ASYNC, with args: ", mySphero.name );
         console.log(data);
     });
@@ -190,6 +230,7 @@ function initCylonRobot( _this, mySphero )
 
 
 
+// TODO: STOP + push CODE with threads !!!!!
 
 
 CylonSphero.prototype.setColor = function( spheroColor )
