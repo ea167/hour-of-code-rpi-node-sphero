@@ -71,6 +71,12 @@ function onBluetoothDeviceConnected( _this, deviceDescription )
                     // Test // FIXME
                     my.sphero.color( 0x00FF00 );
 
+                    // FIXME: startCalibration ? Show backLed !!!
+                    // my.sphero.startCalibration();    // FIXME: everytime we do stop !!!!!
+
+                    // Ping every 10s to keep the connection open
+                    setInterval( function(){ my.sphero.ping(); }, 10000 );
+
                     /*
                     eval( "function testNothing() { my.sphero.startCalibration(); } " );
                     eval( "function testNothing() { my.sphero.color( 0xFF0000 ); } " );
@@ -78,12 +84,12 @@ function onBluetoothDeviceConnected( _this, deviceDescription )
                     every((1).second(), function() {
                         my.sphero.roll(60, Math.floor(Math.random() * 360));
                     });
-                    //
-                    // my.sphero.startCalibration();
                     testNothing();
                     */
                 });
 
+        // Store its index inside the object
+        cylonRobot.hocIndex = idx;
         console.log("CylonRobot index=["+ idx+"] created, MacAddress [%s] from Orbotix => assume a Sphero!\n", deviceInfo.macAddress);
 
         // --- Now we know it is a Sphero, save info as class attributes for this Sphero
@@ -106,10 +112,12 @@ function onBluetoothDeviceConnected( _this, deviceDescription )
     return;
 }
 
+/*
 function testNothing()
 {
     console.log("\n\n @@@@@ NOTHING! @@@@@");
 }
+*/
 
 
 /**
@@ -117,11 +125,67 @@ function testNothing()
  */
 function initCylonRobot( _this, mySphero )
 {
-    console.log( 'initCylonRobot [null? %s]\n', (!_this) );
+    console.log( "CylonRobot [%s] initialization\n", mySphero.hocIndex );
 
-    mySphero.setAutoReconnect( 1, 60, function(){} );       // 1 for yes, 60 sec, cb    // Doc http://cylonjs.com/documentation/drivers/sphero/
+    // --- AutoReconnect
+    mySphero.setAutoReconnect( 1, 30, function(){} );       // 1 for yes, 60 sec, cb    // Doc http://cylonjs.com/documentation/drivers/sphero/
 
-    // FIXME
+    // --- Data streaming
+    mySphero.on( "dataStreaming", function(data) {
+        console.log( "CylonRobot [%s] DATA-STREAMING data:", mySphero.hocIndex );
+        console.log(data);
+        SE.emit( "sphero-data-streaming", JSON.stringify({ "spheroIndex": mySphero.hocIndex , "data": data }) );
+    });
+
+    // To detect locator, accelOne and velocity from the sphero, we use setDataStreaming.
+    // sphero API data sources for locator info are as follows:
+    //      ["locator", "accelOne", "velocity"]
+    // It is also possible to pass an opts object to setDataStreaming():
+    var opts = {
+      // n: int, divisor of the max sampling rate, 400 hz/s     // n = 40 means 400/40 = 10 data samples per second,    // n = 200 means 400/200 = 2 data samples per second
+      n: 40,
+      // m: int, number of data packets buffered before passing to the stream   // m = 10 means each time you get data it will contain 10 data packets
+      // m = 1 is usually best for real time data readings.
+      m: 1,
+      // pcnt: 1 -255, how many packets to send.    // pcnt = 0 means unlimited data Streaming    // pcnt = 10 means stop after 10 data packets
+      pcnt: 0,
+      dataSources: ["locator", "accelOne", "velocity"]          // FIXME        // accelerometer, gyroscope,
+    };
+    //
+    mySphero.setDataStreaming(opts);
+
+
+    // --- Detect Collisions
+    mySphero.on("collision", function() {
+        console.log( "CylonRobot [%s] COLLISION", mySphero.name );
+        SE.emit( "sphero-collision", JSON.stringify({ "spheroIndex": mySphero.hocIndex }) );
+    });
+    mySphero.detectCollisions();
+
+
+    // --- Others ???
+
+    bot.sphero.on("data", function(data) {
+        console.log( "CylonRobot [%s] DATA, with args: ", mySphero.name );
+        console.log(data);
+    });
+
+    bot.sphero.on("update", function(data) {
+        console.log( "CylonRobot [%s] UPDATE, eventName [%s], with args: ", mySphero.name, data );
+        console.log(data);
+    });
+
+    bot.sphero.on("response", function(data) {
+        console.log( "CylonRobot [%s] RESPONSE, with args: ", mySphero.name );
+        console.log(data);
+    });
+
+    bot.sphero.on("async", function(data) {
+        console.log( "CylonRobot [%s] ASYNC, with args: ", mySphero.name );
+        console.log(data);
+    });
+
+    return;
 };
 
 
@@ -153,44 +217,6 @@ http://cylonjs.com/documentation/examples/sphero/fluent/locator/
    var color = 0x00FF00,
    bitFilter = 0xFFFF00;
 
-   console.log("Setting up Collision Detection...");
-
-   bot.sphero.on("dataStreaming", function(data) {
-     console.log("data:");
-     console.log(data);
-   });
-
-   bot.sphero.on("collision", function() {
-     console.log("Collision:");
-     color = color ^ bitFilter;
-     console.log("Color: " + (color.toString(16)) + " ");
-     bot.sphero.color(color);
-     bot.sphero.roll(128, Math.floor(Math.random() * 360));
-   });
-
-   bot.sphero.detectCollisions();
-   // To detect locator, accelOne and velocity from the sphero
-   // we use setDataStreaming.
-   // sphero API data sources for locator info are as follows:
-   // ["locator", "accelOne", "velocity"]
-   // It is also possible to pass an opts object to setDataStreaming():
-   var opts = {
-     // n: int, divisor of the max sampling rate, 400 hz/s
-     // n = 40 means 400/40 = 10 data samples per second,
-     // n = 200 means 400/200 = 2 data samples per second
-     n: 200,
-     // m: int, number of data packets buffered before passing to the stream
-     // m = 10 means each time you get data it will contain 10 data packets
-     // m = 1 is usually best for real time data readings.
-     m: 1,
-     // pcnt: 1 -255, how many packets to send.
-     // pcnt = 0 means unlimited data Streaming
-     // pcnt = 10 means stop after 10 data packets
-     pcnt: 0,
-     dataSources: ["locator", "accelOne", "velocity"]
-   };
-
-   bot.sphero.setDataStreaming(opts);
 
    // SetBackLED turns on the tail LED of the sphero that helps
    // identify the direction the sphero is heading.
@@ -198,15 +224,6 @@ http://cylonjs.com/documentation/examples/sphero/fluent/locator/
    bot.sphero.setBackLed(192);
    bot.sphero.color(color);
  });
-
-
-
-
-
-
-
-
-
 
 
 ------------------------------------------------------------------------------------------------------
@@ -255,30 +272,6 @@ http://cylonjs.com/documentation/examples/sphero/fluent/locator/
     });
 
   }
-
-
-------------------------------------------------------------------------------------------------------
-http://cylonjs.com/documentation/examples/sphero/fluent/collision/
-------------------------------------------------------------------------------------------------------
-
-
-.on("ready", function(bot) {
-   var color = 0x00FF00,
-       bitFilter = 0xFFFF00;
-
-   console.log("Setting up Collision Detection...");
-
-   bot.sphero.on("collision", function() {
-     console.log("Collision:");
-     color = color ^ bitFilter;
-     console.log("Color: " + (color.toString(16)) + " ");
-     bot.sphero.color(color);
-     bot.sphero.roll(90, Math.floor(Math.random() * 360));
-   });
-
-   bot.sphero.color(color);
-   bot.sphero.detectCollisions();
- });
 
 
 */
