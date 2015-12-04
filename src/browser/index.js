@@ -23,11 +23,11 @@ $(document).ready(function()
 
     // FIXME !!!
     // Save models to localstorage
-    localStorage.setItem('toto', JSON.stringify("toto"));
+    //localStorage.setItem('toto', JSON.stringify("toto"));
 
-    $.subscribe('resetscreen', function() {
-      $('#result').text('');
-      $('.error-row').hide();
-    });
+    //$.subscribe('resetscreen', function() {
+    //  $('#result').text('');
+    //  $('.error-row').hide();
+    //});
 
 });

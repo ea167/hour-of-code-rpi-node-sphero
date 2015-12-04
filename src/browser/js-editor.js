@@ -13,8 +13,8 @@ var lastContentSaveEditorGeneration = null;
 function initEditorButtons()
 {
     // Listeners
-    $("push_to_sphero").on("click", pushToSpheroOnClick );                      // function() { pushToSpheroOnClick( browserWebSocket); });
-    $("stop_sphero").on("click",    stopSpheroOnClick );
+    $("#push_to_sphero").on("click", pushToSpheroOnClick );                      // function() { pushToSpheroOnClick( browserWebSocket); });
+    $("#stop_sphero").on("click",    stopSpheroOnClick );
 
     // Interval to record code history, when there are changes, in local storage,
     //  every minute at most, keep the last 50 max of codes posted (they should be stored on RPi)
