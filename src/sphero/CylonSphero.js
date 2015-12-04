@@ -47,8 +47,8 @@ function CylonSphero()
     });
 
     // --- When user code pushed!
-    SE.on( "push-code", function( userCodeDescription ) {
-        onUserCodePushed( _this, userCodeDescription );      // spheroIndex, userCode
+    SE.on( "push-code", function( userDescription ) {
+        onUserCodePushed( _this, userDescription );      // spheroIndex, userCode
     });
 
     // --- When user stop clicked!
@@ -69,12 +69,12 @@ function CylonSphero()
 /**
  *  SE.on( "user-code-pushed", ...)
  */
-function onUserCodePushed( _this, userCodeDescription )
+function onUserCodePushed( _this, userDescription )
 {
     try {
-        var userCodeInfo = JSON.parse( userCodeDescription );
-        if ( typeof userCodeInfo.spheroIndex === "undefined" || !userCodeInfo.userCode ) {
-            console.error("ERROR in CylonSphero onUserCodePushed: spheroIndex/userCode is null for [%s]", userCodeInfo.spheroIndex);
+        var userInfo = JSON.parse( userDescription );
+        if ( typeof userInfo.spheroIndex === "undefined" || !userInfo.userCode ) {
+            console.error("ERROR in CylonSphero onUserCodePushed: spheroIndex/userCode is null for [%s]", userInfo.spheroIndex);
             return;
         }
         var spheroIndex = userInfo.spheroIndex;
@@ -97,7 +97,7 @@ function onUserCodePushed( _this, userCodeDescription )
         // --- Eval and execute ThreadedSpheroUserCodeRun in this thread
         var mySphero    = _this.spheroCylonRobots[ spheroIndex ].sphero;
         var codeToRun   = " var mySphero = JSON.parse('"+ JSON.stringify( mySphero ) +"'); \n"
-                        + " var userCode = JSON.parse('"+ JSON.stringify( userCodeInfo.userCode ) +"'); \n";
+                        + " var userCode = JSON.parse('"+ JSON.stringify( userInfo.userCode ) +"'); \n";
         codeToRun += _this.templateUserCodeRun;
         //
         thread.eval( codeToRun, function(err, completionValue) {        // Doc https://github.com/audreyt/node-webworker-threads
