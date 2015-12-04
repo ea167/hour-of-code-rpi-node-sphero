@@ -112,7 +112,9 @@ function onUserCodePushed( _this, userDescription )
 */
         thread = null;
         eval( codeToRun );
-        console.log( "CylonRobot [%s] EVAL USER-CODE completed -- Stops", spheroIndex );
+        console.log( "\nCylonRobot [%s] EVAL USER-CODE completed -- startSpheroThread NOW", spheroIndex );
+        startSpheroThread();
+        console.log( "\nCylonRobot [%s] startSpheroThread completed -- stop", spheroIndex );
         _finalSpheroStop( _this, mySphero );
 
         // FIXME

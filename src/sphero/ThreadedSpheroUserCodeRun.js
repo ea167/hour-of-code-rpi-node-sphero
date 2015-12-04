@@ -6,65 +6,76 @@
 // var mySphero
 // var userCode
 
-// --0-- Check mySphero and userCode variables
-if ( !mySphero || typeof userCode === "undefined" ) {
-    console.warn( "CylonRobot [%s] USER-CODE VARIABLES error, userCode: \n%s\n", mySphero.hocIndex, userCode );
-    SE.emit( "sphero-internal-error", JSON.stringify({ "spheroIndex": mySphero.hocIndex, "exception": "mySphero/userCode not defined" }) );
-    if (thread) { thread.destroy(); } else { return; }    // return;
-}
-
-
-// --1-- Check we can successfully insert the user code
-var blockToRun = null;
-try {
-    blockToRun = new runUserSphero( mySphero );
-}
-catch( exc ) {
-    console.warn( "CylonRobot [%s] USER-CODE SYNTAX error: %s\n", mySphero.hocIndex, exc.stack );
-    // console.error( "\nTRY-CATCH ERROR in ThreadedSpheroUserCodeRun: " + exc.stack + "\n" ); }
-    SE.emit( "sphero-code-syntax-error", JSON.stringify({ "spheroIndex": mySphero.hocIndex, "exception": exc }) );
-    if (thread) { thread.destroy(); } else { return; }    // return;
-}
-
-if (! blockToRun) {
-    console.warn( "CylonRobot [%s] USER-CODE SYNTAX error\n", mySphero.hocIndex );
-    SE.emit( "sphero-code-syntax-error", JSON.stringify({ "spheroIndex": mySphero.hocIndex }) );
-    if (thread) { thread.destroy(); } else { return; }    // return;
-}
-
-
-// --2-- Finish Calibration, and follow with once() and loop();  Instructions are executed sequentially by Sphero, so no need to .then()
-mySphero.finishCalibration();
-
-
-// --3-- Try to run once()
-try {
-    blockToRun.once( mySphero );
-}
-catch( exc ) {
-    console.warn( "CylonRobot [%s] USER-CODE ONCE error: %s\n", mySphero.hocIndex, exc.stack );
-    // console.error( "\nTRY-CATCH ERROR in ThreadedSpheroUserCodeRun: " + exc.stack + "\n" ); }
-    SE.emit( "sphero-code-once-error", JSON.stringify({ "spheroIndex": mySphero.hocIndex, "exception": exc }) );
-    if (thread) { thread.destroy(); } else { return; }    // return;
-}
-
-
-// --4-- Try to loop(). Starts after 100ms, which is good to let finishCalibration complete
-var intervalLoop = setInterval( tryCatchLoop, 100 );            // Check it keeps the thread live !!!!!
-
-function tryCatchLoop() {
-    try {
-        blockToRun.loop( blockToRun.mySphero );
-    }
-    catch( exc ) {
-        console.warn( "CylonRobot [%s] USER-CODE LOOP error: %s\n", mySphero.hocIndex, exc.stack );
-        // console.error( "\nTRY-CATCH ERROR in ThreadedSpheroUserCodeRun: " + exc.stack + "\n" ); }
-        SE.emit( "sphero-code-loop-error", JSON.stringify({ "spheroIndex": mySphero.hocIndex, "exception": exc }) );
-        // Trying to continue, until the user stops it!
+function startSpheroThread()
+{
+    // --0-- Check mySphero and userCode variables
+    if ( !mySphero || typeof userCode === "undefined" ) {
+        console.warn( "CylonRobot [%s] USER-CODE VARIABLES error, userCode: \n%s\n", mySphero.hocIndex, userCode );
+        SE.emit( "sphero-internal-error", JSON.stringify({ "spheroIndex": mySphero.hocIndex, "exception": "mySphero/userCode not defined" }) );
         return;
     }
-}
 
+
+    // --1-- Check we can successfully insert the user code
+    var blockToRun = null;
+    try {
+        blockToRun = new runUserSphero( mySphero );
+    }
+    catch( exc ) {
+        console.warn( "CylonRobot [%s] USER-CODE SYNTAX error: %s\n", mySphero.hocIndex, exc.stack );
+        // console.error( "\nTRY-CATCH ERROR in ThreadedSpheroUserCodeRun: " + exc.stack + "\n" ); }
+        SE.emit( "sphero-code-syntax-error", JSON.stringify({ "spheroIndex": mySphero.hocIndex, "exception": exc }) );
+        return;
+    }
+
+    if (! blockToRun) {
+        console.warn( "CylonRobot [%s] USER-CODE SYNTAX error\n", mySphero.hocIndex );
+        SE.emit( "sphero-code-syntax-error", JSON.stringify({ "spheroIndex": mySphero.hocIndex }) );
+        return;
+    }
+
+
+    // --2-- Finish Calibration, and follow with once() and loop();  Instructions are executed sequentially by Sphero, so no need to .then()
+    mySphero.finishCalibration();
+
+
+    // --3-- Try to run once()
+    try {
+        blockToRun.once( mySphero );
+    }
+    catch( exc ) {
+        console.warn( "CylonRobot [%s] USER-CODE ONCE error: %s\n", mySphero.hocIndex, exc.stack );
+        // console.error( "\nTRY-CATCH ERROR in ThreadedSpheroUserCodeRun: " + exc.stack + "\n" ); }
+        SE.emit( "sphero-code-once-error", JSON.stringify({ "spheroIndex": mySphero.hocIndex, "exception": exc }) );
+        return;
+    }
+
+
+    // --4-- Try to loop(). Starts after 100ms, which is good to let finishCalibration complete
+    var intervalLoop = setInterval( tryCatchLoop, 100 );            // Check it keeps the thread live !!!!!
+
+    function tryCatchLoop() {
+        try {
+            blockToRun.loop( blockToRun.mySphero );
+        }
+        catch( exc ) {
+            console.warn( "CylonRobot [%s] USER-CODE LOOP error: %s\n", mySphero.hocIndex, exc.stack );
+            // console.error( "\nTRY-CATCH ERROR in ThreadedSpheroUserCodeRun: " + exc.stack + "\n" ); }
+            SE.emit( "sphero-code-loop-error", JSON.stringify({ "spheroIndex": mySphero.hocIndex, "exception": exc }) );
+            // Trying to continue, until the user stops it!
+            return;
+        }
+    }
+} // end of startSpheroThread()
+
+
+// -----
+if (thread)  {
+    console.log( "\n*** CylonRobot [%s] INSIDE USER-CODE THREADED CALL\n", mySphero.hocIndex );
+    startSpheroThread();
+} else {
+    console.log( "\n*** CylonRobot [%s] INSIDE USER-CODE NON-THREADED call\n", mySphero.hocIndex );
+}
 
 
 
