@@ -264,8 +264,8 @@ function initCylonRobot( _this, mySphero )
 
     // --- Data streaming
     mySphero.on( "dataStreaming", function(data) {
-        console.log( "CylonRobot [%s] DATA-STREAMING data:", mySphero.hocIndex );
-        console.log(data);
+        //console.log( "CylonRobot [%s] DATA-STREAMING data:", mySphero.hocIndex );
+        //console.log(data);
         SE.emit( "sphero-data-streaming", JSON.stringify({ "spheroIndex": mySphero.hocIndex , "data": data }) );
     });
 
