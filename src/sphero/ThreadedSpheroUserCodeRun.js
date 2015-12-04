@@ -92,7 +92,7 @@ function runUserSphero( mySphero, userCode )
 
     // --- User code is FILLED HERE!!
     try {
-        eval( userCode );
+        eval( "( " + userCode + " ) " );
     }
     catch( exc ) {
         console.warn( "CylonRobot [%s] USER-CODE EVAL error: %s\n", mySphero.hocIndex, exc.stack );
