@@ -177,9 +177,6 @@ function onBluetoothDeviceConnected( _this, deviceDescription )
 
         // --- Create the corresponding Cylon.robot, and use the same index if was connected before
         var idx = _this.spheroMacAddress2Index[ deviceInfo.macAddress ] || _this.spheroCommPorts.length;
-        // Store its index inside the object. Before initCylonRobot called!
-        cylonRobot.hocIndex = idx;
-        console.log("CylonRobot index=["+ idx+"] created, MacAddress [%s] from Orbotix => assume a Sphero!\n", deviceInfo.macAddress);
 
         var cylonRobot = global.Cylon.robot({ name: ('Sphero-' + idx) })
                 .connection( 'sphero', { adaptor: 'sphero', port: deviceInfo.rfcommDev })
@@ -187,6 +184,9 @@ function onBluetoothDeviceConnected( _this, deviceDescription )
                 .on( 'error', console.warn )
                 .on( 'ready', function(my) {
                     console.log("CylonRobot ["+ my.sphero.name+"] ready, start some calibration/rolling!");
+
+                    // Store its index inside the object. Before initCylonRobot called!
+                    my.sphero.hocIndex = idx;
 
                     // Init the cylonRobot with all eventListeners + initialization code (startCalibration)
                     initCylonRobot( _this, my.sphero );
@@ -212,9 +212,10 @@ function onBluetoothDeviceConnected( _this, deviceDescription )
                 });
 
         // --- Now we know it is a Sphero, save info as class attributes for this Sphero
+        console.log("CylonRobot index=["+ idx+"] created, MacAddress [%s] from Orbotix => assume a Sphero!\n", deviceInfo.macAddress);
         _this.spheroMacAddresses[idx]   = deviceInfo.macAddress;
         _this.spheroCommPorts[idx]      = deviceInfo.rfcommDev;
-        _this.spheroCylonRobots[idx]    = cylonRobot;
+        _this.spheroCylonRobots[idx]    = cylonRobot;                       // WARNING: mySphero == spheroCylonRobots[idx].sphero
         _this.spheroMacAddress2Index[ deviceInfo.macAddress ] = idx;
 
 
