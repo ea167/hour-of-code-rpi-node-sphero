@@ -5,6 +5,7 @@ var browserWebSocket = null;
 
 // ===== Modules Required =====
 var initBrowserSocket = require('./socket').initBrowserSocket;
+var initEditorButtons = require('./js-editor').initEditorButtons;
 
 
 // ===== Start of the main page =====
@@ -16,7 +17,8 @@ $(document).ready(function()
     // --- Start the WebSocket between the browser and the RPi
     browserWebSocket = initBrowserSocket();
 
-
+    // --- Init the behaviour of buttons for the JS editor
+    initEditorButtons();
 
 
     // FIXME !!!
