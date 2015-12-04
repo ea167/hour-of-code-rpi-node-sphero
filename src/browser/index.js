@@ -1,7 +1,7 @@
 'use strict';
 
-// Global WebSocket from the browser to the RPi, which handles bi-dir communications
-var browserWebSocket = null;
+// Global WebSocket from the browser to the RPi, which handles bi-dir communications. Defined in the webpage.
+// var browserWebSocket = null;
 
 // ===== Modules Required =====
 var initBrowserSocket = require('./socket').initBrowserSocket;

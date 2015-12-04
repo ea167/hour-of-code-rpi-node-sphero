@@ -200,6 +200,9 @@
             mode:  "javascript"
         });
 
+        // --- Make browserWebSocket globally available
+        var browserWebSocket = null;
+
         // --- Init SlideReveal
         $('#slider_help').slideReveal({
           trigger: $("#trigger_help"),      // width: 500,
