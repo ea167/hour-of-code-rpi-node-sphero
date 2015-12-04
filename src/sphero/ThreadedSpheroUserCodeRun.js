@@ -126,3 +126,8 @@ function runUserSphero( mySphero, userCode )
         return;
     }
 }
+
+
+// FIXME
+
+exports.startSpheroThread = startSpheroThread;

@@ -111,8 +111,14 @@ function onUserCodePushed( _this, userDescription )
         });
 */
         thread = null;
-        eval( codeToRun );
-        console.log( "\nCylonRobot [%s] EVAL USER-CODE completed -- startSpheroThread NOW", spheroIndex );
+        // eval( codeToRun );
+
+        var userCode = userInfo.userCode;
+
+        startSpheroThread = require("./ThreadedSpheroUserCodeRun").startSpheroThread;
+
+        console.log( "\nCylonRobot [%s] REQUIRE USER-CODE completed -- startSpheroThread NOW", spheroIndex );
+
         startSpheroThread();
         console.log( "\nCylonRobot [%s] startSpheroThread completed -- stop", spheroIndex );
         _finalSpheroStop( _this, mySphero );
