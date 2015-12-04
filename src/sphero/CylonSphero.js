@@ -99,6 +99,9 @@ function onUserCodePushed( _this, userDescription )
         var codeToRun   = " var mySphero = JSON.parse('"+ JSON.stringify( mySphero ) +"'); \n"
                         + " var userCode = JSON.parse('"+ JSON.stringify( userInfo.userCode ) +"'); \n";
         codeToRun += _this.templateUserCodeRun;
+        console.log( "\nCylonRobot [%s] codeToRun:\n", spheroIndex );
+        console.log(codeToRun);
+        console.log("\n");
         //
         thread.eval( codeToRun, function(err, completionValue) {        // Doc https://github.com/audreyt/node-webworker-threads
             console.log( "CylonRobot [%s] EVAL USER-CODE completed with error/completionValue -- Stops", spheroIndex );
