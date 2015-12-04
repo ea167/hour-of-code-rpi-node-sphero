@@ -41,6 +41,7 @@ function startSpheroThread( mySphero, userCode )
 
     // --3-- Try to run once()
     try {
+        once( mySphero );
         blockToRun.once( mySphero );
     }
     catch( exc ) {
@@ -91,7 +92,7 @@ function runUserSphero( mySphero, userCode )
 
     // --- User code is FILLED HERE!!
     try {
-        this.eval( userCode );
+        eval( userCode );
     }
     catch( exc ) {
         console.warn( "CylonRobot [%s] USER-CODE EVAL error: %s\n", mySphero.hocIndex, exc.stack );
