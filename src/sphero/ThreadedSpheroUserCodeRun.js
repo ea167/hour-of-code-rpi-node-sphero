@@ -91,7 +91,7 @@ function runUserSphero( mySphero, userCode )
         return;
     }
 
-/***   USER CODE IN EDITOR
+/***   USER CODE IN EDITOR -- SEE code-examples/default.js
     // -------------------------------------
 
     // Define variables here if needed
@@ -106,15 +106,17 @@ function runUserSphero( mySphero, userCode )
     {
         // Write here code that will be run 10 times per second, looping indefinitely
 
-        // Call end() if you want to abort & end the loop
+        // Call endLoops() if you want to abort next loops
     }
 
     // -------------------------------------
 ***/
 
-    function end() {
+    // --- Abort the loop
+    function endLoops() {
+        clearInterval( intervalLoop );
         // End thread (and Sphero, but should be automatic when thread ends)
-        // TODO !!!!
+        return;
     }
 
     return;

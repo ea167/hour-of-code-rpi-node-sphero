@@ -79,7 +79,7 @@ function onUserCodePushed( _this, userCodeDescription )
         }
         var spheroIndex = userInfo.spheroIndex;
 
-        // --- Check Sphero still connected
+        // --- Check that Sphero still connected
         if ( !_this.spheroCylonRobots[ spheroIndex ] ) {
             console.error("ERROR in CylonSphero onUserCodePushed: sphero DISCONNECTED [%s]", spheroIndex);
             SE.emit( "sphero-disconnect", JSON.stringify({ "spheroIndex": spheroIndex }) );
@@ -95,13 +95,16 @@ function onUserCodePushed( _this, userCodeDescription )
         _this.spheroUserCodeThreads[ spheroIndex ] = thread;
 
         // --- Eval and execute ThreadedSpheroUserCodeRun in this thread
-        var codeToRun   = " var mySphero = JSON.parse('"+ JSON.stringify( _this.spheroCylonRobots[ spheroIndex ].sphero ) +"'); \n"
+        var mySphero    = _this.spheroCylonRobots[ spheroIndex ].sphero;
+        var codeToRun   = " var mySphero = JSON.parse('"+ JSON.stringify( mySphero ) +"'); \n"
                         + " var userCode = JSON.parse('"+ JSON.stringify( userCodeInfo.userCode ) +"'); \n";
         codeToRun += _this.templateUserCodeRun;
         //
         thread.eval( codeToRun, function(err, completionValue) {        // Doc https://github.com/audreyt/node-webworker-threads
-            console.log( "CylonRobot [%s] EVAL USER-CODE completed with error/completionValue:", spheroIndex );
+            console.log( "CylonRobot [%s] EVAL USER-CODE completed with error/completionValue -- Stops", spheroIndex );
             console.log( err || completionValue );
+            // Final STOP when thread ends
+            _finalSpheroStop( _this, mySphero );
         });
     }
     catch (exc) { console.error( "\nTRY-CATCH ERROR in CylonSphero onUserCodePushed: " + exc.stack + "\n" ); }
@@ -123,7 +126,7 @@ function onUserStop( _this, userDescription )
         }
         var spheroIndex = userInfo.spheroIndex;
 
-        // --- Check Sphero still connected 
+        // --- Check that Sphero still connected
         if ( !_this.spheroCylonRobots[ spheroIndex ] ) {
             console.error("ERROR in CylonSphero onUserStop: sphero DISCONNECTED [%s]", spheroIndex);
             SE.emit( "sphero-disconnect", JSON.stringify({ "spheroIndex": spheroIndex }) );
@@ -138,15 +141,22 @@ function onUserStop( _this, userDescription )
         _this.spheroUserCodeThreads[ spheroIndex ] = null;
 
         // --- Stop Sphero and startCalibration
-        var mySphero = _this.spheroCylonRobots[ spheroIndex ].sphero;
-        mySphero.stop();
-        mySphero.startCalibration();
+        _finalSpheroStop( _this, _this.spheroCylonRobots[ spheroIndex ].sphero );
     }
     catch (exc) { console.error( "\nTRY-CATCH ERROR in CylonSphero onUserStop: " + exc.stack + "\n" ); }
     return;
 }
 
+/** Private function for onUserStop & onUserCodePushed */
+function _finalSpheroStop( _this, mySphero )
+{
+    mySphero.stop();
 
+    // FIXME: RESET Sphero color !!!!
+
+    mySphero.startCalibration();
+    return;
+}
 
 
 
