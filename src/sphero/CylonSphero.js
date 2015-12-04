@@ -11,6 +11,10 @@ global.Cylon = global.Cylon || Cylon;       // To simplify in the callbacks and 
 var SpheroEvents    = require('../sphero/SpheroEvents');
 var SE = global.spheroEvents;                   // Replaces jQuery $ events here
 
+// Threads lib from  https://www.npmjs.com/package/webworker-threads
+var Threads = require('webworker-threads');
+var FS      = require('fs');
+
 // Every time a bluetooth device is found:
 //   SE.emit( "bt-device-connected", JSON.stringify({ "macAddress": macAddress, "rfcommDev": rfcommDev }) );
 
@@ -19,27 +23,132 @@ var SE = global.spheroEvents;                   // Replaces jQuery $ events here
  *  CylonSphero stores all available Spheros (after testing a ping on them)
  *    and allow Spheros to be controlled by browser code
  *
- *          TODO: creating new thread
  *          TODO: Sphero color
  *          TODO: RPi Network
  */
 function CylonSphero()
 {
-    // class attributes
+    // Bluetooth and Sphero (class attributes)
     this.spheroCommPorts        = [];   // When not connected, the value is null
     this.spheroMacAddresses     = [];
-    this.spheroCylonRobots      = [];   // When not connected, the value is null
+    this.spheroCylonRobots      = [];   // When not connected, the value is null. WARNING: mySphero == spheroCylonRobots[].sphero
     this.spheroMacAddress2Index = [];   // Associative array to reuse the same index in case of disconnection. Note: inquire() does not return the ones already connected
+
+    // Threads to run user code
+    this.spheroUserCodeThreads  = [];
+    this.templateUserCodeRun    = readTemplateUserCodeRun();
 
     // Closure for on(...)
     var _this = this;
 
-    // When new device detected
+    // --- When new device detected
     SE.on( "bt-device-connected", function(deviceDescription) {
         onBluetoothDeviceConnected( _this, deviceDescription );
     });
+
+    // --- When user code pushed!
+    SE.on( "user-code-pushed", function( userCodeDescription ) {
+        onUserCodePushed( _this, userCodeDescription );      // spheroIndex, userCode
+    });
+
+    // --- When user stop clicked!
+    SE.on( "user-stop", function( userDescription ) {
+        onUserStop( _this, userDescription );            // spheroIndex
+    });
+
     return;
 }
+
+
+
+// TODO: onSpheroStop : kill thread + startCalibration()
+
+
+
+
+/**
+ *  SE.on( "user-code-pushed", ...)
+ */
+function onUserCodePushed( _this, userCodeDescription )
+{
+    try {
+        var userCodeInfo = JSON.parse( userCodeDescription );
+        if ( typeof userCodeInfo.spheroIndex === "undefined" || !userCodeInfo.userCode ) {
+            console.error("ERROR in CylonSphero onUserCodePushed: spheroIndex/userCode is null for [%s]", userCodeInfo.spheroIndex);
+            return;
+        }
+        var spheroIndex = userInfo.spheroIndex;
+
+        // --- Check Sphero still connected
+        if ( !_this.spheroCylonRobots[ spheroIndex ] ) {
+            console.error("ERROR in CylonSphero onUserCodePushed: sphero DISCONNECTED [%s]", spheroIndex);
+            SE.emit( "sphero-disconnect", JSON.stringify({ "spheroIndex": spheroIndex }) );
+            return;
+        }
+
+        // --- Existing Thread?
+        var thread = _this.spheroUserCodeThreads[ spheroIndex ];
+        if (thread) {
+            thread.destroy();               // Terminate the thread when needed!
+        }
+        thread = Threads.create();
+        _this.spheroUserCodeThreads[ spheroIndex ] = thread;
+
+        // --- Eval and execute ThreadedSpheroUserCodeRun in this thread
+        var codeToRun   = " var mySphero = JSON.parse('"+ JSON.stringify( _this.spheroCylonRobots[ spheroIndex ].sphero ) +"'); \n"
+                        + " var userCode = JSON.parse('"+ JSON.stringify( userCodeInfo.userCode ) +"'); \n";
+        codeToRun += _this.templateUserCodeRun;
+        //
+        thread.eval( codeToRun, function(err, completionValue) {        // Doc https://github.com/audreyt/node-webworker-threads
+            console.log( "CylonRobot [%s] EVAL USER-CODE completed with error/completionValue:", spheroIndex );
+            console.log( err || completionValue );
+        });
+    }
+    catch (exc) { console.error( "\nTRY-CATCH ERROR in CylonSphero onUserCodePushed: " + exc.stack + "\n" ); }
+    return;
+}
+
+
+
+/**
+ *  SE.on( "user-stop", ...)
+ */
+function onUserStop( _this, userDescription )
+{
+    try {
+        var userInfo = JSON.parse( userDescription );
+        if ( typeof userInfo.spheroIndex === "undefined" ) {
+            console.error("ERROR in CylonSphero onUserStop: spheroIndex is null");
+            return;
+        }
+        var spheroIndex = userInfo.spheroIndex;
+
+        // --- Check Sphero still connected 
+        if ( !_this.spheroCylonRobots[ spheroIndex ] ) {
+            console.error("ERROR in CylonSphero onUserStop: sphero DISCONNECTED [%s]", spheroIndex);
+            SE.emit( "sphero-disconnect", JSON.stringify({ "spheroIndex": spheroIndex }) );
+            return;
+        }
+
+        // --- Existing Thread?
+        var thread = _this.spheroUserCodeThreads[ spheroIndex ];
+        if (thread) {
+            thread.destroy();               // Terminate the thread when needed!
+        }
+        _this.spheroUserCodeThreads[ spheroIndex ] = null;
+
+        // --- Stop Sphero and startCalibration
+        var mySphero = _this.spheroCylonRobots[ spheroIndex ].sphero;
+        mySphero.stop();
+        mySphero.startCalibration();
+    }
+    catch (exc) { console.error( "\nTRY-CATCH ERROR in CylonSphero onUserStop: " + exc.stack + "\n" ); }
+    return;
+}
+
+
+
+
 
 
 /**
@@ -71,16 +180,16 @@ function onBluetoothDeviceConnected( _this, deviceDescription )
                     // Test // FIXME
                     my.sphero.color( 0x00FF00 );
 
-                    // FIXME: startCalibration ? Show backLed !!!
-                    // my.sphero.startCalibration();    // FIXME: everytime we do stop !!!!!
-
                     // Ping every 10s to keep the connection open
                     setInterval( function(){ my.sphero.ping(); }, 10000 );
+
+                    // startCalibration to show tail and backLed !!!
+                    my.sphero.startCalibration();    // Shown also again everytime the user clicks stop!
+
 
                     /*
                     eval( "function testNothing() { my.sphero.startCalibration(); } " );
                     eval( "function testNothing() { my.sphero.color( 0xFF0000 ); } " );
-
                     every((1).second(), function() {
                         my.sphero.roll(60, Math.floor(Math.random() * 360));
                     });
@@ -98,11 +207,9 @@ function onBluetoothDeviceConnected( _this, deviceDescription )
         _this.spheroCylonRobots[idx]    = cylonRobot;
         _this.spheroMacAddress2Index[ deviceInfo.macAddress ] = idx;
 
-        // Sphero color ????
-        // FIXME
 
         // Test FIXME
-        setTimeout( function(){ cylonRobot.sphero.color( 0xFF00FF ); }, 5000 );
+        //setTimeout( function(){ cylonRobot.sphero.color( 0xFF00FF ); }, 5000 );
 
         // --- Start Cylon: global to all spheros!
         global.Cylon.start();
@@ -112,12 +219,6 @@ function onBluetoothDeviceConnected( _this, deviceDescription )
     return;
 }
 
-/*
-function testNothing()
-{
-    console.log("\n\n @@@@@ NOTHING! @@@@@");
-}
-*/
 
 
 /**
@@ -169,7 +270,7 @@ function initCylonRobot( _this, mySphero )
       m: 1,
       // pcnt: 1 -255, how many packets to send.    // pcnt = 0 means unlimited data Streaming    // pcnt = 10 means stop after 10 data packets
       pcnt: 0,
-      dataSources: ["locator", "accelOne", "velocity"]          // FIXME        // accelerometer, gyroscope,
+      dataSources: ["odometer", "accelOne", "velocity"]          // FIXME        // locator (issue #55), accelerometer, gyroscope,
     };
     //
     mySphero.setDataStreaming(opts);
@@ -230,19 +331,29 @@ function initCylonRobot( _this, mySphero )
 
 
 
-// TODO: STOP + push CODE with threads !!!!!
-
-
+/***
 CylonSphero.prototype.setColor = function( spheroColor )
 {
     console.log( 'CylonSphero setColor [%s] received', spheroColor );
     this.spheroColor    = spheroColor;
-    // FIXME ;
     this.sphero.color( spheroColor );
 };
+***/
+
+
+/**
+ *  Return the content of the ThreadedSpheroUserCodeRun file
+ */
+function readTemplateUserCodeRun()
+{
+    return FS.readFileSync( "./src/sphero/ThreadedSpheroUserCodeRun.js", 'utf8' );
+}
 
 
 module.exports = CylonSphero;
+
+
+
 
 
 

@@ -2,11 +2,19 @@
  *  Template to run the code the user pushes to the RPi+Sphero
  */
 
-// SUPPOSED TO BE DEFINED:
+// SUPPOSED TO BE DEFINED (prepended before thread eval)
 // var mySphero
 // var userCode
 
-// --0-- Check we can successfully insert the user code
+// --0-- Check mySphero and userCode variables
+if ( !mySphero || typeof userCode === "undefined" ) {
+    console.warn( "CylonRobot [%s] USER-CODE VARIABLES error, userCode: \n%s\n", mySphero.hocIndex, userCode );
+    SE.emit( "sphero-internal-error", JSON.stringify({ "spheroIndex": mySphero.hocIndex, "exception": "mySphero/userCode not defined" }) );
+    return;
+}
+
+
+// --1-- Check we can successfully insert the user code
 var blockToRun = null;
 try {
     blockToRun = new runUserSphero( mySphero );
@@ -25,9 +33,13 @@ if (! blockToRun) {
 }
 
 
-// --1-- Try to run once()
+// --2-- Finish Calibration, and follow with once() and loop();  Instructions are executed sequentially by Sphero, so no need to .then()
+mySphero.finishCalibration();
+
+
+// --3-- Try to run once()
 try {
-    blockToRun.once( blockToRun.mySphero );
+    blockToRun.once( mySphero );
 }
 catch( exc ) {
     console.warn( "CylonRobot [%s] USER-CODE ONCE error: %s\n", mySphero.hocIndex, exc.stack );
@@ -36,7 +48,8 @@ catch( exc ) {
     return;
 }
 
-// --2-- Try to loop()
+
+// --4-- Try to loop(). Starts after 100ms, which is good to let finishCalibration complete
 var intervalLoop = setInterval( tryCatchLoop, 100 );            // Check it keeps the thread live !!!!!
 
 function tryCatchLoop() {
@@ -54,7 +67,7 @@ function tryCatchLoop() {
 }
 
 
-// TODO When return, do a STOP! (calibration, tail, etc.)
+// TODO When return, do a STOP! MUST startCalibration() !!!! (calibration, tail, etc.)
 
 
 

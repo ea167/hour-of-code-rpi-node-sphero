@@ -36,12 +36,15 @@ function pushToSpheroOnClick()
     lastClickOnPushToSphero = now;
 
     // --- Transfer the CODE to RPi
-    var code = codeMirrorEditor.getValue();                                     // codeMirrorEditor global var
+    var userCode = codeMirrorEditor.getValue();                                     // codeMirrorEditor global var
     //
-    browserWebSocket.send( JSON.stringify( { "type":"code", "code": code } ));  // browserWebSocket global var
+    //  FIXME: spheroIndex !!!! FIXME !!!!
+    var myIndex = 0;
+    //
+    browserWebSocket.send( JSON.stringify( { "type": "userCode", "spheroIndex": myIndex , "userCode": userCode } ));  // browserWebSocket global var
 
-    // --- Save code to localStorage
-    saveCodeToLocalStorage( code );
+    // --- Save userCode to localStorage
+    saveCodeToLocalStorage( userCode );
     return;
 }
 
@@ -74,19 +77,19 @@ function saveCodeEveryMinuteToLocalStorage()
         return;
     }
     // Otw save to localStorage
-    var code = codeMirrorEditor.getValue();                                     // codeMirrorEditor global var
-    saveCodeToLocalStorage( code );
+    var userCode = codeMirrorEditor.getValue();                                     // codeMirrorEditor global var
+    saveCodeToLocalStorage( userCode );
 }
 
 
 /**
  *
  */
-function saveCodeToLocalStorage( code )
+function saveCodeToLocalStorage( userCode )
 {
     var itemName = "code-" + Date.now();
-    // --- Save code to localStorage
-    localStorage.setItem( itemName, JSON.stringify(code) );
+    // --- Save userCode to localStorage
+    localStorage.setItem( itemName, JSON.stringify(userCode) );
     var codeList = localStorage.getItem("codeList");
     codeList = ( codeList ) ? JSON.parse( codeList ) : [];
     codeList.push( itemName );
