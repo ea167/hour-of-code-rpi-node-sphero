@@ -111,7 +111,7 @@ function onUserCodePushed( _this, userDescription )
         });
 */
         thread = null;
-        // eval( codeToRun );
+        // eval( codeToRun );   // FIXME
 
         var userCode = userInfo.userCode;
 
@@ -119,7 +119,8 @@ function onUserCodePushed( _this, userDescription )
 
         console.log( "\nCylonRobot [%s] REQUIRE USER-CODE completed -- startSpheroThread NOW", spheroIndex );
 
-        startSpheroThread();
+        startSpheroThread( mySphero, userCode );
+
         console.log( "\nCylonRobot [%s] startSpheroThread completed -- stop", spheroIndex );
         _finalSpheroStop( _this, mySphero );
 

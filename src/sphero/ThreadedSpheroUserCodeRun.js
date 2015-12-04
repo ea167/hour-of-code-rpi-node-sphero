@@ -6,7 +6,7 @@
 // var mySphero
 // var userCode
 
-function startSpheroThread()
+function startSpheroThread( mySphero, userCode )
 {
     // --0-- Check mySphero and userCode variables
     if ( !mySphero || typeof userCode === "undefined" ) {
@@ -19,7 +19,7 @@ function startSpheroThread()
     // --1-- Check we can successfully insert the user code
     var blockToRun = null;
     try {
-        blockToRun = new runUserSphero( mySphero );
+        blockToRun = new runUserSphero( mySphero, userCode );
     }
     catch( exc ) {
         console.warn( "CylonRobot [%s] USER-CODE SYNTAX error: %s\n", mySphero.hocIndex, exc.stack );
@@ -69,6 +69,7 @@ function startSpheroThread()
 } // end of startSpheroThread()
 
 
+/* FIXME
 // -----
 if (thread)  {
     console.log( "\n*** CylonRobot [%s] INSIDE USER-CODE THREADED CALL\n", mySphero.hocIndex );
@@ -77,6 +78,7 @@ if (thread)  {
     console.log( "\n*** CylonRobot [%s] INSIDE USER-CODE NON-THREADED call\n", mySphero.hocIndex );
 }
 
+*/
 
 
 /**
