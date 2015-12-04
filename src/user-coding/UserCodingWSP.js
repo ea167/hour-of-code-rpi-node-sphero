@@ -15,6 +15,9 @@ var SE = global.spheroEvents;                   // Replaces jQuery $ events here
 //      SE.on("node-user-warn", ... send to browser ... )
 //      SE.on("node-user-error", ... send to browser ... )
 
+// TODO: search SE.emit and SE.on and JSON.stringify !!!
+
+
 
 /** -----------------------------------------------------
  * WebSocketProcessor UserCodingWSP
@@ -64,7 +67,11 @@ UserCodingWSP.prototype.onError = function(data, flags) {
 };
 
 
-/// When receiving data
+
+
+/**
+ *  When receiving data
+ */
 UserCodingWSP.prototype.onMessage = function(data, flags) {
     // flags.binary will be set if a binary data is received.
     // flags.masked will be set if the data was masked.
@@ -84,17 +91,17 @@ UserCodingWSP.prototype.onMessage = function(data, flags) {
             // Close the server socket
             this.ws.close();
         }
+        // ======= Actions from UI buttons =======
         else if (dataObj.action == "push-code") {
             // --- Receiving code for Sphero!
+            SE.emit("push-code", data );
 
-
-            // Archive it
-
+            // TODO: Archive the code  !!
 
         }
         else if (dataObj.action == "stop-code") {
             // --- Stop the Sphero!
-
+            SE.emit("stop-code", data );
         }
     }
 };

@@ -41,7 +41,7 @@ function pushToSpheroOnClick()
     //  FIXME: spheroIndex !!!! FIXME !!!!
     var myIndex = 0;
     //
-    browserWebSocket.send( JSON.stringify( { "type": "userCode", "spheroIndex": myIndex , "userCode": userCode } ));  // browserWebSocket global var
+    browserWebSocket.send( JSON.stringify( { "action": "push-code", "spheroIndex": myIndex , "userCode": userCode } ));  // browserWebSocket global var
 
     // --- Save userCode to localStorage
     saveCodeToLocalStorage( userCode );
@@ -61,8 +61,12 @@ function stopSpheroOnClick()
     }
     lastClickOnStopSphero = now;
 
+    //  FIXME: spheroIndex !!!! FIXME !!!!
+    var myIndex = 0;
+    //
+
     // --- Transfer the STOP command to RPi
-    browserWebSocket.send( JSON.stringify( { "type":"stop" } ));                // browserWebSocket global var
+    browserWebSocket.send( JSON.stringify( { "action":"stop-code", "spheroIndex": myIndex } ));         // browserWebSocket global var
     return;
 }
 

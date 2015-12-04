@@ -60,15 +60,10 @@ function tryCatchLoop() {
         console.warn( "CylonRobot [%s] USER-CODE LOOP error: %s\n", mySphero.hocIndex, exc.stack );
         // console.error( "\nTRY-CATCH ERROR in ThreadedSpheroUserCodeRun: " + exc.stack + "\n" ); }
         SE.emit( "sphero-code-loop-error", JSON.stringify({ "spheroIndex": mySphero.hocIndex, "exception": exc }) );
-
-        // TODO: ABORT ???
+        // Trying to continue, until the user stops it!
         return;
     }
 }
-
-
-// TODO When return, do a STOP! MUST startCalibration() !!!! (calibration, tail, etc.)
-
 
 
 

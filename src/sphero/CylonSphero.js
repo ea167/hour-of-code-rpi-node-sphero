@@ -47,13 +47,13 @@ function CylonSphero()
     });
 
     // --- When user code pushed!
-    SE.on( "user-code-pushed", function( userCodeDescription ) {
+    SE.on( "push-code", function( userCodeDescription ) {
         onUserCodePushed( _this, userCodeDescription );      // spheroIndex, userCode
     });
 
     // --- When user stop clicked!
-    SE.on( "user-stop", function( userDescription ) {
-        onUserStop( _this, userDescription );            // spheroIndex
+    SE.on( "stop-code", function( userDescription ) {
+        onUserStop( _this, userDescription );               // spheroIndex
     });
 
     return;
@@ -157,6 +157,7 @@ function _finalSpheroStop( _this, mySphero )
     mySphero.startCalibration();
     return;
 }
+
 
 
 
