@@ -10,7 +10,7 @@
 if ( !mySphero || typeof userCode === "undefined" ) {
     console.warn( "CylonRobot [%s] USER-CODE VARIABLES error, userCode: \n%s\n", mySphero.hocIndex, userCode );
     SE.emit( "sphero-internal-error", JSON.stringify({ "spheroIndex": mySphero.hocIndex, "exception": "mySphero/userCode not defined" }) );
-    thread.destroy();     // return;
+    if (thread) { thread.destroy(); } else { return; }    // return;
 }
 
 
@@ -23,13 +23,13 @@ catch( exc ) {
     console.warn( "CylonRobot [%s] USER-CODE SYNTAX error: %s\n", mySphero.hocIndex, exc.stack );
     // console.error( "\nTRY-CATCH ERROR in ThreadedSpheroUserCodeRun: " + exc.stack + "\n" ); }
     SE.emit( "sphero-code-syntax-error", JSON.stringify({ "spheroIndex": mySphero.hocIndex, "exception": exc }) );
-    thread.destroy();     // return;
+    if (thread) { thread.destroy(); } else { return; }    // return;
 }
 
 if (! blockToRun) {
     console.warn( "CylonRobot [%s] USER-CODE SYNTAX error\n", mySphero.hocIndex );
     SE.emit( "sphero-code-syntax-error", JSON.stringify({ "spheroIndex": mySphero.hocIndex }) );
-    thread.destroy();     // return;
+    if (thread) { thread.destroy(); } else { return; }    // return;
 }
 
 
@@ -45,7 +45,7 @@ catch( exc ) {
     console.warn( "CylonRobot [%s] USER-CODE ONCE error: %s\n", mySphero.hocIndex, exc.stack );
     // console.error( "\nTRY-CATCH ERROR in ThreadedSpheroUserCodeRun: " + exc.stack + "\n" ); }
     SE.emit( "sphero-code-once-error", JSON.stringify({ "spheroIndex": mySphero.hocIndex, "exception": exc }) );
-    thread.destroy();     // return;
+    if (thread) { thread.destroy(); } else { return; }    // return;
 }
 
 

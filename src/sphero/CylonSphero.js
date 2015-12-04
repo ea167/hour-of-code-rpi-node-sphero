@@ -103,12 +103,18 @@ function onUserCodePushed( _this, userDescription )
         console.log(codeToRun);
         console.log("\n");
         //
-        thread.eval( codeToRun, function(err, completionValue) {        // Doc https://github.com/audreyt/node-webworker-threads
+/* FIXME        thread.eval( codeToRun, function(err, completionValue) {        // Doc https://github.com/audreyt/node-webworker-threads
             console.log( "CylonRobot [%s] EVAL USER-CODE completed with error/completionValue -- Stops", spheroIndex );
             console.log( err || completionValue );
             // Final STOP when thread ends
             _finalSpheroStop( _this, mySphero );
         });
+*/
+        eval( codeToRun );
+        console.log( "CylonRobot [%s] EVAL USER-CODE completed -- Stops", spheroIndex );
+        _finalSpheroStop( _this, mySphero );
+
+        // FIXME
     }
     catch (exc) { console.error( "\nTRY-CATCH ERROR in CylonSphero onUserCodePushed: " + exc.stack + "\n" ); }
     return;
