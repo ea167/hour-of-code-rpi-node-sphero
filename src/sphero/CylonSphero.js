@@ -234,8 +234,7 @@ function onBluetoothDeviceConnected( _this, deviceDescription )
     catch (exc) {
         console.error( "\nTRY-CATCH ERROR in CylonSphero onBluetoothDeviceConnected: " + exc.stack + "\n" );
         if (exc && exc.stack && exc.stack.indexOf("Serialport not open") >=0 ) {
-            cylonRobot.sphero.hocIndex = idx;           // May not have been initialized
-            _onDisconnect( _this, cylonRobot.sphero );
+            _onDisconnect( _this, cylonRobot.sphero, idx );     // sphero.hocIndex = idx;  may not have been initialized yet
         }
     }
     return;
@@ -263,7 +262,7 @@ function initCylonRobot( _this, mySphero )
         console.log( "CylonRobot [%s] stopOnDisconnect error/data:", mySphero.hocIndex );
         //console.log( err || data );
     });
-    mySphero.on( "disconnect", function() { _onDisconnect( _this, mySphero ); });
+    mySphero.on( "disconnect", function() { _onDisconnect( _this, mySphero, mySphero.hocIndex ); });
 
     // --- Data streaming
     mySphero.on( "dataStreaming", function(data) {
@@ -346,15 +345,15 @@ function initCylonRobot( _this, mySphero )
 
 
 /** */
-function _onDisconnect( _this, mySphero )
+function _onDisconnect( _this, mySphero, idx )
 {
-    console.log( "CylonRobot [%s] DISCONNECTED", mySphero.hocIndex );
+    console.log( "CylonRobot [%s] DISCONNECTED", idx );
     global.currentNumberOfSpherosConnected--;
-    SE.emit( "sphero-disconnect", JSON.stringify({ "spheroIndex": mySphero.hocIndex }) );
+    SE.emit( "sphero-disconnect", JSON.stringify({ "spheroIndex": idx }) );
     // Reset array values
-    _this.spheroCommPorts[ mySphero.hocIndex ]      = null;      // When not connected, the value is null
-    _this.spheroCylonRobots[ mySphero.hocIndex ]    = null;      // When not connected, the value is null
-    // delete this; ???
+    _this.spheroCommPorts[ idx ]      = null;      // When not connected, the value is null
+    _this.spheroCylonRobots[ idx ]    = null;      // When not connected, the value is null
+    delete mySphero;
 }
 
 
