@@ -31,7 +31,6 @@
       "morgan": "~1.6.1",
       "serialport": "^2.0.5",
       "serve-favicon": "~2.3.0",
-      "webworker-threads": "^0.6.2",
       "ws": "^0.8.0"
   },
   "devDependencies": {

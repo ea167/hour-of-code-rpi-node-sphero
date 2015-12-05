@@ -150,7 +150,7 @@
 
 
         <!-- JS HELP (Button with side panel)  -->
-        <div id="slider_help" class="panel panel-default" style="background-color:yellow;">
+        <div id="slider_help" class="panel panel-default" style="background-color:white;">
             <div class="panel-heading" style="padding:0px;">
                 <button type="button" class="close" style="margin-top:0px; padding-top:0px;"
                     onclick="$('#slider_help').slideReveal('hide');">
@@ -160,8 +160,39 @@
                 </h4>
             </div>
             <div class="panel-body">
-                This is the Help Section
-                TODO!!!
+                <h4>Javascript Fundamentals</h4>
+
+                <h6>Free text Comments</h6>
+                <pre>// This is a one-line comment</pre>
+                <pre>/* This is a multi-<br/>line comment */</pre>
+
+                <h6>Variables</h6>
+                <pre>var a      = 5;</pre>           <em>(number)</em><br/>
+                <pre>var name   = "Elmo";</pre>      <em>(words)</em><br/>
+                <pre>var isOff  = true;</pre>        <em>(true | false)</em><br/><br/>
+
+                <pre>var ages   = [ 6, 9, 13];</pre> <em>(list of numbers). First is ages[0]</em><br/>
+                <pre>var fruits = ["apple", "orange", "banana"];</pre> <em>(list of words)</em><br/>
+                <pre>var label  = { top: 20, left: 15, text: "Welcome!" };</pre> <em>(object)</em><br/>
+
+                <h6>Comparators</h6>
+                <pre> a == 5 </pre>
+                <pre> name != "Bill" </pre>
+                <pre> ages[1] < 10  </pre>
+                <pre> fruits[2] <= "banani" </pre>
+
+                <h6>Loops</h6>
+                <pre>for ( var i=0; i < 10; i++ ) {
+                        &nbsp;&nbsp;&nbsp;&nbsp; numbers[i] = i;
+                        &nbsp;&nbsp;&nbsp;&nbsp; doMoreStuff( i );
+                    }</pre>     <em>(loop with variable i taking values from 0 to 9)</em><br/>
+                <pre>while ( wind > 10 ) {
+                        &nbsp;&nbsp;&nbsp;&nbsp; speed = speed + 1;
+                        &nbsp;&nbsp;&nbsp;&nbsp; doMoreStuff();
+                    }</pre>     <em>(while the condition is true, execute what is inside { } )</em><br/>
+
+                <h4>Spheros commands</h4>
+
             </div>
         </div>
 
@@ -194,7 +225,7 @@
     <script type="text/javascript">
         // --- Init CodeMirror
         var codeMirrorEditor = CodeMirror( document.getElementById("code_mirror_id"), {
-            value: " // Type your code here\n function once( mySphero ) {\n    mySphero.roll(30,90);\n} \n function loop( mySphero ) {\n    mySphero.roll(10,10);\n}\n",
+            value: " // Type your code here\n function once( mySphero ) {\n    mySphero.roll(30,90);\n} \n function loop( mySphero ) {\n    mySphero.roll(20,180);\n}\n",
             lineNumbers: true,
             indentUnit: 4,
             mode:  "javascript"
