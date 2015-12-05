@@ -211,7 +211,7 @@ function onBluetoothDeviceConnected( _this, deviceDescription )
 
                     // Test // FIXME
                     my.sphero.color( 0x00FF00 );
-                    my.sphero.roll( 100, 0 );
+                    my.sphero.roll( 20, 0 );
 
                     // Ping every 10s to keep the connection open
                     // setInterval( function(){ my.sphero.ping(); }, 10000 );

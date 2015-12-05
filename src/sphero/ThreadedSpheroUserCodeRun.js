@@ -61,8 +61,11 @@ function runSpheroUserCode( mySphero, userCode )
     }
 } // end of runSpheroUserCode()
 
-runSpheroUserCode( mySphero, userCode );
 
+// --- In case of thread
+if (mySphero) {
+    runSpheroUserCode( mySphero, userCode );
+}
 
 exports.runSpheroUserCode = runSpheroUserCode;
 
