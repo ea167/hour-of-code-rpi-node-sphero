@@ -10,7 +10,7 @@ var vm = require('vm');
 
 // FIXME: SE !!!
 
-function runSpheroUserCode( mySphero, userCode )
+function SpheroUserCodeRun( mySphero, userCode, SE )
 {
     // --0-- Check mySphero and userCode variables
     if ( !mySphero || typeof userCode === "undefined" ) {
@@ -28,13 +28,14 @@ function runSpheroUserCode( mySphero, userCode )
 
 
     // --2-- Create the sandbox for to execute the user code
-    var sandbox = {
+    this.sandbox = {
         mySphero:       mySphero,
-        intervalLoop:   null,
+        _intervalLoop:  null,
+        _endLoop:       false,
         setInterval:    setInterval,        // Globals in node.js, not available anymore when sandboxed!
         clearInterval:  clearInterval
     };
-    vm.createContext(sandbox);
+    vm.createContext( this.sandbox );
 
 
     // --3-- Add execution code to the userCode, to run once() and loop()
@@ -45,12 +46,12 @@ function runSpheroUserCode( mySphero, userCode )
                     + "\n     console.warn( 'CylonRobot [%s] USER-CODE ONCE error: %s\\n', mySphero.hocIndex, exc.stack );  "
                     // + SE.emit( "sphero-code-once-error", JSON.stringify({ "spheroIndex": mySphero.hocIndex, "exception": exc }) );
                     + "\n } } "
-                    + "\n if (loop && typeof loop === 'function') { intervalLoop = setInterval( tryCatchLoop, 90 ); } "     // Every 100ms
-                    + "\n function tryCatchLoop() { try { loop(mySphero); } catch(exc) { "
+                    + "\n if (loop && typeof loop === 'function') { _intervalLoop = setInterval( tryCatchLoop, 90 ); } "     // Every 100ms
+                    + "\n function tryCatchLoop() { try { if (_endLoop) { endLoops(); } else loop(mySphero); } catch(exc) { "
                     + "\n     console.warn( 'CylonRobot [%s] USER-CODE LOOP error: %s\\n', mySphero.hocIndex, exc.stack ); "
                     // + SE.emit( "sphero-code-loop-error", JSON.stringify({ "spheroIndex": mySphero.hocIndex, "exception": exc }) );
                     + "\n } } "
-                    + "\n function endLoops() { clearInterval( intervalLoop ); } ";
+                    + "\n function endLoops() { clearInterval( _intervalLoop ); } ";
     // console.log( "\ntotalCode:\n" + totalCode +"\n\n" );
     // FIXME: debug info uploaded to browser !!!!
 
@@ -64,15 +65,11 @@ function runSpheroUserCode( mySphero, userCode )
         ///SE.emit( "sphero-code-vm-error", JSON.stringify({ "spheroIndex": mySphero.hocIndex, "exception": exc }) );
         return;
     }
-} // end of runSpheroUserCode()
+} // end of SpheroUserCodeRun()
 
 
-/* // --- In case of thread
-if (mySphero) {
-    runSpheroUserCode( mySphero, userCode );
-} */
-
-exports.runSpheroUserCode = runSpheroUserCode;
+module.exports = SpheroUserCodeRun;
+//exports.runSpheroUserCode = runSpheroUserCode;
 
 
 

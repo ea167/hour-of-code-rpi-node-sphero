@@ -34,6 +34,9 @@ function CylonSphero()
     this.spheroCylonRobots      = [];   // When not connected, the value is null. WARNING: mySphero == spheroCylonRobots[].sphero
     this.spheroMacAddress2Index = [];   // Associative array to reuse the same index in case of disconnection. Note: inquire() does not return the ones already connected
 
+    // Running code:
+    this.spheroUserCodeRuns     = [];
+
     // Threads to run user code
     //this.spheroUserCodeWorkers  = [];
     //this.templateUserCodeRun    = readTemplateUserCodeRun();
@@ -99,10 +102,10 @@ function onUserCodePushed( _this, userDescription )
 
 
         // --- Require version, same thread
-        runSpheroUserCode = require("./RequireSpheroUserCodeRun").runSpheroUserCode;
-        console.log( "\nCylonRobot [%s] REQUIRE USER-CODE completed -- runSpheroUserCode NOW", spheroIndex );
-        runSpheroUserCode( mySphero, userCode );
-        console.log( "\nCylonRobot [%s] runSpheroUserCode completed -- stop", spheroIndex );
+        var SpheroUserCodeRun = require("./RequireSpheroUserCodeRun");
+        console.log( "\nCylonRobot [%s] REQUIRE USER-CODE completed -- run SpheroUserCodeRun NOW", spheroIndex );
+        _this.spheroUserCodeRuns[spheroIndex] = new SpheroUserCodeRun( mySphero, userCode, SE );
+        console.log( "\nCylonRobot [%s] SpheroUserCodeRun completed -- stop", spheroIndex );
         _finalSpheroStop( _this, mySphero );
     }
     catch (exc) { console.error( "\nTRY-CATCH ERROR in CylonSphero onUserCodePushed: " + exc.stack + "\n" ); }
@@ -148,7 +151,10 @@ function onUserStop( _this, userDescription )
 /** Private function for onUserStop & onUserCodePushed */
 function _finalSpheroStop( _this, mySphero )
 {
-    console.log( "\nCylonRobot [%s] stopping", mySphero.hocIndex );
+    var spheroIndex = mySphero.hocIndex;
+    console.log( "\nCylonRobot [%s] stopping", spheroIndex );
+    _this.spheroUserCodeRuns[spheroIndex].sandbox._endLoop = true;
+
     mySphero.stop();
 
     // FIXME: RESET Sphero color !!!!
