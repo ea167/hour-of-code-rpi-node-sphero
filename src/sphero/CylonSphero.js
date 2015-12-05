@@ -48,7 +48,7 @@ function CylonSphero()
 
     // --- When user code pushed!
     SE.on( "push-code", function( userDescription ) {
-        onUserCodePushed( _this, userDescription );      // spheroIndex, userCode
+        onUserCodePushed( _this, userDescription );         // spheroIndex, userCode
     });
 
     // --- When user stop clicked!
@@ -94,32 +94,29 @@ function onUserCodePushed( _this, userDescription )
         var mySphero    = _this.spheroCylonRobots[ spheroIndex ].sphero;
         var userCode    = userInfo.userCode;
 
-/*
         var codeToRun   = " var mySphero = JSON.parse('"+ JSON.stringify( mySphero ) +"'); \n"
-                        + " var userCode = JSON.parse('"+ JSON.stringify( userInfo.userCode ) +"'); \n";
-        codeToRun += _this.templateUserCodeRun;
-        console.log( "\nCylonRobot [%s] codeToRun:\n", spheroIndex );
-        console.log(codeToRun);
-        console.log("\n");
-        //
- FIXME        thread.eval( codeToRun, function(err, completionValue) {        // Doc https://github.com/audreyt/node-webworker-threads
-            console.log( "CylonRobot [%s] EVAL USER-CODE completed with error/completionValue -- Stops", spheroIndex );
+                        + " var userCode = JSON.parse('"+ JSON.stringify( userInfo.userCode ) +"'); \n"
+                        + _this.templateUserCodeRun
+                        + "\n  runSpheroUserCode( mySphero, userCode ); ";
+        //console.log( "\nCylonRobot [%s] codeToRun:\n", spheroIndex );
+        //console.log(codeToRun);
+        //console.log("\n");
+
+       thread.eval( codeToRun, function(err, completionValue) {        // Doc https://github.com/audreyt/node-webworker-threads
+            console.log( "CylonRobot [%s] EVAL USER-CODE completed with error/completionValue -- Stops now", spheroIndex );
             console.log( err || completionValue );
             // Final STOP when thread ends
-            _finalSpheroStop( _this, mySphero );
+            _finalSpheroStop( _this, mySphero );            // FIXME ???
         });
-*/
 
+
+        /* // --- Require version, same thread
         runSpheroUserCode = require("./ThreadedSpheroUserCodeRun").runSpheroUserCode;
-
         console.log( "\nCylonRobot [%s] REQUIRE USER-CODE completed -- startSpheroThread NOW", spheroIndex );
-
         runSpheroUserCode( mySphero, userCode );
-
         console.log( "\nCylonRobot [%s] startSpheroThread completed -- stop", spheroIndex );
         _finalSpheroStop( _this, mySphero );
-
-        // FIXME
+        */
     }
     catch (exc) { console.error( "\nTRY-CATCH ERROR in CylonSphero onUserCodePushed: " + exc.stack + "\n" ); }
     return;
@@ -164,11 +161,13 @@ function onUserStop( _this, userDescription )
 /** Private function for onUserStop & onUserCodePushed */
 function _finalSpheroStop( _this, mySphero )
 {
+    console.log( "\nCylonRobot [%s] stopping", mySphero.hocIndex );
     mySphero.stop();
 
     // FIXME: RESET Sphero color !!!!
 
     mySphero.setBackLed( 255 );
+    mySphero.startCalibration();
     return;
 }
 
@@ -208,9 +207,9 @@ function onBluetoothDeviceConnected( _this, deviceDescription )
                     // Test // FIXME
                     my.sphero.color( 0x00FF00 );
                     my.sphero.roll( 20, 0 );
-                    // Show tail Led!
-                    my.sphero.setBackLed( 255 );
-
+                    // Show tail Led! And block gyroscope!
+                    // my.sphero.setBackLed( 255 );
+                    my.sphero.startCalibration();
 
                     // Ping every 10s to keep the connection open
                     // setInterval( function(){ my.sphero.ping(); }, 10000 );

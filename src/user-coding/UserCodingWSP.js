@@ -94,7 +94,7 @@ UserCodingWSP.prototype.onMessage = function(data, flags) {
         else if (dataObj.action == "push-code") {
             // --- Receiving code for Sphero!
             console.log('\nUserCodingWSP ws PUSH-CODE received: %s', data);
-            SE.emit("push-code", data );
+            SE.emit( "push-code", data );
 
             // TODO: Archive the code  !!
 
@@ -102,7 +102,7 @@ UserCodingWSP.prototype.onMessage = function(data, flags) {
         else if (dataObj.action == "stop-code") {
             // --- Stop the Sphero!
             console.log('\nUserCodingWSP WS STOP-CODE received: %s', data);
-            SE.emit("stop-code", data );
+            SE.emit( "stop-code", data );
         }
         else {
             console.log('\nUserCodingWSP WS received flags: %s', JSON.stringify(flags) );

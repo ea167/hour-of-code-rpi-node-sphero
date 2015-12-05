@@ -22,6 +22,7 @@ function runSpheroUserCode( mySphero, userCode )
     // --1-- Turn off the tail Led, and follow by once() and loop();  Instructions are executed sequentially by Sphero, so no need to .then()
     try {
         mySphero.setBackLed( 0 );
+        mySphero.finishCalibration();
     }
     catch( exc ) { console.warn( "CylonRobot [%s] setBackLed error: %s\n", mySphero.hocIndex, exc.stack ); }
 
@@ -50,8 +51,8 @@ function runSpheroUserCode( mySphero, userCode )
                     // + SE.emit( "sphero-code-loop-error", JSON.stringify({ "spheroIndex": mySphero.hocIndex, "exception": exc }) );
                     + "\n } } "
                     + "\n function endLoops() { clearInterval( intervalLoop ); } ";
-    // FIXME: debug info !!!!
-    console.log( "\ntotalCode:\n" + totalCode +"\n\n" );
+    // console.log( "\ntotalCode:\n" + totalCode +"\n\n" );
+    // FIXME: debug info uploaded to browser !!!!
 
 
     // --4-- Run it in the sandbox
