@@ -331,8 +331,8 @@ function initCylonRobot( _this, mySphero )
     });
     // Power notifications are async notifications
     mySphero.setPowerNotification( true, function(err, data) {      // sphero asynchronously notifies of power state periodically (every 10 seconds, or immediately when a change occurs)
-        console.log( "CylonRobot [%s] setPowerNotification error/data:", mySphero.hocIndex );
-        console.log( err || data );
+        //console.log( "CylonRobot [%s] setPowerNotification error/data:", mySphero.hocIndex );
+        //console.log( err || data );
     });
 
 
