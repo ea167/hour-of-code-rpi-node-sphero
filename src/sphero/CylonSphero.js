@@ -38,7 +38,7 @@ function CylonSphero()
     this.spheroUserCodeRuns     = [];
     this.isCodeRunning          = function() {
         for( var i=0; i < spheroUserCodeRuns.length; i++ ) {
-            if ( spheroUserCodeRuns[i] && spheroUserCodeRuns[i]._endLoop === false )
+            if ( this.spheroUserCodeRuns[i] && this.spheroUserCodeRuns[i].sandbox._endLoop === false )
             { return true; }
         }
         return false;
