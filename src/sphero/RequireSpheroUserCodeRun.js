@@ -46,7 +46,7 @@ function SpheroUserCodeRun( mySphero, userCode, SE )
                     + "\n     console.warn( 'CylonRobot [%s] USER-CODE ONCE error: %s\\n', mySphero.hocIndex, exc.stack );  "
                     // + SE.emit( "sphero-code-once-error", JSON.stringify({ "spheroIndex": mySphero.hocIndex, "exception": exc }) );
                     + "\n } } "
-                    + "\n if (loop && typeof loop === 'function') { _intervalLoop = setInterval( tryCatchLoop, 90 ); } "     // Every 100ms
+                    + "\n if (loop && typeof loop === 'function') { _intervalLoop = setInterval( tryCatchLoop, 490 ); } "     // Every 500ms
                     + "\n function tryCatchLoop() { try { if (_endLoop) { endLoops(); } else loop(mySphero); } catch(exc) { "
                     + "\n     console.warn( 'CylonRobot [%s] USER-CODE LOOP error: %s\\n', mySphero.hocIndex, exc.stack ); "
                     // + SE.emit( "sphero-code-loop-error", JSON.stringify({ "spheroIndex": mySphero.hocIndex, "exception": exc }) );
