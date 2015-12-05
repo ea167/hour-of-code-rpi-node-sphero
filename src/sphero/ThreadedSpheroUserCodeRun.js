@@ -35,7 +35,7 @@ function runSpheroUserCode( mySphero, userCode )
 
 
     // --3-- Add execution code to the userCode, to run once() and loop()
-    var totalCode   = userCode
+    var totalCode   = "" // FIXME userCode
                     + "\n /* */ function check_the_syntax_of_your_code() {} /* */ \n"
                     + "\n if (once && typeof once === 'function') { try { once(mySphero); } catch(exc) { "
                     + "\n     console.warn( 'CylonRobot [%s] USER-CODE ONCE error: %s\n', mySphero.hocIndex, exc.stack );  "
