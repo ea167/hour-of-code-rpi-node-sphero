@@ -215,11 +215,11 @@ function onBluetoothDeviceConnected( _this, deviceDescription )
                     my.sphero.roll( 100, 0 );
 
                     // Ping every 10s to keep the connection open
-                    setInterval( function(){ my.sphero.ping(); }, 10000 );
+                    // setInterval( function(){ my.sphero.ping(); }, 10000 );
 
                     // startCalibration to show tail and backLed !!!
 
-                    setTimeout( function(){ my.sphero.startCalibration(); }, 5000);
+                    //// setTimeout( function(){ my.sphero.startCalibration(); }, 10000);
                     //FIXME// my.sphero.startCalibration();    // Shown also again everytime the user clicks stop!
 
 
