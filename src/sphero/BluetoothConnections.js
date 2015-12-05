@@ -139,6 +139,8 @@ function BluetoothConnections()
         if ( global.cylonSphero.isCodeRunning() ) {
             console.info( "Code is currently running, so skipping btSerialInquire" );
             return;
+        } else {
+            console.info( "NO running Code, call btSerialInquire" );
         }
         isInquiring = true;
         btSerial.inquire();
