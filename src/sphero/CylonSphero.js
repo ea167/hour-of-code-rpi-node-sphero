@@ -314,8 +314,8 @@ function initCylonRobot( _this, mySphero )
         SE.emit( "sphero-collision", JSON.stringify({ "spheroIndex": mySphero.hocIndex }) );
     });
     mySphero.detectCollisions( function(err, data) {
-        console.log( "CylonRobot [%s] detectCollisions error/data:", mySphero.hocIndex );
-        console.log( err || data );
+        //console.log( "CylonRobot [%s] detectCollisions error/data:", mySphero.hocIndex );
+        //console.log( err || data );
     });
 
 
