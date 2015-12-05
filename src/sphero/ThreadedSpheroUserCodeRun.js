@@ -48,6 +48,7 @@ function runSpheroUserCode( mySphero, userCode )
                     + "\n } } "
                     + "\n function endLoops() { clearInterval( intervalLoop ); } ";
     // FIXME: debug info !!!!
+    console.log( "\ntotalCode:\n" + totalCode );
 
 
     // --4-- Run it in the sandbox
@@ -56,7 +57,7 @@ function runSpheroUserCode( mySphero, userCode )
     }
     catch( exc ) {
         console.warn( "CylonRobot [%s] VM.runInContext error: %s\n", mySphero.hocIndex, exc.stack );
-        SE.emit( "sphero-code-vm-error", JSON.stringify({ "spheroIndex": mySphero.hocIndex, "exception": exc }) );
+        ///SE.emit( "sphero-code-vm-error", JSON.stringify({ "spheroIndex": mySphero.hocIndex, "exception": exc }) );
         return;
     }
 } // end of runSpheroUserCode()
