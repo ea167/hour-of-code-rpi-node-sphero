@@ -29,7 +29,9 @@ function runSpheroUserCode( mySphero, userCode )
     // --2-- Create the sandbox for to execute the user code
     var sandbox = {
         mySphero:       mySphero,
-        intervalLoop:   null
+        intervalLoop:   null,
+        setInterval:    setInterval,        // Globals in node.js, not available anymore when sandboxed!
+        clearInterval:  clearInterval
     };
     vm.createContext(sandbox);
 
