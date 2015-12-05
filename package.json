@@ -1,6 +1,6 @@
 {
   "name": "hour-of-code-rpi-node-sphero",
-  "version": "0.1.0",
+  "version": "0.5.0",
   "private": true,
   "browserify-shim": {
       "jquery": "global:jQuery"

@@ -247,7 +247,12 @@ function onBluetoothDeviceConnected( _this, deviceDescription )
         global.Cylon.start();
         // global.Cylon.start();       // When called a second time, IT WORKS, with just the error "Serialport not open" (as already open)
     }
-    catch (exc) { console.error( "\nTRY-CATCH ERROR in CylonSphero onBluetoothDeviceConnected: " + exc.stack + "\n" ); }
+    catch (exc) {
+        console.error( "\nTRY-CATCH ERROR in CylonSphero onBluetoothDeviceConnected: " + exc.stack + "\n" );
+        if (exc && exc.stack && exc.stack.indexOf("Serialport not open") >=0 ) {
+            _onDisconnect( _this, cylonRobot.sphero );
+        }
+    }
     return;
 }
 
@@ -273,15 +278,7 @@ function initCylonRobot( _this, mySphero )
         console.log( "CylonRobot [%s] stopOnDisconnect error/data:", mySphero.hocIndex );
         //console.log( err || data );
     });
-    mySphero.on( "disconnect", function() {
-        console.log( "CylonRobot [%s] DISCONNECTED", mySphero.hocIndex );
-        global.currentNumberOfSpherosConnected--;
-        SE.emit( "sphero-disconnect", JSON.stringify({ "spheroIndex": mySphero.hocIndex }) );
-        // Reset array values
-        _this.spheroCommPorts[ mySphero.hocIndex ]      = null;      // When not connected, the value is null
-        _this.spheroCylonRobots[ mySphero.hocIndex ]    = null;      // When not connected, the value is null
-        // delete this; ???
-    });
+    mySphero.on( "disconnect", function() { _onDisconnect( _this, mySphero ); });
 
     // --- Data streaming
     mySphero.on( "dataStreaming", function(data) {
@@ -361,6 +358,20 @@ function initCylonRobot( _this, mySphero )
 
     return;
 };
+
+
+/** */
+function _onDisconnect( _this, mySphero )
+{
+    console.log( "CylonRobot [%s] DISCONNECTED", mySphero.hocIndex );
+    global.currentNumberOfSpherosConnected--;
+    SE.emit( "sphero-disconnect", JSON.stringify({ "spheroIndex": mySphero.hocIndex }) );
+    // Reset array values
+    _this.spheroCommPorts[ mySphero.hocIndex ]      = null;      // When not connected, the value is null
+    _this.spheroCylonRobots[ mySphero.hocIndex ]    = null;      // When not connected, the value is null
+    // delete this; ???
+}
+
 
 
 

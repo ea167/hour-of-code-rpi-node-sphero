@@ -49,7 +49,7 @@ function BluetoothConnections()
             function (error, stdout, stderr) {
                 console.log('Exec rfcomm stdout: ' + stdout);
                 console.warn('Exec rfcomm stderr: ' + stderr);
-                if (error !== null) {
+                if (error) {
                     cmdOk = false;
                     console.error('Exec rfcomm ERROR: ' + error);
                 }
