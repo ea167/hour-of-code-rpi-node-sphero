@@ -61,10 +61,6 @@ function CylonSphero()
 
 
 
-// TODO: onSpheroStop : kill thread + startCalibration()
-
-
-
 
 /**
  *  SE.on( "user-code-pushed", ...)
@@ -158,7 +154,7 @@ function onUserStop( _this, userDescription )
         }
         _this.spheroUserCodeThreads[ spheroIndex ] = null;
 
-        // --- Stop Sphero and startCalibration
+        // --- Stop Sphero and show tail Led
         _finalSpheroStop( _this, _this.spheroCylonRobots[ spheroIndex ].sphero );
     }
     catch (exc) { console.error( "\nTRY-CATCH ERROR in CylonSphero onUserStop: " + exc.stack + "\n" ); }
@@ -172,7 +168,7 @@ function _finalSpheroStop( _this, mySphero )
 
     // FIXME: RESET Sphero color !!!!
 
-    mySphero.startCalibration();
+    mySphero.setBackLed( 255 );
     return;
 }
 
@@ -201,35 +197,23 @@ function onBluetoothDeviceConnected( _this, deviceDescription )
                 .device('sphero', { driver: 'sphero' })
                 .on( 'error', console.warn )
                 .on( 'ready', function(my) {
-                    console.log("CylonRobot ["+ my.sphero.name+"] ready, start some calibration/rolling!");
+                    console.log("CylonRobot ["+ my.sphero.name+"] ready, start last initializations!");
 
                     // Store its index inside the object. Before initCylonRobot called!
                     my.sphero.hocIndex = idx;
 
-                    // Init the cylonRobot with all eventListeners + initialization code (startCalibration)
+                    // Init the cylonRobot with all eventListeners + initialization code (show tail Led)
                     initCylonRobot( _this, my.sphero );
 
                     // Test // FIXME
                     my.sphero.color( 0x00FF00 );
                     my.sphero.roll( 20, 0 );
+                    // Show tail Led!
+                    my.sphero.setBackLed( 255 );
+
 
                     // Ping every 10s to keep the connection open
                     // setInterval( function(){ my.sphero.ping(); }, 10000 );
-
-                    // startCalibration to show tail and backLed !!!
-
-                    //// setTimeout( function(){ my.sphero.startCalibration(); }, 10000);
-                    //FIXME// my.sphero.startCalibration();    // Shown also again everytime the user clicks stop!
-
-
-                    /*
-                    eval( "function testNothing() { my.sphero.startCalibration(); } " );
-                    eval( "function testNothing() { my.sphero.color( 0xFF0000 ); } " );
-                    every((1).second(), function() {
-                        my.sphero.roll(60, Math.floor(Math.random() * 360));
-                    });
-                    testNothing();
-                    */
                 });
 
         // --- Now we know it is a Sphero, save info as class attributes for this Sphero
@@ -250,6 +234,7 @@ function onBluetoothDeviceConnected( _this, deviceDescription )
     catch (exc) {
         console.error( "\nTRY-CATCH ERROR in CylonSphero onBluetoothDeviceConnected: " + exc.stack + "\n" );
         if (exc && exc.stack && exc.stack.indexOf("Serialport not open") >=0 ) {
+            cylonRobot.sphero.hocIndex = idx;           // May not have been initialized
             _onDisconnect( _this, cylonRobot.sphero );
         }
     }
