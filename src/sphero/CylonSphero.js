@@ -35,8 +35,8 @@ function CylonSphero()
     this.spheroMacAddress2Index = [];   // Associative array to reuse the same index in case of disconnection. Note: inquire() does not return the ones already connected
 
     // Threads to run user code
-    this.spheroUserCodeThreads  = [];
-    this.templateUserCodeRun    = readTemplateUserCodeRun();
+    this.spheroUserCodeWorkers  = [];
+    //this.templateUserCodeRun    = readTemplateUserCodeRun();
 
     // Closure for on(...)
     var _this = this;
@@ -83,18 +83,22 @@ function onUserCodePushed( _this, userDescription )
         }
 
         // --- Existing Thread?
-        var thread = _this.spheroUserCodeThreads[ spheroIndex ];
-        if (thread) {
-            thread.destroy();               // Terminate the thread when needed!
+        var worker = _this.spheroUserCodeWorkers[ spheroIndex ];
+        if (worker) {
+            worker.terminate();               // Terminate the worker when needed!
         }
-        thread = Threads.create();
-        _this.spheroUserCodeThreads[ spheroIndex ] = thread;
 
-        // --- Eval and execute ThreadedSpheroUserCodeRun in this thread
+        // --- Eval and execute ThreadedSpheroUserCodeRun in this worker
         var mySphero    = _this.spheroCylonRobots[ spheroIndex ].sphero;
         var userCode    = userInfo.userCode;
 
-        var codeToRun   = " var mySphero = JSON.parse('"+ JSON.stringify( mySphero ) +"'); \n"
+        worker = new Threads.Worker('ThreadedSpheroUserCodeRun.js');
+        _this.spheroUserCodeWorkers[ spheroIndex ] = worker;
+
+        worker.postMessage( { mySphero: mySphero, userCode: userCode, SE: SE } );
+
+
+        /* var codeToRun   = " var mySphero = JSON.parse('"+ JSON.stringify( mySphero ) +"'); \n"
                         + " var userCode = JSON.parse('"+ JSON.stringify( userInfo.userCode ) +"'); \n"
                         + _this.templateUserCodeRun
                         + "\n  runSpheroUserCode( mySphero, userCode ); ";
@@ -107,11 +111,11 @@ function onUserCodePushed( _this, userDescription )
             console.log( err || completionValue );
             // Final STOP when thread ends
             _finalSpheroStop( _this, mySphero );            // FIXME ???
-        });
+        }); */
 
 
         /* // --- Require version, same thread
-        runSpheroUserCode = require("./ThreadedSpheroUserCodeRun").runSpheroUserCode;
+        runSpheroUserCode = require("./RequireSpheroUserCodeRun").runSpheroUserCode;
         console.log( "\nCylonRobot [%s] REQUIRE USER-CODE completed -- startSpheroThread NOW", spheroIndex );
         runSpheroUserCode( mySphero, userCode );
         console.log( "\nCylonRobot [%s] startSpheroThread completed -- stop", spheroIndex );
@@ -145,11 +149,11 @@ function onUserStop( _this, userDescription )
         }
 
         // --- Existing Thread?
-        var thread = _this.spheroUserCodeThreads[ spheroIndex ];
-        if (thread) {
-            thread.destroy();               // Terminate the thread when needed!
+        var worker = _this.spheroUserCodeWorkers[ spheroIndex ];
+        if (worker) {
+            worker.terminate();               // Terminate the worker when needed!
         }
-        _this.spheroUserCodeThreads[ spheroIndex ] = null;
+        _this.spheroUserCodeWorkers[ spheroIndex ] = null;
 
         // --- Stop Sphero and show tail Led
         _finalSpheroStop( _this, _this.spheroCylonRobots[ spheroIndex ].sphero );

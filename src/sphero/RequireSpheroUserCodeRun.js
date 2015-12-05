@@ -4,10 +4,13 @@
 
 var vm = require('vm');
 
-// Posted in message: mySphero, userCode, SE
+// SUPPOSED TO BE DEFINED (prepended before thread eval)
+// var mySphero
+// var userCode
 
+// FIXME: SE !!!
 
-function runSpheroUserCode( mySphero, userCode, SE )
+function runSpheroUserCode( mySphero, userCode )
 {
     // --0-- Check mySphero and userCode variables
     if ( !mySphero || typeof userCode === "undefined" ) {
@@ -64,13 +67,12 @@ function runSpheroUserCode( mySphero, userCode, SE )
 } // end of runSpheroUserCode()
 
 
-/**
- *  Sent by main thread
- */
-self.onmessage = function (event) {
-     runSpheroUserCode( event.data.mySphero, event.data.userCode, event.data.SE );
-}
+/* // --- In case of thread
+if (mySphero) {
+    runSpheroUserCode( mySphero, userCode );
+} */
 
+exports.runSpheroUserCode = runSpheroUserCode;
 
 
 
