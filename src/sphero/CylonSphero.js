@@ -92,7 +92,7 @@ function onUserCodePushed( _this, userDescription )
         var mySphero    = _this.spheroCylonRobots[ spheroIndex ].sphero;
         var userCode    = userInfo.userCode;
 
-        worker = new Threads.Worker('ThreadedSpheroUserCodeRun.js');
+        worker = new Threads.Worker('src/sphero/ThreadedSpheroUserCodeRun.js');
         _this.spheroUserCodeWorkers[ spheroIndex ] = worker;
 
         worker.postMessage( { mySphero: mySphero, userCode: userCode, SE: SE } );
