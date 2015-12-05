@@ -136,6 +136,10 @@ function BluetoothConnections()
             console.warn( "btSerialInquire already/still inquiring!" );
             return;
         }
+        if ( global.cylonSphero.isCodeRunning() ) {
+            console.info( "Code is currently running, so skipping btSerialInquire" );
+            return;
+        }
         isInquiring = true;
         btSerial.inquire();
     }

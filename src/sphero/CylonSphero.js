@@ -36,6 +36,13 @@ function CylonSphero()
 
     // Running code:
     this.spheroUserCodeRuns     = [];
+    this.isCodeRunning          = function() {
+        for( var i=0; i < this.spheroUserCodeRuns.length; i++ ) {
+            if ( this.spheroUserCodeRuns[i] && this.spheroUserCodeRuns[i]._endLoop === false )
+                return true;
+        }
+        return false;
+    };
 
     // Threads to run user code
     //this.spheroUserCodeWorkers  = [];
@@ -163,7 +170,6 @@ function _finalSpheroStop( _this, mySphero )
     mySphero.startCalibration();
     return;
 }
-
 
 
 
