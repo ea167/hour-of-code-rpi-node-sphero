@@ -58,7 +58,7 @@ function SpheroUserCodeRun( mySphero, userCode, SE )
 
     // --4-- Run it in the sandbox
     try {
-        vm.runInContext( totalCode, sandbox );
+        vm.runInContext( totalCode, this.sandbox );
     }
     catch( exc ) {
         console.warn( "CylonRobot [%s] VM.runInContext error: %s\n", mySphero.hocIndex, exc.stack );
