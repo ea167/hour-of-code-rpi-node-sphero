@@ -97,6 +97,7 @@ process.on('uncaughtException', function(err) {
  *    SPHEROs: connect through Bluetooth automatically and launch their Cylon loop
  *              Messaging through SpheroEvents
  */
+console.log("\nRaspberry HOC_COLOR is %s\n", process.env.HOC_COLOR);
 global.cylonSphero          = new CylonSphero();
 global.bluetoothConnections = new BluetoothConnections();
 
