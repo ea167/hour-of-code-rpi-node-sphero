@@ -96,6 +96,9 @@ function onUserCodePushed( _this, userDescription )
 
         // --- Eval and execute ThreadedSpheroUserCodeRun in this thread
         var mySphero    = _this.spheroCylonRobots[ spheroIndex ].sphero;
+        var userCode    = userInfo.userCode;
+
+/*
         var codeToRun   = " var mySphero = JSON.parse('"+ JSON.stringify( mySphero ) +"'); \n"
                         + " var userCode = JSON.parse('"+ JSON.stringify( userInfo.userCode ) +"'); \n";
         codeToRun += _this.templateUserCodeRun;
@@ -103,23 +106,19 @@ function onUserCodePushed( _this, userDescription )
         console.log(codeToRun);
         console.log("\n");
         //
-/* FIXME        thread.eval( codeToRun, function(err, completionValue) {        // Doc https://github.com/audreyt/node-webworker-threads
+ FIXME        thread.eval( codeToRun, function(err, completionValue) {        // Doc https://github.com/audreyt/node-webworker-threads
             console.log( "CylonRobot [%s] EVAL USER-CODE completed with error/completionValue -- Stops", spheroIndex );
             console.log( err || completionValue );
             // Final STOP when thread ends
             _finalSpheroStop( _this, mySphero );
         });
 */
-        thread = null;
-        // eval( codeToRun );   // FIXME
 
-        var userCode = userInfo.userCode;
-
-        startSpheroThread = require("./ThreadedSpheroUserCodeRun").startSpheroThread;
+        runSpheroUserCode = require("./ThreadedSpheroUserCodeRun").runSpheroUserCode;
 
         console.log( "\nCylonRobot [%s] REQUIRE USER-CODE completed -- startSpheroThread NOW", spheroIndex );
 
-        startSpheroThread( mySphero, userCode );
+        runSpheroUserCode( mySphero, userCode );
 
         console.log( "\nCylonRobot [%s] startSpheroThread completed -- stop", spheroIndex );
         _finalSpheroStop( _this, mySphero );
@@ -264,15 +263,15 @@ function initCylonRobot( _this, mySphero )
     // --- AutoReconnect & InactivityTimeout
     mySphero.setAutoReconnect( 1, 20, function(err, data) {         // 1 for yes, 20 sec, cb    // Doc https://github.com/hybridgroup/cylon-sphero/blob/master/lib/commands.js
         console.log( "CylonRobot [%s] AutoReconnect error/data:", mySphero.hocIndex );
-        console.log( err || data );
+        //console.log( err || data );
     });
     mySphero.setInactivityTimeout( 1800, function(err, data) {      // 30 minutes, cb    // Doc https://github.com/hybridgroup/cylon-sphero/blob/master/lib/commands.js
         console.log( "CylonRobot [%s] InactivityTimeout error/data:", mySphero.hocIndex );
-        console.log( err || data );
+        //console.log( err || data );
     });
     mySphero.stopOnDisconnect( true, function(err, data) {
         console.log( "CylonRobot [%s] stopOnDisconnect error/data:", mySphero.hocIndex );
-        console.log( err || data );
+        //console.log( err || data );
     });
     mySphero.on( "disconnect", function() {
         console.log( "CylonRobot [%s] DISCONNECTED", mySphero.hocIndex );
@@ -388,79 +387,8 @@ module.exports = CylonSphero;
 
 
 
-
-
-
-
-/*********************************
-
-
+/*    Examples
 ------------------------------------------------------------------------------------------------------
-    Examples
+http://cylonjs.com/documentation/examples/sphero/
 ------------------------------------------------------------------------------------------------------
-http://cylonjs.com/documentation/examples/sphero/fluent/locator/
-------------------------------------------------------------------------------------------------------
-
-
-.on("ready", function(bot) {
-   var color = 0x00FF00,
-   bitFilter = 0xFFFF00;
-
-
-   // SetBackLED turns on the tail LED of the sphero that helps
-   // identify the direction the sphero is heading.
-   // accepts a param with a value from 0 to 255, led brightness.
-   bot.sphero.setBackLed(192);
-   bot.sphero.color(color);
- });
-
-
-------------------------------------------------------------------------------------------------------
-
-  work: function(my) {
-    var max = 0;
-    var changingColor = false;
-
-    my.sphero.setDataStreaming(["velocity"], { n: 40, m: 1, pcnt: 0 });
-    my.sphero.on("data", function(data) {
-      if (!changingColor) {
-        var x = Math.abs(data[0]),
-            y = Math.abs(data[1]);
-
-        if (x > max) {
-          max = x;
-        }
-
-        if (y > max) {
-          max = y;
-        }
-      }
-    });
-
-    every((0.6).second(), function() {
-      changingColor = true;
-
-      if (max < 10) {
-        my.sphero.setColor("white");
-      } else if (max < 100) {
-        my.sphero.setColor("lightyellow");
-      } else if (max < 150) {
-        my.sphero.setColor("yellow");
-      } else if (max < 250) {
-        my.sphero.setColor("orange");
-      } else if (max < 350) {
-        my.sphero.setColor("orangered");
-      } else if (max < 450) {
-        my.sphero.setColor("red");
-      } else {
-        my.sphero.setColor("darkred");
-      }
-
-      max = 0;
-      changingColor = false;
-    });
-
-  }
-
-
 */
