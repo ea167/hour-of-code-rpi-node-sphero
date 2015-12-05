@@ -150,7 +150,7 @@
 
 
         <!-- JS HELP (Button with side panel)  -->
-        <div id="slider_help" class="panel panel-default" style="background-color:white;">
+        <div id="slider_help" class="panel panel-default" style="background-color:white; overflow: scroll; ">
             <div class="panel-heading" style="padding:0px;">
                 <button type="button" class="close" style="margin-top:0px; padding-top:0px;"
                     onclick="$('#slider_help').slideReveal('hide');">
@@ -159,37 +159,42 @@
                     Documentation &amp; Help
                 </h4>
             </div>
-            <div class="panel-body">
+            <div class="panel-body" style="">
                 <h4>Javascript Fundamentals</h4>
 
-                <h6>Free text Comments</h6>
+                <h5>Free text Comments</h5>
                 <pre>// This is a one-line comment</pre>
-                <pre>/* This is a multi-<br/>line comment */</pre>
+                <pre>/* This is a multi-<br/>&nbsp;&nbsp;&nbsp;line comment */</pre>
 
-                <h6>Variables</h6>
-                <pre>var a      = 5;</pre>           <em>(number)</em><br/>
-                <pre>var name   = "Elmo";</pre>      <em>(words)</em><br/>
-                <pre>var isOff  = true;</pre>        <em>(true | false)</em><br/><br/>
+                <h5>Variables</h5>
+                <div class="help_legend">(number)</div>
+                <pre>var a      = 5;</pre>
+                <div class="help_legend">(words)</div>
+                <pre>var name   = "Elmo";</pre>
+                <div class="help_legend">(true | false)</div>
+                <pre>var isOff  = true;</pre>
+                <br/>
 
-                <pre>var ages   = [ 6, 9, 13];</pre> <em>(list of numbers). First is ages[0]</em><br/>
-                <pre>var fruits = ["apple", "orange", "banana"];</pre> <em>(list of words)</em><br/>
-                <pre>var label  = { top: 20, left: 15, text: "Welcome!" };</pre> <em>(object)</em><br/>
+                <div class="help_legend">(list of numbers). First is ages[0]</div>
+                <pre>var ages   = [ 6, 9, 13 ];</pre>
+                <div class="help_legend">(list of words)</div>
+                <pre>var fruits = ["apple", 'orange', 'banana'];</pre>
+                <div class="help_legend">(object)</div>
+                <pre>var label  = { top: 20, left: 15, text: "Welcome!" };</pre>
 
-                <h6>Comparators</h6>
+                <h5>Comparators</h5>
                 <pre> a == 5 </pre>
                 <pre> name != "Bill" </pre>
                 <pre> ages[1] < 10  </pre>
                 <pre> fruits[2] <= "banani" </pre>
 
-                <h6>Loops</h6>
-                <pre>for ( var i=0; i < 10; i++ ) {
-                        &nbsp;&nbsp;&nbsp;&nbsp; numbers[i] = i;
-                        &nbsp;&nbsp;&nbsp;&nbsp; doMoreStuff( i );
-                    }</pre>     <em>(loop with variable i taking values from 0 to 9)</em><br/>
-                <pre>while ( wind > 10 ) {
-                        &nbsp;&nbsp;&nbsp;&nbsp; speed = speed + 1;
-                        &nbsp;&nbsp;&nbsp;&nbsp; doMoreStuff();
-                    }</pre>     <em>(while the condition is true, execute what is inside { } )</em><br/>
+                <h5>Loops</h5>
+
+                <div class="help_legend">(loop with variable i taking values from 0 to 9)</div>
+                <pre>for ( var i = 0; i < 10; i++ ) { <br/>&nbsp;&nbsp; numbers[i] = i; <br/>&nbsp;&nbsp; doMoreStuff( i ); <br/> }</pre>
+                <div class="help_legend">(while the condition is true, execute what is inside { } )</div>
+                <pre>while ( wind > 10 ) { <br/>&nbsp;&nbsp; speed = speed + 1; <br/>&nbsp;&nbsp; doMoreStuff(); <br/> }</pre>
+                <br/><br/><br/>
 
                 <h4>Spheros commands</h4>
 
@@ -236,7 +241,8 @@
 
         // --- Init SlideReveal
         $('#slider_help').slideReveal({
-          trigger: $("#trigger_help"),      // width: 500,
+          trigger: $("#trigger_help"),
+          width: 500,
           position: "right",                // overlay: true,
           push: false
         });

@@ -21,6 +21,20 @@ label {
     background: linear-gradient( #a7e4dd, #fff );
 }
 
+.panel-body > h4 {
+    color: #FF6347;
+}
+.panel-body > h5 {
+    color: #8E388E;
+    margin-top: 30px;
+}
+
+.help_legend {
+    text-align:right;
+    color: #555;
+    font-style: italic;
+}
+
 .green-bg-txt {
     background-color: green;
     color: white;
