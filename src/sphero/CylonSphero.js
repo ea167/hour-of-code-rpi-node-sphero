@@ -105,8 +105,8 @@ function onUserCodePushed( _this, userDescription )
         var SpheroUserCodeRun = require("./RequireSpheroUserCodeRun");
         console.log( "\nCylonRobot [%s] REQUIRE USER-CODE completed -- run SpheroUserCodeRun NOW", spheroIndex );
         _this.spheroUserCodeRuns[spheroIndex] = new SpheroUserCodeRun( mySphero, userCode, SE );
-        console.log( "\nCylonRobot [%s] SpheroUserCodeRun completed -- stop", spheroIndex );
-        _finalSpheroStop( _this, mySphero );
+        console.log( "\nCylonRobot [%s] SpheroUserCodeRun returned. Do not stop now, as setInterval keeps on!", spheroIndex );
+        // _finalSpheroStop( _this, mySphero );
     }
     catch (exc) { console.error( "\nTRY-CATCH ERROR in CylonSphero onUserCodePushed: " + exc.stack + "\n" ); }
     return;
