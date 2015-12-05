@@ -218,7 +218,9 @@ function onBluetoothDeviceConnected( _this, deviceDescription )
                     setInterval( function(){ my.sphero.ping(); }, 10000 );
 
                     // startCalibration to show tail and backLed !!!
-                    my.sphero.startCalibration();    // Shown also again everytime the user clicks stop!
+
+                    setTimeout( function(){ my.sphero.startCalibration(); }, 5000);
+                    //FIXME// my.sphero.startCalibration();    // Shown also again everytime the user clicks stop!
 
 
                     /*
