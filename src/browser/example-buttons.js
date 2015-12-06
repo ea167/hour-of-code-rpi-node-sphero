@@ -32,7 +32,9 @@ function initExamplesButtons()
         downloadExampleCode( exampleId );
 
         // --- Add listeners
-        $("#"+exampleId).on("click", function() { showExampleArea(exampleId); });
+        $("#"+exampleId).on("click", function(exId) {
+            return function() { showExampleArea(exId); }
+        }(exampleId) );               // Otw keeps the latest value of exampleId
     }
 
     // --- Bind the hide / edit code buttons
@@ -47,7 +49,7 @@ function initExamplesButtons()
 function downloadExampleCode( exampleId )
 {
     // Download and Save it
-    $.get('/js/code-examples/'+ exampleId, function( data ) {
+    $.get('/js/code-examples/'+ exampleId +'.js', function( data ) {
         EXAMPLE_CODES[ exampleId ] = data;
     });
 }
@@ -64,15 +66,17 @@ function showExampleArea( exampleId )
 
 
 // --- Transfer the code to the editor
-function transferExampleCodeToEditor( exampleId )
+function transferExampleCodeToEditor()
 {
-    currentExampleCodeIdDisplayed = exampleId;
-
     // Save current code!
     var userCode = codeMirrorEditor.getValue();                                     // codeMirrorEditor global var
     saveCodeToLocalStorage( userCode );
 
-    codeMirrorEditor.setValue( EXAMPLE_CODES[ currentExampleCodeIdDisplayed ] );
+    // Hide the example zone
+    $("#example_zone").hide( 300 );
+
+    // Transfer in editor 
+    codeMirrorEditor.setValue( EXAMPLE_CODES[ currentExampleCodeIdDisplayed ].toString() );
 }
 
 
