@@ -12,9 +12,13 @@ var SpheroEvents    = require('../sphero/SpheroEvents');
 var SE = global.spheroEvents;                   // Replaces jQuery $ events here
 
 // Sphero colors (associative array, dark & light)
-var SPHERO_COLORS = { "red": [0x7F0000, 0xFF0000], "green": [0x007F00, 0x00FF00],
+global.SPHERO_COLORS = { "red": [0x7F0000, 0xFF0000], "green": [0x007F00, 0x00FF00],
     "blue": [0x00007F, 0x0000FF], "yellow": [0x007F7F, 0x00FFFF], "purple": [0x7F7F00, 0xFFFF00]
 };
+
+// -----------------------------------------------------------------------------
+global.STARTING_POS_Y_CORRECTION = 20;
+
 
 // Threads lib from  https://www.npmjs.com/package/webworker-threads => Segmentation fault!!
 ///var Threads = require('webworker-threads');
@@ -208,7 +212,7 @@ function onBluetoothDeviceConnected( _this, deviceDescription )
 
                     // Store its index inside the object. Before initCylonRobot called!
                     my.sphero.hocIndex = idx;
-                    var hocColor       = SPHERO_COLORS[ ""+process.env.HOC_COLOR ][ _this.darkSpheroIndex == idx ? 0 : 1 ];
+                    var hocColor       = global.SPHERO_COLORS[ ""+process.env.HOC_COLOR ][ _this.darkSpheroIndex == idx ? 0 : 1 ];
                     my.sphero.hocColor = hocColor ? hocColor : 0xFF00FF;
                     console.log("CylonRobot [%s] has index[%s] and color [%s]", my.sphero.name, my.sphero.hocIndex, my.sphero.hocColor.toString(16) );
 
@@ -278,13 +282,29 @@ function initCylonRobot( _this, mySphero )
 
     // --- Data streaming
     mySphero.on( "dataStreaming", function(data) {
+        var timestamp = Date.now();
+        var posYCorrection = (mySphero.hocIndex != _this.darkSpheroIndex) ? global.STARTING_POS_Y_CORRECTION : 0;
         //console.log( "CylonRobot [%s] DATA-STREAMING data:", mySphero.hocIndex );
         //console.log(data);
-        SE.emit( "sphero-data-streaming", JSON.stringify({ "spheroIndex": mySphero.hocIndex , "data": data }) );
+
+        // --- Set position, speed and acceleration here!
+        //     WARNING: _this.darkSpheroIndex is corrected by 20 cm on Y axis!
+        mySphero.timestamp  = timestamp;
+        mySphero.posX       = data.xOdometer.value[0];
+        mySphero.posY       = data.yOdometer.value[0] + posYCorrection;
+        mySphero.speedX     = data.xVelocity.value[0];
+        mySphero.speedY     = data.yVelocity.value[0];
+        mySphero.accelX     = data.xAccel.value[0];
+        mySphero.accelY     = data.yAccel.value[0];
+        mySphero.accelOne   = data.accelOne.value[0];
+
+        // --- Set all other Spheros
 
         // FIXME Set to mySphero + in otherSphero as otherData [we suppose there are only 2]
         // !!!!!!!
 
+        // --- Signal to interested parties
+        // SE.emit( "sphero-data-streaming", JSON.stringify({ "spheroIndex": mySphero.hocIndex , "data": data }) );
     });
 
 
