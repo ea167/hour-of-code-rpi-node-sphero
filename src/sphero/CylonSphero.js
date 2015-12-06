@@ -12,7 +12,9 @@ var SpheroEvents    = require('../sphero/SpheroEvents');
 var SE = global.spheroEvents;                   // Replaces jQuery $ events here
 
 // Sphero colors (associative array, dark & light)
-var SPHERO_COLORS = { "red": [0xdark, 0xredlight],  };
+var SPHERO_COLORS = { "red": [0x7F0000, 0xFF0000], "green": [0x007F00, 0x00FF00],
+    "blue": [0x00007F, 0x0000FF], "yellow": [0x007F7F, 0x00FFFF], "purple": [0x7F7F00, 0xFFFF00]
+};
 
 // Threads lib from  https://www.npmjs.com/package/webworker-threads => Segmentation fault!!
 ///var Threads = require('webworker-threads');
@@ -31,6 +33,9 @@ var SPHERO_COLORS = { "red": [0xdark, 0xredlight],  };
  */
 function CylonSphero()
 {
+    // Dark sphero is the one set at (0,0), and Light sphero will be at (0,20)
+    this.darkSpheroIndex         = 0;    // May change if the Sphero at index 0 is disconnected
+
     // Bluetooth and Sphero (class attributes)
     this.spheroCommPorts        = [];   // When not connected, the value is null
     this.spheroMacAddresses     = [];
@@ -202,6 +207,9 @@ function onBluetoothDeviceConnected( _this, deviceDescription )
 
                     // Store its index inside the object. Before initCylonRobot called!
                     my.sphero.hocIndex = idx;
+                    var hocColor       = SPHERO_COLORS[ ""+process.env.HOC_COLOR ][ _this.darkSpheroIndex == idx ? 0 : 1 ];
+                    my.sphero.hocColor = hocColor ? hocColor : 0xFF00FF;
+                    console.log("CylonRobot [%s] has index[%s] and color [%s]", my.sphero.name, my.sphero.hocIndex, my.sphero.hocColor.toString(16) );
 
                     // Init the cylonRobot with all eventListeners + initialization code (show tail Led)
                     initCylonRobot( _this, my.sphero );
@@ -226,7 +234,10 @@ function onBluetoothDeviceConnected( _this, deviceDescription )
         _this.spheroCommPorts[idx]      = deviceInfo.rfcommDev;
         _this.spheroCylonRobots[idx]    = cylonRobot;                       // WARNING: mySphero == spheroCylonRobots[idx].sphero
         _this.spheroMacAddress2Index[ deviceInfo.macAddress ] = idx;
-
+        // Dark Sphero?
+        if (_this.darkSpheroIndex === undefined) {
+            _this.darkSpheroIndex = idx;
+        }
 
         // Test FIXME
         //setTimeout( function(){ cylonRobot.sphero.color( 0xFF00FF ); }, 5000 );
@@ -362,6 +373,11 @@ function _onDisconnect( _this, mySphero, idx )
     // Reset array values
     _this.spheroCommPorts[ idx ]      = null;      // When not connected, the value is null
     _this.spheroCylonRobots[ idx ]    = null;      // When not connected, the value is null
+    // Reset darkSpheroIndex if was the one
+    if (_this.darkSpheroIndex == idx) {
+        _this.darkSpheroIndex = undefined;
+    }
+    //
     delete mySphero;
 }
 
