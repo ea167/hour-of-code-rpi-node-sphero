@@ -9,7 +9,7 @@ function once( mySphero )
     // --- Write code here, that will be executed only once at the beginning
 
     // Example:
-    mySphero.roll( 50, heading );     // Distance, heading 0..359 degrees
+    mySphero.roll( 50, heading );     // Speed, heading 0..359 degrees
 
     return;
 }
