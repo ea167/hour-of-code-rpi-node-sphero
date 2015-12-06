@@ -37,26 +37,23 @@ label {
     font-style: italic;
 }
 
-.green-bg-txt {
-    background-color: green;
+.red-bg-txt {
+    background-color: red;
     color: white;
 }
-.purple-bg-txt {
-    background-color: purple;
+.green-bg-txt {
+    background-color: green;
     color: white;
 }
 .blue-bg-txt {
     background-color: blue;
     color: white;
 }
-
-/*
-body {
-  padding: 50px;
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+.yellow-bg-txt {
+    background-color: yellow;
+    color: black;
 }
-
-a {
-  color: #00B7FF;
+.purple-bg-txt {
+    background-color: purple;
+    color: white;
 }
-*/
