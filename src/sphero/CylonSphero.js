@@ -11,6 +11,9 @@ global.Cylon = global.Cylon || Cylon;       // To simplify in the callbacks and 
 var SpheroEvents    = require('../sphero/SpheroEvents');
 var SE = global.spheroEvents;                   // Replaces jQuery $ events here
 
+// Sphero colors (associative array, dark & light)
+var SPHERO_COLORS = { "red": [0xdark, 0xredlight],  };
+
 // Threads lib from  https://www.npmjs.com/package/webworker-threads => Segmentation fault!!
 ///var Threads = require('webworker-threads');
 ///var FS      = require('fs');
@@ -204,6 +207,9 @@ function onBluetoothDeviceConnected( _this, deviceDescription )
                     initCylonRobot( _this, my.sphero );
 
                     // Test // FIXME
+                    // DARK #0 (first if holes in array) LIGHT #1 (2nd)
+                    // my.sphero.isDark == true | false;
+
                     my.sphero.color( 0x00FF00 );
                     // my.sphero.roll( 20, 0 );
                     // Show tail Led! And block gyroscope!
@@ -248,10 +254,10 @@ function initCylonRobot( _this, mySphero )
     console.log( "CylonRobot [%s] initialization\n", mySphero.hocIndex );
 
     // --- AutoReconnect & InactivityTimeout
-    mySphero.setAutoReconnect( 1, 20, function(err, data) {         // 1 for yes, 20 sec, cb    // Doc https://github.com/hybridgroup/cylon-sphero/blob/master/lib/commands.js
-        console.log( "CylonRobot [%s] AutoReconnect error/data:", mySphero.hocIndex );
-        //console.log( err || data );
-    });
+    //mySphero.setAutoReconnect( 1, 20, function(err, data) {         // 1 for yes, 20 sec, cb    // Doc https://github.com/hybridgroup/cylon-sphero/blob/master/lib/commands.js
+    //    console.log( "CylonRobot [%s] AutoReconnect error/data:", mySphero.hocIndex );
+    //    //console.log( err || data );
+    //});
     mySphero.setInactivityTimeout( 1800, function(err, data) {      // 30 minutes, cb    // Doc https://github.com/hybridgroup/cylon-sphero/blob/master/lib/commands.js
         console.log( "CylonRobot [%s] InactivityTimeout error/data:", mySphero.hocIndex );
         //console.log( err || data );
@@ -267,7 +273,12 @@ function initCylonRobot( _this, mySphero )
         //console.log( "CylonRobot [%s] DATA-STREAMING data:", mySphero.hocIndex );
         //console.log(data);
         SE.emit( "sphero-data-streaming", JSON.stringify({ "spheroIndex": mySphero.hocIndex , "data": data }) );
+
+        // FIXME Set to mySphero + in otherSphero as otherData [we suppose there are only 2]
+        // !!!!!!!
+
     });
+
 
     // To detect locator, accelOne and velocity from the sphero, we use setDataStreaming.
     // sphero API data sources for locator info are as follows:

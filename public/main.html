@@ -161,8 +161,31 @@
             </div>
             <div class="panel-body" style="">
 
-                <h4>Spheros commands</h4>
+                <h4>Sphero useful commands</h4>
 
+                <h5>Rolling</h5>
+                <div class="help_legend">speed (0..255), heading angle (0..359)</div>
+                <pre>mySphero.roll( <em>speed</em>, <em>heading</em> );</pre>
+                <pre>mySphero.stop();</pre>
+
+                <h5>Position &amp; Speed</h5>
+                <div class="help_legend">position in centimeters (cm)</div>
+                <pre>mySphero.posX<br/>mySphero.posY</pre>
+                <div class="help_legend">speed in millimeters per second (mm/s)</div>
+                <pre>mySphero.speedX<br/>mySphero.speedY</pre>
+                <div class="help_legend">acceleration in "1/4096 G", accelOne in mG</div>
+                <pre>mySphero.accelX<br/>mySphero.accelY<br/>mySphero.accelOne</pre>
+                <div class="help_legend">when it was measured, in milliseconds</div>
+                <pre>mySphero.timestamp</pre>
+                <br/>
+                <div class="help_legend">same for the OTHER sphero</div>
+                <pre>mySphero.otherPosX &nbsp;and&nbsp; mySphero.otherPosY <br/>mySphero.otherSpeedX &nbsp;and&nbsp; mySphero.otherSpeedY ...<br/>mySphero.otherTimestamp </pre>
+
+
+                <h5>Color</h5>
+                <div class="help_legend">color as "purple", or RGB as "#RRGGBB" or 0xRRGGBB</div>
+                <pre>mySphero.color( <em>color</em> );</pre>
+                <pre>mySphero.randomColor();</pre>
                 <br/><br/><br/>
 
 
