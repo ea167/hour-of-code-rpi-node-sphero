@@ -160,6 +160,12 @@
                 </h4>
             </div>
             <div class="panel-body" style="">
+
+                <h4>Spheros commands</h4>
+
+                <br/><br/><br/>
+
+
                 <h4>Javascript Fundamentals</h4>
 
                 <h5>Free text Comments</h5>
@@ -183,20 +189,26 @@
                 <pre>var label  = { top: 20, left: 15, text: "Welcome!" };</pre>
 
                 <h5>Comparators</h5>
-                <pre> a == 5 </pre>
-                <pre> name != "Bill" </pre>
-                <pre> ages[1] < 10  </pre>
-                <pre> fruits[2] <= "banani" </pre>
+                <pre>a == 5 </pre>
+                <pre>name != "Bill" </pre>
+                <pre>ages[1] < 10  </pre>
+                <pre>fruits[2] <= "banani" </pre>
+
+                <h5>Conditionals</h5>
+                <pre>if (a < 5) { a = someResult() + 2; } </pre>
+                <pre>if (isOn == true) { <br/>&nbsp;&nbsp; switchOff(); <br/>} else { <br/>&nbsp;&nbsp; lightUp(); <br/>} </pre>
 
                 <h5>Loops</h5>
-
                 <div class="help_legend">(loop with variable i taking values from 0 to 9)</div>
-                <pre>for ( var i = 0; i < 10; i++ ) { <br/>&nbsp;&nbsp; numbers[i] = i; <br/>&nbsp;&nbsp; doMoreStuff( i ); <br/> }</pre>
+                <pre>for ( var i = 0; i < 10; i++ ) { <br/>&nbsp;&nbsp; numbers[i] = i; <br/>&nbsp;&nbsp; doMoreStuff( i ); <br/>}</pre>
                 <div class="help_legend">(while the condition is true, execute what is inside { } )</div>
-                <pre>while ( wind > 10 ) { <br/>&nbsp;&nbsp; speed = speed + 1; <br/>&nbsp;&nbsp; doMoreStuff(); <br/> }</pre>
-                <br/><br/><br/>
+                <pre>while ( wind > 10 ) { <br/>&nbsp;&nbsp; speed = speed + 1; <br/>&nbsp;&nbsp; wind = getMeasure(); <br/>}</pre>
 
-                <h4>Spheros commands</h4>
+                <h5>Functions</h5>
+                <div class="help_legend">(group lines of code to execute several times)</div>
+                <pre>function moveAndTurn() { <br/>&nbsp;&nbsp; move(); <br/>&nbsp;&nbsp; turn(); <br/>} </pre>
+                <div class="help_legend">(take parameters and return results)</div>
+                <pre>function fibonacci( num ) { <br/>&nbsp;&nbsp; if (num <= 1) { <br/>&nbsp;&nbsp;&nbsp;&nbsp; return 1; <br/>&nbsp;&nbsp; } <br/>&nbsp;&nbsp; return fibonacci(num - 1) + fibonacci(num - 2);<br/>} </pre>
 
             </div>
         </div>
