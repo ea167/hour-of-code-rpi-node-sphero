@@ -1,5 +1,5 @@
 // --- Define variables used across loops here, if needed
-// var count = 1;
+// var heading = 45;
 
 
 function once( mySphero )

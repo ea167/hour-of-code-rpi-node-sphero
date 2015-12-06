@@ -1,5 +1,5 @@
-// --- Define variables used across loops here, if needed 2
-// var count = 1;
+// --- Define variables used across loops here, if needed
+var heading = 45;
 
 
 function once( mySphero )
@@ -7,7 +7,7 @@ function once( mySphero )
     // --- Write code here, that will be executed only once at the beginning
 
     // Example:
-    mySphero.roll( 50, 45 );     // Distance, heading 0..359 degrees
+    mySphero.roll( 50, heading );     // Distance, heading 0..359 degrees
 
     return;
 }

@@ -1,13 +1,15 @@
 // --- Define variables used across loops here, if needed 5
 // var count = 1;
 
+/*** Your goal here is to follow the other Sphero ***/
+
 
 function once( mySphero )
 {
     // --- Write code here, that will be executed only once at the beginning
 
     // Example:
-    mySphero.roll( 50, 45 );     // Distance, heading 0..359 degrees
+    //mySphero.roll( 50, 45 );     // Distance, heading 0..359 degrees
 
     return;
 }

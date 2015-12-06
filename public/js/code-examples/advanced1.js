@@ -2,12 +2,15 @@
 // var count = 1;
 
 
+/*** Your goal here is to move randomly without going out of bounds ***/
+
+
 function once( mySphero )
 {
     // --- Write code here, that will be executed only once at the beginning
 
     // Example:
-    mySphero.roll( 50, 45 );     // Distance, heading 0..359 degrees
+    // mySphero.roll( 50, 45 );     // Distance, heading 0..359 degrees
 
     return;
 }
