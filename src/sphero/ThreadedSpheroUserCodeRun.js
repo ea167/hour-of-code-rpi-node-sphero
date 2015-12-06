@@ -71,7 +71,8 @@ function runSpheroUserCode( mySphero, userCode, SE )
 process.on('message', function (msg) {
     console.log("\n ThreadedSpheroUserCodeRun GOT MESSAGE:");
     console.log(msg);
-    runSpheroUserCode( msg.mySphero, msg.userCode, msg.SE );
+    
+    runSpheroUserCode( msg.cylonRobot.sphero, msg.userCode, msg.SE );
 });
 
 
