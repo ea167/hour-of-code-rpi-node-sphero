@@ -1,8 +1,7 @@
 /**
  *  Command the Sphero via established bluetooth connection on /dev/ttyX
  *    Use Cylon lib             http://cylonjs.com/
- *    Do NOT use thread library  https://github.com/audreyt/node-webworker-threads
- *       as it does a Segmentation Fault
+ *    TODO: Use thread library  https://github.com/audreyt/node-webworker-threads
  */
 
 var Cylon = require('cylon');
@@ -21,7 +20,6 @@ global.SPHERO_COLORS = { "red": [0x7F0000, 0xFF0000], "green": [0x007F00, 0x00FF
 global.STARTING_POS_Y_CORRECTION = 20;
 
 
-var Threads = require('child_process');
 // Threads lib from  https://www.npmjs.com/package/webworker-threads => Segmentation fault!!
 ///var Threads = require('webworker-threads');
 ///var FS      = require('fs');
@@ -59,7 +57,7 @@ function CylonSphero()
     };
 
     // Threads to run user code
-    this.spheroUserCodeWorkers  = [];
+    //this.spheroUserCodeWorkers  = [];
     //this.templateUserCodeRun    = readTemplateUserCodeRun();
 
     // Closure for on(...)
@@ -105,30 +103,28 @@ function onUserCodePushed( _this, userDescription )
             return;
         }
 
-        // --- Existing Thread?
+        /* // --- Existing Thread?
         var worker = _this.spheroUserCodeWorkers[ spheroIndex ];
         if (worker) {
-            console.log( "\nCylonRobot [%s] onUserCodePushed KILLing the previous process!", spheroIndex );
-            worker.kill();               // Terminate the worker when needed!
-        }
+            worker.terminate();               // Terminate the worker when needed!
+        } */
 
         // --- Eval and execute ThreadedSpheroUserCodeRun in this worker
         var mySphero    = _this.spheroCylonRobots[ spheroIndex ].sphero;
         var userCode    = userInfo.userCode;
 
-        console.log( "\nCylonRobot [%s] onUserCodePushed FORKing a new process!", spheroIndex );
-        worker = Threads.fork( __dirname + 'src/sphero/ThreadedSpheroUserCodeRun.js');
+        // Segmentation fault!!!
+        /*** worker = new Threads.Worker('src/sphero/ThreadedSpheroUserCodeRun.js');
         _this.spheroUserCodeWorkers[ spheroIndex ] = worker;
+        worker.postMessage( { mySphero: mySphero, userCode: userCode, SE: SE } ); ***/
 
-        console.log( "\nCylonRobot [%s] onUserCodePushed SEND info with code!", spheroIndex );
-        worker.send( { mySphero: mySphero, userCode: userCode, SE: SE } );
 
-        /*** // --- Require version, same thread
+        // --- Require version, same thread
         var SpheroUserCodeRun = require("./RequireSpheroUserCodeRun");
         console.log( "\nCylonRobot [%s] REQUIRE USER-CODE completed -- run SpheroUserCodeRun NOW", spheroIndex );
         _this.spheroUserCodeRuns[spheroIndex] = new SpheroUserCodeRun( mySphero, userCode, SE );
         console.log( "\nCylonRobot [%s] SpheroUserCodeRun returned. Do not stop now, as setInterval keeps on!", spheroIndex );
-        // _finalSpheroStop( _this, mySphero ); ***/
+        // _finalSpheroStop( _this, mySphero );
     }
     catch (exc) { console.error( "\nTRY-CATCH ERROR in CylonSphero onUserCodePushed: " + exc.stack + "\n" ); }
     return;
@@ -156,12 +152,12 @@ function onUserStop( _this, userDescription )
             return;
         }
 
-        // --- Existing Thread?
+        /*** // --- Existing Thread?
         var worker = _this.spheroUserCodeWorkers[ spheroIndex ];
         if (worker) {
-            console.log( "\nCylonRobot [%s] onUserStop  KILLing the previous process!", spheroIndex );
-            worker.kill();               // Terminate the worker when needed!
+            worker.terminate();               // Terminate the worker when needed!
         }
+        _this.spheroUserCodeWorkers[ spheroIndex ] = null;  ***/
 
         // --- Stop Sphero and show tail Led
         _finalSpheroStop( _this, _this.spheroCylonRobots[ spheroIndex ].sphero );

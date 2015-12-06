@@ -67,30 +67,13 @@ function runSpheroUserCode( mySphero, userCode, SE )
 /**
  *  Sent by main thread
  */
-self.onmessage = function (event) {
-     runSpheroUserCode( event.data.mySphero, event.data.userCode, event.data.SE );
-}
+process.on('message', function (msg) {
+     runSpheroUserCode( msg.mySphero, msg.userCode, msg.SE );
+});
 
 
 
 
-/***   USER CODE IN EDITOR -- SEE code-examples/default.js
-    // -------------------------------------
-
-    // Define variables here if needed
-    // var count = 1;
-
-    function once( mySphero )
-    {
-        // Write code here, that will be executed only once at the beginning
-    }
-
-    function loop( mySphero )           // setInterval every 100ms (10 times per second)
-    {
-        // Write here code that will be run 10 times per second, looping indefinitely
-
-        // Call endLoops() if you want to abort next loops
-    }
-
-    // -------------------------------------
+/***
+    USER CODE IN EDITOR -- SEE code-examples/default.js
 ***/
