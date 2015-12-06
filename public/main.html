@@ -109,7 +109,7 @@
             3. Smarter Sumo algo!
         -->
 
-        <div class="row hidden" style="margin-top:10px; margin-bottom:10px;">
+        <div id="example_zone" class="row hidden" style="margin-top:10px; margin-bottom:10px;">
             <div class="col-xs-12">
                 <pre id="example_code" class="pre-scrollable">
                     // To be filled by JS
@@ -118,8 +118,9 @@
                     }
                 </pre>
             </div>
-            <div class="col-xs-3 col-xs-offset-9">
-                <button class="btn btn-primary">Use as source in code editor</div>
+            <div class="col-xs-5 col-xs-offset-7">
+                <button id="hide_example_zone" class="btn btn-default">Hide</button>
+                <button id="put_example_in_editor" class="btn btn-primary">Use as source in code editor</button>
             </div>
         </div>
 
@@ -133,7 +134,7 @@
 
             <div class="col-xs-5 text-center">
                 <button id="trigger_help" class="btn btn-info">Documentation &amp; Help</button>
-                <button id="trigger_history" class="btn btn-default">Retrieve Code History</button>
+                <button id="trigger_history" class="btn btn-default" style="display:none;">Retrieve Code History</button> <!-- TODO -->
             </div>
 
             <!-- Button Send code to Sphero : student-name + which Sphero + Code  -->

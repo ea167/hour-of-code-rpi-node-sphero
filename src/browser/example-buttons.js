@@ -3,6 +3,8 @@
  */
 var $ = require('jquery');
 
+var saveCodeToLocalStorage = require("./js-editor").saveCodeToLocalStorage;
+
 // Array of ids
 var EXAMPLE_CODE_IDS = [
     "beginner1", "beginner2", "beginner3", "beginner4", "beginner5",
@@ -20,6 +22,8 @@ var currentExampleCodeIdDisplayed;
  */
 function initExamplesButtons()
 {
+    downloadExampleCode( "default" );
+
     // For all examples
     for (var i = 0; i < EXAMPLE_CODE_IDS.length; i++ ) {
         var exampleId = EXAMPLE_CODE_IDS[i];
@@ -32,9 +36,9 @@ function initExamplesButtons()
     }
 
     // --- Bind the hide / edit code buttons
+    $("#hide_example_zone").on("click", function() { $("#example_zone").hide( 300 ); });   // ms
 
-    // TODO
-
+    $("#put_example_in_editor").on("click", function() { transferExampleCodeToEditor(); });
     return;
 }
 
@@ -42,20 +46,34 @@ function initExamplesButtons()
 // --- Download all examples locally through ajax
 function downloadExampleCode( exampleId )
 {
-
+    // Download and Save it
+    $.get('/js/code-examples/'+ exampleId, function( data ) {
+        EXAMPLE_CODES[ exampleId ] = data;
+    });
 }
 
-// --- Show the code in the example area,
+
+// --- Show the code in the example area
 function showExampleArea( exampleId )
 {
     currentExampleCodeIdDisplayed = exampleId;
-
     // Set div content + show div
-
+    $("#example_code").html( EXAMPLE_CODES[ exampleId ] );
+    $("#example_zone").show( 400 );  // ms
 }
 
-// TODO: Bind on the buttons to display the examples and copy the code to the editor
 
-// TODO: Button to copy code to the editor
+// --- Transfer the code to the editor
+function transferExampleCodeToEditor( exampleId )
+{
+    currentExampleCodeIdDisplayed = exampleId;
+
+    // Save current code!
+    var userCode = codeMirrorEditor.getValue();                                     // codeMirrorEditor global var
+    saveCodeToLocalStorage( userCode );
+
+    codeMirrorEditor.setValue( EXAMPLE_CODES[ currentExampleCodeIdDisplayed ] );
+}
+
 
 exports.initExamplesButtons = initExamplesButtons;

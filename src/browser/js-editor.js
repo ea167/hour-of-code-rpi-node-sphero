@@ -109,3 +109,4 @@ function saveCodeToLocalStorage( userCode )
 
 
 exports.initEditorButtons = initEditorButtons;
+exports.saveCodeToLocalStorage = saveCodeToLocalStorage;
