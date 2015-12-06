@@ -4,13 +4,13 @@
 // var browserWebSocket = null;
 
 // ===== Modules Required =====
-var initBrowserSocket = require('./socket').initBrowserSocket;
-var initEditorButtons = require('./js-editor').initEditorButtons;
-
+var initBrowserSocket   = require('./socket').initBrowserSocket;
+var initEditorButtons   = require('./js-editor').initEditorButtons;
+var initExamplesButtons = require('./example-buttons').initExamplesButtons;
 
 // ===== Start of the main page =====
-$(document).ready(function()
-{
+$(document).ready( function() {
+
     // --- Initialize all the views
     // initViews();
 
@@ -19,15 +19,16 @@ $(document).ready(function()
 
     // --- Init the behaviour of buttons for the JS editor
     initEditorButtons();
-
-
-    // FIXME !!!
-    // Save models to localstorage
-    //localStorage.setItem('toto', JSON.stringify("toto"));
-
-    //$.subscribe('resetscreen', function() {
-    //  $('#result').text('');
-    //  $('.error-row').hide();
-    //});
+    //
+    initExamplesButtons();
 
 });
+
+
+// Save models to localstorage
+// localStorage.setItem('toto', JSON.stringify("toto"));
+
+//$.subscribe('resetscreen', function() {
+//  $('#result').text('');
+//  $('.error-row').hide();
+//});

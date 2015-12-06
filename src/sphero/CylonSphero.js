@@ -256,7 +256,7 @@ function onBluetoothDeviceConnected( _this, deviceDescription )
 
 
 /**
- *  Init the Cylon Robot object with collision, data-streaming, ...     // FIXME
+ *  Init the Cylon Robot object with collision, data-streaming, ...
  */
 function initCylonRobot( _this, mySphero )
 {
@@ -329,7 +329,7 @@ function initCylonRobot( _this, mySphero )
       m: 1,
       // pcnt: 1 -255, how many packets to send.    // pcnt = 0 means unlimited data Streaming    // pcnt = 10 means stop after 10 data packets
       pcnt: 0,
-      dataSources: ["odometer", "accelOne", "velocity", "accelerometer", "gyroscope"]          // FIXME        // locator (issue #55), accelerometer, gyroscope,
+      dataSources: ["odometer", "accelOne", "velocity", "accelerometer"]          // FIXME        // locator (issue #55), accelerometer, gyroscope,
     };
     //
     mySphero.setDataStreaming(opts);
