@@ -30,7 +30,7 @@ function SpheroUserCodeRun( mySphero, userCode, SE )
     // --2-- Create the sandbox for to execute the user code
     this.sandbox = {
         mySphero:       mySphero,
-        _intervalLoop:  null,
+        //_intervalLoop:  null,       
         _endLoop:       false,
         setInterval:    setInterval,        // Globals in node.js, not available anymore when sandboxed!
         clearInterval:  clearInterval
@@ -39,7 +39,8 @@ function SpheroUserCodeRun( mySphero, userCode, SE )
 
 
     // --3-- Add execution code to the userCode, to run once() and loop()
-    var totalCode   = " function once(mySphero) {} function loop(mySphero) {} "     // To make sure they are defined
+    var totalCode   = " var _intervalLoop = null; "   // var _endLoop = false;
+                    + " function once(mySphero) {} function loop(mySphero) {} "     // To make sure they are defined
                     + userCode
                     + "\n /* */ function check_the_syntax_of_your_code() {} /* */ \n"
                     + "\n if (once && typeof once === 'function') { try { once(mySphero); } catch(exc) { "
