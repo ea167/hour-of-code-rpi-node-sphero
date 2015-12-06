@@ -7,6 +7,7 @@
 var initBrowserSocket   = require('./socket').initBrowserSocket;
 var initEditorButtons   = require('./js-editor').initEditorButtons;
 var initExamplesButtons = require('./example-buttons').initExamplesButtons;
+var initUserName        = require('./user-name').initUserName;
 
 // ===== Start of the main page =====
 $(document).ready( function() {
@@ -21,7 +22,8 @@ $(document).ready( function() {
     initEditorButtons();
     //
     initExamplesButtons();
-
+    //
+    initUserName();
 });
 
 

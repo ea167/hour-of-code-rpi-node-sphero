@@ -16,9 +16,41 @@ function initEditorButtons()
     $("#push_to_sphero").on("click", pushToSpheroOnClick );                      // function() { pushToSpheroOnClick( browserWebSocket); });
     $("#stop_sphero").on("click",    stopSpheroOnClick );
 
+    // Save on unload
+    $(window).on("unload", saveCurrentEditorCodeToLocalStorage );
+
+    // Onload, charge the previous code, or default.js
+    loadEditorFirstCode();
+
     // Interval to record code history, when there are changes, in local storage,
     //  every minute at most, keep the last 50 max of codes posted (they should be stored on RPi)
     setInterval( saveCodeEveryMinuteToLocalStorage, 60000 );
+    return;
+}
+
+
+/**
+ *
+ */
+function loadEditorFirstCode()
+{
+    // Is there one in localStorage?
+    var codeList = localStorage.getItem("codeList");
+    codeList = ( codeList ) ? JSON.parse( codeList ) : null;
+
+    if ( codeList && codeList.length >= 1) {
+        var storedCode = localStorage.getItem( codeList[codeList.length - 1] );
+        storedCode = ( storedCode ) ? JSON.parse( storedCode ) : null;
+        if ( storedCode ) {
+            codeMirrorEditor.setValue( storedCode );
+            return;
+        }
+    }
+
+    // Otherwise load default.js
+    $.get('/js/code-examples/default.js', function( data ) {
+        codeMirrorEditor.setValue( data.toString() );
+    });
     return;
 }
 
@@ -81,8 +113,7 @@ function saveCodeEveryMinuteToLocalStorage()
         return;
     }
     // Otw save to localStorage
-    var userCode = codeMirrorEditor.getValue();                                     // codeMirrorEditor global var
-    saveCodeToLocalStorage( userCode );
+    saveCurrentEditorCodeToLocalStorage();
 }
 
 
@@ -107,6 +138,14 @@ function saveCodeToLocalStorage( userCode )
     return;
 }
 
+// Shortcut
+function saveCurrentEditorCodeToLocalStorage()
+{
+    var userCode = codeMirrorEditor.getValue();                                     // codeMirrorEditor global var
+    saveCodeToLocalStorage( userCode );
+}
+
+
 
 exports.initEditorButtons = initEditorButtons;
-exports.saveCodeToLocalStorage = saveCodeToLocalStorage;
+exports.saveCurrentEditorCodeToLocalStorage = saveCurrentEditorCodeToLocalStorage;

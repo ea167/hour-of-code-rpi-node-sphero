@@ -43,7 +43,7 @@
                 <div class="col-xs-6 text-center">
 
                     <label>Your Name:  &nbsp;</label>   <!-- TODO: By default come up randomly from a set of funny names, with -2|3|4... -->
-                    <input type="text" id="student_name" size="40" value="Mama Bear" />  <!-- FIXME: rest must be hidden when empty -->
+                    <input type="text" id="student_name" size="40" value="-" />  <!-- FIXME: rest must be hidden when empty -->
 
                 </div>
                 <div class="col-xs-6 text-left">
@@ -109,7 +109,7 @@
             3. Smarter Sumo algo!
         -->
 
-        <div id="example_zone" class="row " style="margin-top:10px; margin-bottom:10px;">
+        <div id="example_zone" class="row" style="margin-top:10px; margin-bottom:10px; display:none;">
             <div class="col-xs-12">
                 <pre id="example_code" class="pre-scrollable">
                     // To be filled by JS
@@ -263,9 +263,10 @@
     <script type="text/javascript">
         // --- Init CodeMirror
         var codeMirrorEditor = CodeMirror( document.getElementById("code_mirror_id"), {
-            value: " // Type your code here\n function once( mySphero ) {\n    mySphero.roll(30,90);\n} \n function loop( mySphero ) {\n    mySphero.roll(20,180);\n}\n",
+            value: "// Type your code here",
             lineNumbers: true,
             indentUnit: 4,
+            viewportMargin: Infinity,
             mode:  "javascript"
         });
 

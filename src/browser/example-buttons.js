@@ -3,7 +3,7 @@
  */
 var $ = require('jquery');
 
-var saveCodeToLocalStorage = require("./js-editor").saveCodeToLocalStorage;
+var saveCurrentEditorCodeToLocalStorage = require("./js-editor").saveCurrentEditorCodeToLocalStorage;
 
 // Array of ids
 var EXAMPLE_CODE_IDS = [
@@ -17,13 +17,12 @@ var EXAMPLE_CODES = [];
 // The one currently displayed in the example zone (may be null)
 var currentExampleCodeIdDisplayed;
 
+
 /**
  *
  */
 function initExamplesButtons()
 {
-    downloadExampleCode( "default" );
-
     // For all examples
     for (var i = 0; i < EXAMPLE_CODE_IDS.length; i++ ) {
         var exampleId = EXAMPLE_CODE_IDS[i];
@@ -69,13 +68,12 @@ function showExampleArea( exampleId )
 function transferExampleCodeToEditor()
 {
     // Save current code!
-    var userCode = codeMirrorEditor.getValue();                                     // codeMirrorEditor global var
-    saveCodeToLocalStorage( userCode );
+    saveCurrentEditorCodeToLocalStorage();
 
     // Hide the example zone
     $("#example_zone").hide( 300 );
 
-    // Transfer in editor 
+    // Transfer in editor
     codeMirrorEditor.setValue( EXAMPLE_CODES[ currentExampleCodeIdDisplayed ].toString() );
 }
 

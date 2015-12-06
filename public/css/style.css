@@ -11,6 +11,8 @@ label {
 
 #code_mirror_id {
     margin-top: 20px;
+    border: 1px solid #eee;
+    height: auto;
     /* min-height: 500px; */
 }
 
