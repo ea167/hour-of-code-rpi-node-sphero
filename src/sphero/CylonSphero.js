@@ -121,7 +121,7 @@ function onUserCodePushed( _this, userDescription )
         _this.spheroUserCodeWorkers[ spheroIndex ] = worker;
 
         console.log( "\nCylonRobot [%s] onUserCodePushed SEND info with code!", spheroIndex );
-        worker.send( { cylonRobot: _this.spheroCylonRobots[ spheroIndex ], userCode: userCode, SE: SE } );
+        worker.send( { Cylon: global.Cylon, cylonRobot: _this.spheroCylonRobots[ spheroIndex ], userCode: userCode, SE: SE } );
 
         /*** // --- Require version, same thread
         var SpheroUserCodeRun = require("./RequireSpheroUserCodeRun");

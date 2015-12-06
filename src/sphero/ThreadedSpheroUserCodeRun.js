@@ -6,7 +6,6 @@ var vm = require('vm');
 
 // Posted in message: mySphero, userCode, SE
 
-
 function runSpheroUserCode( mySphero, userCode, SE )
 {
     // --0-- Check mySphero and userCode variables
@@ -27,6 +26,7 @@ function runSpheroUserCode( mySphero, userCode, SE )
     // --2-- Create the sandbox for to execute the user code
     var sandbox = {
         mySphero:       mySphero,
+        Cylon:          Cylon,
         intervalLoop:   null,
         setInterval:    setInterval,        // Globals in node.js, not available anymore when sandboxed!
         clearInterval:  clearInterval,
@@ -71,7 +71,9 @@ function runSpheroUserCode( mySphero, userCode, SE )
 process.on('message', function (msg) {
     console.log("\n ThreadedSpheroUserCodeRun GOT MESSAGE:");
     console.log(msg);
-    
+
+    msg.Cylon.start();
+
     runSpheroUserCode( msg.cylonRobot.sphero, msg.userCode, msg.SE );
 });
 
