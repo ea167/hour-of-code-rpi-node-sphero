@@ -107,7 +107,7 @@ UserCodingWSP.prototype.onMessage = function(data, flags) {
             console.log('\nUserCodingWSP WS STOP-CODE received: %s', data);
             SE.emit( "stop-code", data );
         }
-        else if (dataObj.action == "student-sphero-change") {
+        else if (dataObj.action == "student-sphero-change") {                   // TODO
             // --- Keep track of global.darkSpheroStudentName { studentName: "", isDark: true, wasDark:true }
             console.log('\nUserCodingWSP WS student-sphero-change received: %s', data);
             if (dataObj.isDark) {

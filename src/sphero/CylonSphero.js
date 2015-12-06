@@ -83,19 +83,18 @@ function CylonSphero()
 
 
 
-
 /**
  *  SE.on( "user-code-pushed", ...)
  */
 function onUserCodePushed( _this, userDescription )
 {
     try {
-        var userInfo = JSON.parse( userDescription );
-        if ( typeof userInfo.spheroIndex === "undefined" || !userInfo.userCode ) {
+        var userInfo    = JSON.parse( userDescription );
+        var spheroIndex = fromDarkToIndex( _this, userInfo.spheroIsDark );
+        if ( typeof spheroIndex === "undefined" || !userInfo.userCode ) {
             console.error("ERROR in CylonSphero onUserCodePushed: spheroIndex/userCode is null for [%s]", userInfo.spheroIndex);
             return;
         }
-        var spheroIndex = userInfo.spheroIndex;
 
         // --- Check that Sphero still connected
         if ( !_this.spheroCylonRobots[ spheroIndex ] ) {
@@ -139,12 +138,12 @@ function onUserCodePushed( _this, userDescription )
 function onUserStop( _this, userDescription )
 {
     try {
-        var userInfo = JSON.parse( userDescription );
-        if ( typeof userInfo.spheroIndex === "undefined" ) {
+        var userInfo    = JSON.parse( userDescription );
+        var spheroIndex = fromDarkToIndex( _this, userInfo.spheroIsDark );
+        if ( typeof spheroIndex === "undefined" ) {
             console.error("ERROR in CylonSphero onUserStop: spheroIndex is null");
             return;
         }
-        var spheroIndex = userInfo.spheroIndex;
 
         // --- Check that Sphero still connected
         if ( !_this.spheroCylonRobots[ spheroIndex ] ) {
@@ -165,6 +164,21 @@ function onUserStop( _this, userDescription )
     }
     catch (exc) { console.error( "\nTRY-CATCH ERROR in CylonSphero onUserStop: " + exc.stack + "\n" ); }
     return;
+}
+
+
+/** Private function for onUserStop & onUserCodePushed */
+function fromDarkToIndex( _this, spheroIsDark )
+{
+    if ( spheroIsDark ) {
+        return _this.darkSpheroIndex;
+    }
+    // Loop over the array to find the first one valid
+    for ( var i = 0; i < _this.spheroCylonRobots.length; i++) {
+        if ( i == _this.darkSpheroIndex || !_this.spheroCylonRobots[i] )
+            continue;
+        return i;
+    }
 }
 
 /** Private function for onUserStop & onUserCodePushed */
