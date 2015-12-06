@@ -70,10 +70,18 @@ function pushToSpheroOnClick()
     // --- Transfer the CODE to RPi
     var userCode = codeMirrorEditor.getValue();                                     // codeMirrorEditor global var
     //
-    //  FIXME: spheroIndex !!!! FIXME !!!!
-    var myIndex = 0;
+    var myIndex = $("#rpi_sphero").val();
+    if (!myIndex) myIndex = 0;
     //
-    browserWebSocket.send( JSON.stringify( { "action": "push-code", "spheroIndex": myIndex , "userCode": userCode } ));  // browserWebSocket global var
+    var studentName = $("#student_name").val();
+
+    // Send the code!
+    browserWebSocket.send( JSON.stringify( {
+        "action": "push-code",
+        "spheroIsDark": (!myIndex),         // FIXME
+        "studentName": studentName,
+        "userCode": userCode } )
+    );  // browserWebSocket global var
 
     // --- Save userCode to localStorage
     saveCodeToLocalStorage( userCode );
@@ -93,12 +101,12 @@ function stopSpheroOnClick()
     }
     lastClickOnStopSphero = now;
 
-    //  FIXME: spheroIndex !!!! FIXME !!!!
-    var myIndex = 0;
+    var myIndex = $("#rpi_sphero").val();
     //
+    var studentName = $("#student_name").val();
 
     // --- Transfer the STOP command to RPi
-    browserWebSocket.send( JSON.stringify( { "action":"stop-code", "spheroIndex": myIndex } ));         // browserWebSocket global var
+    browserWebSocket.send( JSON.stringify( { "action":"stop-code", "studentName": studentName, "spheroIsDark": (!myIndex) } ));  // FIXME       // browserWebSocket global var
     return;
 }
 

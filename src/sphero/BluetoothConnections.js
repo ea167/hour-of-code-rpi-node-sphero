@@ -148,8 +148,8 @@ function BluetoothConnections()
     // Right now
     btSerialInquire();
 
-    // And then repeatedly every 20 seconds
-    var intervalId = setInterval( btSerialInquire, 20000 );
+    // And then repeatedly every 15 seconds
+    var intervalId = setInterval( btSerialInquire, 15000 );
 
 
     // --- If we need to close the connections. Warning: in the module code, it looks that close() may take a macAddress as argument

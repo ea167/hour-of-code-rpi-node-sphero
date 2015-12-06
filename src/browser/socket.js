@@ -40,8 +40,13 @@ function initBrowserSocket()
              $.publish('socketstop');
              return;
          }
-         // --- This is the new best words array
-         // FIXME
+         // --- This is the RPi/Sphero color
+         if (dataObj.HOC_COLOR) {
+             HOC_COLOR = dataObj.HOC_COLOR;             // defined in the html page
+             $.publish('hoc_color');
+         }
+
+         /*
          var jsonBrowser = dataObj;
          if (jsonBrowser) {
              if (jsonBrowser.results[0].final) {
@@ -54,7 +59,7 @@ function initBrowserSocket()
          }
          else {
              console.error('Browser onmessage jsonBrowser EMPTY ', evt);
-         }
+         } */
          return;
      };
 

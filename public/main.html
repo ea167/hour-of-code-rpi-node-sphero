@@ -49,12 +49,9 @@
                 <div class="col-xs-6 text-left">
 
                     <label>Choose your Sphero: &nbsp;</label>
-                    <select id="rpi_sphero" onchange="this.className=this.options[this.selectedIndex].className" class="blue-bg-txt">
-                        <option value="green0"  class="green-bg-txt">RPi Green - Sphero Dark Green</option>
-                        <option value="green1"  class="green-bg-txt">RPi Green - Sphero Light Green</option>
-                        <option value="blue0"   class="blue-bg-txt"  disabled="disabled">RPi Blue  - Sphero Dark Blue</option>
-                        <option value="blue1"   class="blue-bg-txt"  selected="selected">RPi Blue  - Sphero Light Blue</option>
-                        <!-- FIXME -->
+                    <select id="rpi_sphero" onchange="this.className=this.options[this.selectedIndex].className">
+                        <option value="0">Sphero Dark</option>
+                        <option value="1">Sphero Light</option>
                     </select>
 
                 </div>
@@ -272,6 +269,9 @@
 
         // --- Make browserWebSocket globally available
         var browserWebSocket = null;
+
+        // --- Sphero selectbox color
+        var HOC_COLOR = null;
 
         // --- Init SlideReveal
         $('#slider_help').slideReveal({

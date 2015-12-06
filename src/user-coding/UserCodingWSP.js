@@ -27,8 +27,7 @@ var SE = global.spheroEvents;                   // Replaces jQuery $ events here
 function UserCodingWSP( ws ) {
     WebSocketProcessor.call( this, "usercoding", ws, false );         // _sendStateListening no {"state":"listening"}
 
-    this.startDate = (this.wsUrl.query.startDate ? new Date( this.wsUrl.query.startDate ) : null);
-    this.endDate   = (this.wsUrl.query.endDate   ? new Date( this.wsUrl.query.endDate )   : null);
+    // this.attr = ...
 }
 
 // Inheritance of public methods and setting proper parent relationship. See http://phrogz.net/js/classes/OOPinJS2.html
@@ -43,13 +42,17 @@ UserCodingWSP.prototype.parent       = WebSocketProcessor.prototype;         // 
 UserCodingWSP.prototype.onConnectionEstablished = function() {
     this.parent.onConnectionEstablished.call(this);
 
-/*  FIXME
+    // FIXME global.darkSpheroStudentName not used at all right now
+    this.ws.send( JSON.stringify( { "HOC_COLOR": process.env.HOC_COLOR, "darkStudent": global.darkSpheroStudentName } ) );
+
+
+/*
     var _this = this;
-    var closureFuncSendBestWords = this.closureFuncSendBestWords = function () {
-        _this.sendBestWords();
+    var closureFuncSendWords = this.closureFuncSendWords = function () {
+        _this.sendWords();
     };
     this.sendBestWords();
-    AE.on( 'new-cloud-words', closureFuncSendBestWords );
+    AE.on( 'new-words', closureFuncSendWords );
 */
 };
 
@@ -57,13 +60,13 @@ UserCodingWSP.prototype.onConnectionEstablished = function() {
 UserCodingWSP.prototype.onClose = function(data, flags) {
     this.parent.onClose.call(this, data, flags);
 
-    /// AE.removeListener( 'new-cloud-words', this.closureFuncSendBestWords );
+    /// AE.removeListener( 'new-words', this.closureFuncSendWords );
 };
 
 UserCodingWSP.prototype.onError = function(data, flags) {
     this.parent.onError.call(this, data, flags);
 
-    ///AE.removeListener( 'new-cloud-words', this.closureFuncSendBestWords );
+    ///AE.removeListener( 'new-words', this.closureFuncSendWords );
 };
 
 
@@ -104,6 +107,17 @@ UserCodingWSP.prototype.onMessage = function(data, flags) {
             console.log('\nUserCodingWSP WS STOP-CODE received: %s', data);
             SE.emit( "stop-code", data );
         }
+        else if (dataObj.action == "student-sphero-change") {
+            // --- Keep track of global.darkSpheroStudentName { studentName: "", isDark: true, wasDark:true }
+            console.log('\nUserCodingWSP WS student-sphero-change received: %s', data);
+            if (dataObj.isDark) {
+                global.darkSpheroStudentName = dataObj.studentName;
+                SE.emit("dark-sphero-owner-change", dataObj.studentName);       // TODO
+            } else if (dataObj.wasDark) {
+                global.darkSpheroStudentName = null;
+                SE.emit("dark-sphero-owner-change", "");                        // TODO
+            }
+        }
         else {
             console.log('\nUserCodingWSP WS received flags: %s', JSON.stringify(flags) );
             console.log('\nUserCodingWSP WS received: %s', data);
@@ -119,14 +133,7 @@ UserCodingWSP.prototype.sendBlabla = function()
 {
     try {
 /*
-        var bestWords = (this.startDate || this.endDate)
-            ? global.eveniumGlobalResults.getBestWordsInBetween(this.startDate, this.endDate)
-            : global.eveniumGlobalResults.bestWords;
-
-        if ( bestWords ) {
-            this.ws.send( JSON.stringify( bestWords.cloudBestWords ) );
-            return true;
-        }
+            this.ws.send( JSON.stringify( blablaObj ) );
 */
     }
     catch (exc) { console.error( "\nTRY-CATCH ERROR in UserCodingWSP.sendBlabla: " + exc.stack + "\n" ); }
