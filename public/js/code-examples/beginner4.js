@@ -24,7 +24,7 @@ function loop( mySphero )
     if ( mySphero.posX > 100 ) {
         mySphero.roll( 50, 180 + heading );
     } else if ( mySphero.posX < 0 ) {
-        mySphero.roll( 50, 180 + heading );
+        mySphero.roll( 50, heading );
     }
 
     return;
