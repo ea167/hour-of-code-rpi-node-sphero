@@ -28,24 +28,33 @@ function initExamplesButtons()
         downloadExampleCode( exampleId );
 
         // --- Add listeners
-
-
+        $("#"+exampleId).on("click", function() { showExampleArea(exampleId); });
     }
 
-    // --- Listeners  // ADD # !!!!
-    $("#beginner1").on("click", pushToSpheroOnClick );                      // function() { pushToSpheroOnClick( browserWebSocket); });
-    $("#advanced1").on("click",    stopSpheroOnClick );
+    // --- Bind the hide / edit code buttons
 
+    // TODO
 
     return;
 }
 
 
-// TODO: download all examples locally through ajax
+// --- Download all examples locally through ajax
+function downloadExampleCode( exampleId )
+{
 
+}
+
+// --- Show the code in the example area,
+function showExampleArea( exampleId )
+{
+    currentExampleCodeIdDisplayed = exampleId;
+
+    // Set div content + show div
+
+}
 
 // TODO: Bind on the buttons to display the examples and copy the code to the editor
-
 
 // TODO: Button to copy code to the editor
 
