@@ -240,9 +240,6 @@ function onBluetoothDeviceConnected( _this, deviceDescription )
             _this.darkSpheroIndex = idx;
         }
 
-        // Test FIXME
-        //setTimeout( function(){ cylonRobot.sphero.color( 0xFF00FF ); }, 5000 );
-
         // --- Start Cylon: global to all spheros!
         global.Cylon.start();
         // global.Cylon.start();       // When called a second time, IT WORKS, with just the error "Serialport not open" (as already open)
@@ -299,9 +296,21 @@ function initCylonRobot( _this, mySphero )
         mySphero.accelOne   = data.accelOne.value[0];
 
         // --- Set all other Spheros
+        for ( var i = 0; i < _this.spheroCylonRobots.length; i++) {
+            if ( i == mySphero.hocIndex || !_this.spheroCylonRobots[i] )
+                continue;
+            var otherSphero         = _this.spheroCylonRobots[i].sphero;
+            var posYOtherCorrection = (otherSphero.hocIndex != _this.darkSpheroIndex) ? global.STARTING_POS_Y_CORRECTION : 0;
 
-        // FIXME Set to mySphero + in otherSphero as otherData [we suppose there are only 2]
-        // !!!!!!!
+            otherSphero.timestamp   = timestamp;
+            otherSphero.posX        = data.xOdometer.value[0];
+            otherSphero.posY        = data.yOdometer.value[0] + posYOtherCorrection;
+            otherSphero.speedX      = data.xVelocity.value[0];
+            otherSphero.speedY      = data.yVelocity.value[0];
+            otherSphero.accelX      = data.xAccel.value[0];
+            otherSphero.accelY      = data.yAccel.value[0];
+            otherSphero.accelOne    = data.accelOne.value[0];
+        }
 
         // --- Signal to interested parties
         // SE.emit( "sphero-data-streaming", JSON.stringify({ "spheroIndex": mySphero.hocIndex , "data": data }) );
