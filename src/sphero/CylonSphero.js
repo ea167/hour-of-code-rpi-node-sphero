@@ -172,7 +172,8 @@ function _finalSpheroStop( _this, mySphero )
 
     mySphero.stop();
 
-    // FIXME: RESET Sphero color !!!!
+    // RESET Sphero color!
+    mySphero.color( mySphero.hocColor );
 
     mySphero.setBackLed( 255 );
     mySphero.startCalibration();
@@ -214,11 +215,7 @@ function onBluetoothDeviceConnected( _this, deviceDescription )
                     // Init the cylonRobot with all eventListeners + initialization code (show tail Led)
                     initCylonRobot( _this, my.sphero );
 
-                    // Test // FIXME
-                    // DARK #0 (first if holes in array) LIGHT #1 (2nd)
-                    // my.sphero.isDark == true | false;
-
-                    my.sphero.color( 0x00FF00 );
+                    my.sphero.color( my.sphero.hocColor );
                     // my.sphero.roll( 20, 0 );
                     // Show tail Led! And block gyroscope!
                     // my.sphero.setBackLed( 255 );
