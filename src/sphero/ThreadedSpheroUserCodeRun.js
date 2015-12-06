@@ -72,7 +72,7 @@ process.on('message', function (msg) {
     console.log("\n ThreadedSpheroUserCodeRun GOT MESSAGE:");
     console.log(msg);
 
-    msg.Cylon.start();
+    //msg.Cylon.start();
 
     runSpheroUserCode( msg.cylonRobot.sphero, msg.userCode, msg.SE );
 });
