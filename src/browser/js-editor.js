@@ -77,7 +77,7 @@ function pushToSpheroOnClick()
     // Send the code!
     browserWebSocket.send( JSON.stringify( {
         "action": "push-code",
-        "spheroIsDark": (!myIndex),
+        "spheroIsDark": (!myIndex || myIndex == 0),
         "studentName": studentName,
         "userCode": userCode } )
     );  // browserWebSocket global var
@@ -105,7 +105,7 @@ function stopSpheroOnClick()
     var studentName = $("#student_name").val();
 
     // --- Transfer the STOP command to RPi
-    browserWebSocket.send( JSON.stringify( { "action":"stop-code", "studentName": studentName, "spheroIsDark": (!myIndex) } ));   // browserWebSocket global var
+    browserWebSocket.send( JSON.stringify( { "action":"stop-code", "studentName": studentName, "spheroIsDark": (!myIndex || myIndex == 0) } ));   // browserWebSocket global var
     return;
 }
 

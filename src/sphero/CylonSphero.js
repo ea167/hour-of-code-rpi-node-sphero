@@ -117,7 +117,7 @@ function onUserCodePushed( _this, userDescription )
         var userCode    = userInfo.userCode;
 
         console.log( "\nCylonRobot [%s] onUserCodePushed FORKing a new process!", spheroIndex );
-        worker = Threads.fork( __dirname + 'src/sphero/ThreadedSpheroUserCodeRun.js');
+        worker = Threads.fork( __dirname + '/ThreadedSpheroUserCodeRun.js');
         _this.spheroUserCodeWorkers[ spheroIndex ] = worker;
 
         console.log( "\nCylonRobot [%s] onUserCodePushed SEND info with code!", spheroIndex );
