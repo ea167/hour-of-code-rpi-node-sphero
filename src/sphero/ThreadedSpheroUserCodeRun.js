@@ -29,7 +29,8 @@ function runSpheroUserCode( mySphero, userCode, SE )
         mySphero:       mySphero,
         intervalLoop:   null,
         setInterval:    setInterval,        // Globals in node.js, not available anymore when sandboxed!
-        clearInterval:  clearInterval
+        clearInterval:  clearInterval,
+        console:        console
     };
     vm.createContext(sandbox);
 
@@ -68,7 +69,9 @@ function runSpheroUserCode( mySphero, userCode, SE )
  *  Sent by main thread
  */
 process.on('message', function (msg) {
-     runSpheroUserCode( msg.mySphero, msg.userCode, msg.SE );
+    console.log("\n ThreadedSpheroUserCodeRun GOT MESSAGE:");
+    console.log(msg);
+    runSpheroUserCode( msg.mySphero, msg.userCode, msg.SE );
 });
 
 
