@@ -1,13 +1,8 @@
 #!/usr/bin/env node
 
-///
-//  NOTICE: the user running node.js must be able to exec "sudo rfcomm" to connect to Sphero
 //
-//  Here is defined a limit of number of Spheros to connect, useful when you have several Raspberry Pis
-//      Feel free to put this limit very high if you want to connect more Spheros to a single RPi
-///
-global.MAX_NUMBER_OF_SPHEROS    = 2;
-
+// NOTICE: the user running Node.js (typically "pi") must be able to exec "sudo rfcomm" to connect to Sphero
+//
 
 /**
  * Module dependencies.
@@ -23,8 +18,8 @@ var url = require('url');
 var WebSocketServer = require('ws').Server;
 var onWsConnection  = require('../routes/websocket-server').onWsConnection;
 
-// Bluetooth Connections and CylonSphero
-var BluetoothConnections    = require('../src/sphero/BluetoothConnections');
+// Bluetooth Connections and CylonSphero        // FIXME !!!!
+var BluetoothConnections    = require('../src/sphero/BluetoothConnectionsByCLI');
 var CylonSphero             = require('../src/sphero/CylonSphero');
 
 
@@ -99,7 +94,7 @@ process.on('uncaughtException', function(err) {
  */
 console.log("\nRaspberry HOC_COLOR is %s\n", process.env.HOC_COLOR);
 global.cylonSphero          = new CylonSphero();
-global.bluetoothConnections = new BluetoothConnections();
+global.bluetoothConnections = new BluetoothConnections();                          // FIXME !!!!!
 
 
 

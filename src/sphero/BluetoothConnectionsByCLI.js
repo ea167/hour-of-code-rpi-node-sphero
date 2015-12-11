@@ -1,13 +1,42 @@
 /**
  *  Start Bluetooth connections when Node.js starts, and emit an SpheroEvent for each
  *      to create Cylon robots on each one found as Sphero
+ *
+ *  The RPi will try to connect aggressively to new Spheros until it has reached
+ *
+ *  ENV:    Environment variables that may optionally be defined to alter Bluetooth connection startegy
+ *
+ *      // Color of the RPi, which in turn implies the color of the Spheros
+ *      HOC_COLOR="purple"              // [red,green,blue,yellow,purple]
+ *
+ *      // Will try to connect aggressively until reaching this number of Spheros connected
+ *      HOC_EAGER_SPHERO_MAX_COUNT="2"
+ *
+ *      // List of Sphero Mac addresses NOT to connect to, separated by commas
+ *      HOC_FORBIDDEN_SPHERO_MACADDRS="68:86:E7:04:BC:EA,68:86:E7:04:CF:8F"
+ *
+ *      // To bypass Bluetooth discovery and directly connect to Serial ports.
+ *      // Use this on Apple MACs: (ls /dev/tty.Sphero*) see http://cylonjs.com/documentation/platforms/sphero/
+ *      HOC_DIRECT_SERIAL_PORTS="/dev/tty.Sphero-BBP-AMP-SPP,/dev/tty.Sphero-BBP-AMP-SQQ"
+ *
  */
+
+ ///
+ //  NOTICE: the user running node.js must be able to exec "sudo rfcomm" to connect to Sphero
+ //
+ //  Here is defined a limit of number of Spheros to connect, useful when you have several Raspberry Pis
+ //      Feel free to put this limit very high if you want to connect more Spheros to a single RPi
+ ///
+ global.EAGER_SPHERO_MAX_COUNT    = Number( process.env.HOC_EAGER_SPHERO_MAX_COUNT) || 2;   // Note: (NaN) false, (!NaN) true
+
+
 
 // To exec 'sudo rfcomm connect rfcommX {macAddress}'
 var childProcess = require('child_process');
 
-// Use https://www.npmjs.com/package/bluetooth-serial-port
-var bluetoothSerialPort = require('bluetooth-serial-port');
+// We do not use https://www.npmjs.com/package/bluetooth-serial-port anymore
+//    as it blocks the main thread for several seconds while doing inquire()
+// var bluetoothSerialPort = require('bluetooth-serial-port');
 
 // Sphero & log events
 var SpheroEvents    = require('../sphero/SpheroEvents');
@@ -17,7 +46,6 @@ var SE = global.spheroEvents;                   // Replaces jQuery $ events here
 
 function BluetoothConnections()
 {
-    var btSerial    = new bluetoothSerialPort.BluetoothSerialPort();
     var rfcommIndex = 1;    // Starts at 1 to avoid collisions
     var childProcs  = [];
     global.currentNumberOfSpherosConnected = 0;         // To enforce limit of global.MAX_NUMBER_OF_SPHEROS
