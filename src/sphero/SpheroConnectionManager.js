@@ -70,13 +70,24 @@ function SpheroConnectionManager()
 
 
     // ----- Keeping track of Active and recently Disconnected Spheros
-    this.activeSpheros       = [];      // Array of Objects { macAddress:, name:, port;, rfcommIndex:  }
+    this.activeSpheros       = [];      // Array of Objects { port: , macAddress: }
     this.disconnectedSpheros = [];
     this.connectingInProcess = [];      // Array of macAddresses of Spheros getting connected (between inquire and connect)
 
 
         // TODO: SE.on( "disconnected", ... eagerness back ??? )
+    // If a Sphero gets disconnected
+    var _this = this;
+    SE.on( "disconnectedSphero", function( port, macAddress ) {
 
+        // FIXME: Only by macAddress ?????
+        removeObjectFromArray( this.activeSpheros, { "port":port, "macAddress":macAddress } );              // array, objectVal );
+
+        // FIXME: Should be prevent to have 2 bluetoothInquire() running at the same time ?????? Yes...
+
+        _this.bluetoothInquire();
+        return;
+    });
 
     // Repeatedly with 5 seconds interval while eager (by setTimeout)
     this.bluetoothInquire();
@@ -176,7 +187,7 @@ SpheroConnectionManager.prototype.connectBtSphero  =  function( macAddress, rfco
     // --- First check there is no active Spheros on that port
     var isAvail = true;
     for (var as of this.activeSpheros ) {
-        if ( as.rfcommIndex == rfcommIndexToTry ) {
+        if ( as.port == "/dev/rfcomm"+rfcommIndexToTry ) {
             isAvail = false;
             console.log( "/dev/rfcomm [%d] Port is already in use, skipping", rfIdx );
             break;
@@ -225,12 +236,40 @@ function removeFromArray( array, value )
     }
     // Remove all the elements === value from array
     for (var pos = 0; pos >= 0; ) {
-        pos = array.indexOf( macAddress, pos );
+        pos = array.indexOf( value, pos );
         if (pos >= 0)
-            this.connectingInProcess.splice( pos, 1 );
+            array.splice( pos, 1 );
     }
     return;
 }
+
+/** Helper function: When array of Objects with properties! */
+function removeObjectFromArray( array, objectVal )
+{
+    if (!array || !objectVal || Object.keys( objectVal ).length < 1 ) {
+        console.warn('Warning in removeFromArray EMPTY variables: array=[%s], objectVal=[%s]', array, objectVal);
+        return;
+    }
+    // Remove all the elements equals objectVal from array
+    for ( var i=0; i < array.length; ) {       // No i++ here
+        var obj = array[i];
+        var isEqual = true;
+        for ( var prop in objectVal ) {
+            if ( obj[prop] !== objectVal[prop] ) {
+                isEqual = false;
+                break;
+            }
+        }
+        if ( isEqual ) {
+            // Objects are equal, so remove the element from the array
+            array.splice( pos, 1 );
+        } else {
+            i++;
+        }
+    }
+    return;
+}
+
 
 
 /**
@@ -238,6 +277,16 @@ function removeFromArray( array, value )
  */
 SpheroConnectionManager.prototype.startNewCylonSphero  =  function(port, macAddress)
 {
+    // Check it does not already exist
+    for (var as of this.activeSpheros ) {
+        if ( as.macAddress == macAddress ) {
+            console.error( "\nERROR in startNewCylonSphero: macAddress=[%s] already in activeSpheros array, ports [in:%s, req:%s] !!\n",
+                macAddress, as.port, port );
+            // Trying to go ahead anyway...
+        }
+    }
+    this.activeSpheros.push( { "port":port, "macAddress":macAddress } );        // Array of Objects { port: , macAddress: }
+
 
     // TODO fork()      // So it has access to globals
 
