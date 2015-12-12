@@ -70,8 +70,9 @@ function SpheroConnectionManager()
 
 
     // ----- Keeping track of Active and recently Disconnected Spheros
-    this.activeSpheros       = [];   // Object { macAddress:, name:, port;, rfcommIndex:  }
+    this.activeSpheros       = [];      // Array of Objects { macAddress:, name:, port;, rfcommIndex:  }
     this.disconnectedSpheros = [];
+    this.connectingInProcess = [];      // Array of macAddresses of Spheros getting connected (between inquire and connect)
 
 
         // TODO: SE.on( "disconnected", ... eagerness back ??? )
@@ -93,9 +94,9 @@ SpheroConnectionManager.prototype.bluetoothInquire  =  function()
     // --- Apple Mac case: no inquiring, use env HOC_DIRECT_SERIAL_PORTS
     if ( this.DIRECT_SERIAL_PORTS && this.DIRECT_SERIAL_PORTS.length > 0 ) {
         console.log( "\n=== Using DIRECT_SERIAL_PORTS connection mode with ports: %s \n", this.DIRECT_SERIAL_PORTS.toString() );
-        for ( dsp of this.DIRECT_SERIAL_PORTS ) {
+        for ( var dsp of this.DIRECT_SERIAL_PORTS ) {
             var isAvail = true;
-            for ( as of this.activeSpheros ) {
+            for ( var as of this.activeSpheros ) {
                 if ( as.port == dsp ) {
                     isAvail = false;
                     console.log( "    Serial Port [%s] in use, skipping", dsp.toString() );
@@ -107,6 +108,14 @@ SpheroConnectionManager.prototype.bluetoothInquire  =  function()
             // Init a new Cylon Sphero
             this.startNewCylonSphero( port, null );          // serialPort, macAddress      // TODO !!!
         }
+        return;
+    }
+
+    // --- Spheros still connecting?
+    if ( this.connectingInProcess && this.connectingInProcess.length > 0 ) {
+        console.log("bluetoothInquire: a Sphero is still in the process of connecting, delaying by 5 seconds");
+        var _this = this;
+        setTimeout( function(){ _this.bluetoothInquire(); } , 5000 );            // retry after 5 seconds delay
         return;
     }
 
@@ -132,14 +141,17 @@ SpheroConnectionManager.prototype.bluetoothInquire  =  function()
                 while ( pos >= 0 ) {
                     var macAddress = stdout.substr( pos, 17 );
                     if ( macAddress.length == 17 ) {
-                        this.connectBtSphero( macAddress );                     // TODO !!!
+                        this.connectingInProcess.push( macAddress );
+                        var _this = this;
+                        setTimeout( function(){ _this.connectBtSphero( macAddress ); }, 0 );    // So not blocking main thread
                     }
                     pos = stdout.indexOf( "68:86:E7", pos + 17 );
                 }
             }
         }
         // Ends by rescheduling bluetoothInquire()
-        setTimeout( function(){ this.bluetoothInquire(); } , 5000 );            // after 5 seconds delay
+        var _this = this;
+        setTimeout( function(){ _this.bluetoothInquire(); } , 5000 );            // retry after 5 seconds delay
     });
     return;
 }
@@ -148,15 +160,77 @@ SpheroConnectionManager.prototype.bluetoothInquire  =  function()
 
 /**
  *  Connect the Sphero found  through rfcomm and Bluetooth channel
+ *      Look for a serial port /dev/rfcommXX available first, to connect
+ *      May try up to 3 times on a given port
  */
-SpheroConnectionManager.prototype.connectBtSphero  =  function(macAddress)
+SpheroConnectionManager.prototype.connectBtSphero  =  function( macAddress, rfcommIndexToTry, nbAttempts )
 {
+    if (! rfcommIndexToTry) {
+        rfcommIndexToTry = 1;       // Always start at /dev/rfcomm1 so that if another process takes rfcomm0, we avoid collision
+    } else if ( rfcommIndexToTry > 31 ) {
+        console.error( "\nERROR in connectBtSphero: We have exhausted all /dev/rfcomm[1-31] . All ports fail for macAddress [%s]\n", macAddress );
+        removeFromArray( this.connectingInProcess, macAddress );                // array, value
+        return;
+    }
 
-    // TODO
+    // --- First check there is no active Spheros on that port
+    var isAvail = true;
+    for (var as of this.activeSpheros ) {
+        if ( as.rfcommIndex == rfcommIndexToTry ) {
+            isAvail = false;
+            console.log( "/dev/rfcomm [%d] Port is already in use, skipping", rfIdx );
+            break;
+        }
+    }
+    if (!isAvail) {
+        var _this = this;
+        setTimeout( function(){ _this.connectBtSphero( macAddress, 1 + rfcommIndexToTry ); }, 0 );    // So not blocking main thread
+        return;
+    }
 
+    // --- Now try to connect on that port: Exec 'sudo rfcomm connect rfcommX {macAddress}'
+    // var rfcommDev   = "/dev/rfcomm" + rfcommIndexToTry;
+    var cmdRfcomm   = "sudo rfcomm connect rfcomm"+ rfcommIndexToTry +" "+ macAddress;
+    var _this = this;
+    childProcess.exec( cmdRfcomm,   function (error, stdOutContent, stdErrContent) {
+        if (error) {
+            console.error('ERROR in Exec rfcomm [%d, %s] : %s', rfcommIndexToTry, macAddress, error);
+            // --- /dev/rfcommX already in use?  Otw try this port at most 3 times
+            if (! nbAttempts)
+                nbAttempts = 1;
+            if ( error.toString().toLowerCase().indexOf("already in use") >= 0 || nbAttempts > 3 ) {
+                setTimeout( function(){ _this.connectBtSphero( macAddress, 1 + rfcommIndexToTry ); }, 0 );    // So not blocking main thread
+                return;
+            }
+            setTimeout( function(){ _this.connectBtSphero( macAddress, rfcommIndexToTry, 1 + nbAttempts ); }, 0 );    // So not blocking main thread
+            return;
+        }
+        // Connection supposed to be a success!
+        console.log( "\nHurray! Success connecting Sphero [%s] to rfcomm[%d]\n    stdOut=[%s]\n    stdErr=[%s]\n",
+            macAddress, rfcommIndexToTry, stdOutContent, stdErrContent );
+        removeFromArray( _this.connectingInProcess, macAddress );                // array, value
+
+        // Launch new Cylon Sphero
+        _this.startNewCylonSphero( "/dev/rfcomm"+rfcommIndexToTry, macAddress );
+    });
+    return;
 }
 
-
+/** Helper function  */
+function removeFromArray( array, value )
+{
+    if (!array || !value) {
+        console.warn('Warning in removeFromArray: array=[%s], value=[%s]', array, value);
+        return;
+    }
+    // Remove all the elements === value from array
+    for (var pos = 0; pos >= 0; ) {
+        pos = array.indexOf( macAddress, pos );
+        if (pos >= 0)
+            this.connectingInProcess.splice( pos, 1 );
+    }
+    return;
+}
 
 
 /**
