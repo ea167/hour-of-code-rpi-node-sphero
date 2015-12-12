@@ -31,6 +31,9 @@ var childProcess = require('child_process');
 //    as it blocks the main thread for several seconds while doing inquire()
 // var bluetoothSerialPort = require('bluetooth-serial-port');
 
+// Array utils
+var ArrayUtils = require("../utils/ArrayUtils");
+
 // Sphero & log events
 var SpheroEvents    = require('../sphero/SpheroEvents');
 var SE = global.spheroEvents;                   // Replaces jQuery $ events here
@@ -76,12 +79,11 @@ function SpheroConnectionManager()
 
 
         // TODO: SE.on( "disconnected", ... eagerness back ??? )
-    // If a Sphero gets disconnected
+    // If a Sphero gets disconnected, restart the Bluetooth inquire
     var _this = this;
     SE.on( "disconnectedSphero", function( port, macAddress ) {
 
-        // FIXME: Only by macAddress ?????
-        removeObjectFromArray( this.activeSpheros, { "port":port, "macAddress":macAddress } );              // array, objectVal );
+        ArrayUtils.removeObjectWithPropertyFromArray( _this.activeSpheros, "macAddress", macAddress );              // array, propertyName, propertyValue )
 
         // FIXME: Should be prevent to have 2 bluetoothInquire() running at the same time ?????? Yes...
 
@@ -180,7 +182,7 @@ SpheroConnectionManager.prototype.connectBtSphero  =  function( macAddress, rfco
         rfcommIndexToTry = 1;       // Always start at /dev/rfcomm1 so that if another process takes rfcomm0, we avoid collision
     } else if ( rfcommIndexToTry > 31 ) {
         console.error( "\nERROR in connectBtSphero: We have exhausted all /dev/rfcomm[1-31] . All ports fail for macAddress [%s]\n", macAddress );
-        removeFromArray( this.connectingInProcess, macAddress );                // array, value
+        ArrayUtils.removeFromArray( this.connectingInProcess, macAddress );                // array, value
         return;
     }
 
@@ -219,57 +221,13 @@ SpheroConnectionManager.prototype.connectBtSphero  =  function( macAddress, rfco
         // Connection supposed to be a success!
         console.log( "\nHurray! Success connecting Sphero [%s] to rfcomm[%d]\n    stdOut=[%s]\n    stdErr=[%s]\n",
             macAddress, rfcommIndexToTry, stdOutContent, stdErrContent );
-        removeFromArray( _this.connectingInProcess, macAddress );                // array, value
+        ArrayUtils.removeFromArray( _this.connectingInProcess, macAddress );                // array, value
 
         // Launch new Cylon Sphero
         _this.startNewCylonSphero( "/dev/rfcomm"+rfcommIndexToTry, macAddress );
     });
     return;
 }
-
-/** Helper function  */
-function removeFromArray( array, value )
-{
-    if (!array || !value) {
-        console.warn('Warning in removeFromArray: array=[%s], value=[%s]', array, value);
-        return;
-    }
-    // Remove all the elements === value from array
-    for (var pos = 0; pos >= 0; ) {
-        pos = array.indexOf( value, pos );
-        if (pos >= 0)
-            array.splice( pos, 1 );
-    }
-    return;
-}
-
-/** Helper function: When array of Objects with properties! */
-function removeObjectFromArray( array, objectVal )
-{
-    if (!array || !objectVal || Object.keys( objectVal ).length < 1 ) {
-        console.warn('Warning in removeFromArray EMPTY variables: array=[%s], objectVal=[%s]', array, objectVal);
-        return;
-    }
-    // Remove all the elements equals objectVal from array
-    for ( var i=0; i < array.length; ) {       // No i++ here
-        var obj = array[i];
-        var isEqual = true;
-        for ( var prop in objectVal ) {
-            if ( obj[prop] !== objectVal[prop] ) {
-                isEqual = false;
-                break;
-            }
-        }
-        if ( isEqual ) {
-            // Objects are equal, so remove the element from the array
-            array.splice( pos, 1 );
-        } else {
-            i++;
-        }
-    }
-    return;
-}
-
 
 
 /**
