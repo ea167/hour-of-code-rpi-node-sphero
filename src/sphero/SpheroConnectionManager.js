@@ -80,10 +80,10 @@ function SpheroConnectionManager()
 
 
 // TODO: SE.on( "disconnected", ... eagerness back ??? )
-    // If a Sphero gets disconnected, restart the Bluetooth inquire
+
     var _this = this;
     SE.on( "disconnectedSphero", function( port, macAddress ) {
-
+        // If a Sphero gets disconnected, restart the Bluetooth inquire
         ArrayUtils.removeObjectWithPropertyFromArray( _this.activeSpheros, "macAddress", macAddress );              // array, propertyName, propertyValue )
         _this.bluetoothInquire();
         return;
@@ -117,7 +117,7 @@ SpheroConnectionManager.prototype.bluetoothInquire  =  function()
             if (!isAvail)
                 continue;
             // Init a new Cylon Sphero
-            this.startNewCylonSphero( port, null );          // serialPort, macAddress 
+            this.startNewCylonSphero( port, null );          // serialPort, macAddress
         }
         return;
     }
@@ -147,17 +147,21 @@ SpheroConnectionManager.prototype.bluetoothInquire  =  function()
             console.log( "Exec cmdInquire stdOutContent: %s", stdOutContent);
             console.warn("Exec cmdInquire stdErrContent: %s", stdErrContent);
             if ( stdOutContent ) {
-                stdOutContent = stdOutContent.uppercase();        // Just to be sure Mac address is with capital letters
+                stdOutContent = stdOutContent.toUpperCase();        // Just to be sure Mac address is with capital letters
                 // Orbotix, Inc. Bluetooth OUI (macAddress Prefix) is 68:86:E7
                 var pos = stdOutContent.indexOf( "68:86:E7" );
                 while ( pos >= 0 ) {
                     var macAddress = stdOutContent.substr( pos, 17 );
                     if ( macAddress.length == 17 ) {
-                        this.connectingInProcess.push( macAddress );
-                        var _this = this;
-                        setTimeout( function(){ _this.connectBtSphero( macAddress ); }, 0 );    // So not blocking main thread
+                        // Is this Sphero macAddress allowed?
+                        if ( this.FORBIDDEN_SPHERO_MACADDRS.indexOf( macAddress ) < 0 ) {
+                            // --- Ok, now we do connect!
+                            this.connectingInProcess.push( macAddress );
+                            var _this = this;
+                            setTimeout( function(){ _this.connectBtSphero( macAddress ); }, 0 );    // So not blocking main thread
+                        }
                     }
-                    pos = stdOutContent.indexOf( "68:86:E7", pos + 17 );
+                    pos = stdOutContent.indexOf( "68:86:E7", pos + macAddress.length );
                 }
             }
         }
