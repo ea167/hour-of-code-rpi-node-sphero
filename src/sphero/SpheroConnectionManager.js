@@ -80,12 +80,12 @@ function SpheroConnectionManager()
 
 
     // ----- Keeping track of Active and recently Disconnected Spheros
-    this.activeSpheros       = [];      // Array of Objects { port: , macAddress: }
+    this.activeSpheros       = [];      // Associative array of Key = macAddress, Objects = { port:, macAddress:, color:, proc: }
     this.disconnectedSpheros = [];      // TODO
     this.connectingInProcess = [];      // Array of macAddresses of Spheros getting connected (between inquire and connect)
     this.isInquiring         = false;   // Only once at a time: prevent to have 2 bluetoothInquire() running at the same time
     // Storing mySphero objects from CylonSphero
-    this.mySpheros           = [];      // Key = macAddress, Object = mySphero  // TODO
+    this.mySpheros           = [];      // Associative array of Key = macAddress, Object = mySphero  // TODO
 
 // TODO: la connection entre l'interface et le Cylon doit se faire par * macAddress *
 //      Il faudrait qu'on puisse avoir dans l'interface les positions, etc (mySpheros)
@@ -96,7 +96,10 @@ function SpheroConnectionManager()
     var _this = this;
     SE.on( "disconnectedSphero", function( port, macAddress ) {
         // If a Sphero gets disconnected, restart the Bluetooth inquire
-        ArrayUtils.removeObjectWithPropertyFromArray( _this.activeSpheros, "macAddress", macAddress );     // array, propertyName, propertyValue )
+        // FIXME: kill proc ???
+        delete _this.activeSpheros[ macAddress ];       // Warning: setting to null is not enough, it keeps the key in the array!
+        // ArrayUtils.removeObjectWithPropertyFromArray( _this.activeSpheros, "macAddress", macAddress );     // array, propertyName, propertyValue )
+
         _this.bluetoothInquire();
         return;
     });
@@ -143,7 +146,7 @@ SpheroConnectionManager.prototype.bluetoothInquire  =  function()
     }
 
     // --- Enough Spheros connected already?
-    if ( this.activeSpheros.length >= this.EAGER_SPHERO_MAX_COUNT ) {
+    if ( Object.keys( this.activeSpheros ).length >= this.EAGER_SPHERO_MAX_COUNT ) {
         console.log( "\n=== Number of active Spheros already at EAGER_SPHERO_MAX_COUNT [%s] -> Skipping Inquire\n", this.EAGER_SPHERO_MAX_COUNT );
         return;
     }
@@ -251,49 +254,90 @@ SpheroConnectionManager.prototype.connectBtSphero  =  function( macAddress, rfco
  */
 SpheroConnectionManager.prototype.startNewCylonSphero  =  function(port, macAddress)
 {
-    // Check it does not already exist
-    for (var as of this.activeSpheros ) {
-        if ( as.macAddress == macAddress ) {
-            console.error( "\nERROR in startNewCylonSphero: macAddress=[%s] already in activeSpheros array, ports [in:%s, req:%s] !!\n",
-                macAddress, as.port, port );
-            // Trying to go ahead anyway...
-        }
+    if ( !port || !macAddress ) {
+        console.error( "\nERROR in startNewCylonSphero: PARAM NULL port=[%s] macAddress=[%s] !!\n", port, macAddress );
+        return;
     }
-    this.activeSpheros.push( { "port":port, "macAddress":macAddress } );        // Array of Objects { port: , macAddress: }
+    // --- Check it does not already exist
+    if ( this.activeSpheros[ macAddress ] ) {
+        console.error( "\nERROR in startNewCylonSphero: activeSpheros has already macAddress=[%s], value [%s] !!\n", macAddress, this.activeSpheros[macAddress] );
+        // FIXME
+    }
 
-    // TODO args = [ port, macAddress, color ];     // <=> process.argv[2..4] in child
+    // --- Assign color to Sphero
+    // TODO: Set up COLOR !!!!
+    var color = "green";            // FIXME
 
-    // TODO fork()      // So it has access to globals
-    // var child = childProcess.fork( __dirname + '/CylonSphero.js');   //, args Array List of string arguments
+
+    // --- Start the new process
+    var args      = [ port, macAddress, color ];                                // <=> process.argv[2..4] in child
+    var childProc = childProcess.fork( __dirname + '/CylonSphero.js', args );   // args Array List of string arguments
+
+    // --- Store as activeSpheros
+    this.activeSpheros[macAddress] = { "port":port, "macAddress":macAddress, "color":color, "proc":childProc };     // Array of Objects { port: , macAddress:, color: }
+
+    // --- Communication between forked process and this master process.  msg = { type:, macAddress:, ...}
+    var _this = this;
+    childProc.on('message', function(msg) {
+        switch (msg.type) {
+            case "dataStreaming":                                               // msg = { type:, macAddress:, mySphero:}
+                _this.mySpheros[ msg.macAddress ] = JSON.parse( msg.mySphero ); // Key = macAddress, Object = mySphero
+                break;
+
+            // TODO !!!
+
+            // TODO: Disconnects (should the process exit ???)
+
+            // TODO: Alerts
+
+            default:
+                console.error( "\nERROR in SpheroConnectionManager.childProc.on.MESSAGE, msg is:" );
+                console.error( msg );
+                return;
+        }
+        return;
+    });
+
+
+    // --- Error catching in childProc process
+    child.on('error', function (err) {
+        console.error( "\nERROR in SpheroConnectionManager.childProc.on.ERROR:");
+        console.error( err );
+        return;                                                                 // TODO ????
+    });
+
+
+    // --- Exit or disconnect in childProc process
+    child.on('exit', function (data) {                                          // stdio might still be open and running
+        console.info( "INFO in SpheroConnectionManager.childProc.on.EXIT:");
+        console.info( data );
+        return;                                                                 // TODO ????
+    });
+    child.on('close', function (data) {                                          // stdio all done (but may still be open if shared)
+        console.info( "INFO in SpheroConnectionManager.childProc.on.CLOSE:");
+        console.info( data );
+        return;                                                                 // TODO ????
+    });
+    child.on('disconnected', function (data) {                                          // .disconnect() called, no more messages possible
+        console.info( "INFO in SpheroConnectionManager.childProc.on.DISCONNECTED:");
+        console.info( data );
+        return;                                                                 // TODO ????
+    });
+
+
     /*
-        child.on('message', function(m) {
-            console.log('PARENT got message:', m);
-
-            // mySphero
-            // to store in _this.mySpheros[ macAddress ] = mySphero
-
-            // alerts
-
-            // disconnects (should the process exit ???)
-
-        });
-
-        child.send({ hello: 'world' });
-
-        child.on('error', function (err) {
-            console.log('Failed to start child process.');
-        });
-
-        // Other Events
-        child.on('exit'         // stdio might still be open and running
-        child.on('close'        // stdio all done (but may still be open if shared)
-        child.on('disconnected' // .disconnect() called, no more messages possible
+        childProc.send({ hello: 'world' });
     */
 
-    // TODO map SE.on signaling to child.send & .on()
-    // For code push, error and info update
-
+    return;         // end of startNewCylonSphero()
 }
+
+
+// TODO: MAPPING must be for ALL Spheros, with macAddress as param => NOT in startNewCylonSphero !!
+// TODO map SE.on signaling to child.send & .on()
+// For code push, error and info update
+
+
 
 
 module.exports = SpheroConnectionManager;

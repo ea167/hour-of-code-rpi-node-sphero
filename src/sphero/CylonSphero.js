@@ -22,6 +22,10 @@ global.STARTING_POS_Y_CORRECTION = 20;
  */
 function CylonSphero()
 {
+    this.port       = process.argv[2];
+    this.macAddress = process.argv[3];
+    this.color      = process.argv[4];
+
     // TODO: get params process.argv[2..4]
 
     // TODO: SE.on => on('message')
@@ -145,7 +149,7 @@ function onUserStop( _this, userDescription )
         // --- Check that Sphero still connected
         if ( !_this.spheroCylonRobots[ spheroIndex ] ) {
             console.error("ERROR in CylonSphero onUserStop: sphero DISCONNECTED [%s]", spheroIndex);
-            SE.emit( "sphero-disconnect", JSON.stringify({ "spheroIndex": spheroIndex }) );
+            SE.emit( "sphero-disconnect", JSON.stringify({ "spheroIndex": spheroIndex }) );         // FIXME
             return;
         }
 
@@ -440,9 +444,7 @@ CylonSphero.prototype.setColor = function( spheroColor )
     this.spheroColor    = spheroColor;
     this.sphero.color( spheroColor );
 };
-***/
-
-
+* /
 /**
  *  Return the content of the ThreadedSpheroUserCodeRun file
  * /
@@ -451,6 +453,9 @@ function readTemplateUserCodeRun()
     return FS.readFileSync( "./src/sphero/ThreadedSpheroUserCodeRun.js", 'utf8' );
 } */
 
+
+// Lives in a separate process, so only needed for code in that process (not SpheroConnectionManager)
+global.cylonSphero = global.cylonSphero || new CylonSphero();
 
 module.exports = CylonSphero;
 
