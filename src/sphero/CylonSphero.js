@@ -1,42 +1,32 @@
 /**
- *  Command the Sphero via established bluetooth connection on /dev/ttyX
+ *  Command the Sphero via established bluetooth connection on /dev/rfcommX
  *    Use Cylon lib             http://cylonjs.com/
- *    TODO: Use thread library  https://github.com/audreyt/node-webworker-threads
+ *
+ *  Refactored to run in a separate thread dedicated to one Sphero only
  */
 
 var Cylon = require('cylon');
 global.Cylon = global.Cylon || Cylon;       // To simplify in the callbacks and avoid closures
 
 // Sphero & log events
-var SpheroEvents    = require('../sphero/SpheroEvents');
+var SpheroEvents    = require('./SpheroEvents');
 var SE = global.spheroEvents;                   // Replaces jQuery $ events here
 
-// Sphero colors (associative array, dark & light)
-global.SPHERO_COLORS = { "red": [0x7F0000, 0xFF0000], "green": [0x007F00, 0x00FF00],
-    "blue": [0x00007F, 0x0000FF], "yellow": [0x007F7F, 0x00FFFF], "purple": [0x7F7F00, 0xFFFF00]
-};
 
 // -----------------------------------------------------------------------------
 global.STARTING_POS_Y_CORRECTION = 20;
 
 
-// Threads lib from  https://www.npmjs.com/package/webworker-threads => Segmentation fault!!
-///var Threads = require('webworker-threads');
-///var FS      = require('fs');
-
-// Every time a bluetooth device is found:
-//   SE.emit( "bt-device-connected", JSON.stringify({ "macAddress": macAddress, "rfcommDev": rfcommDev }) );
-
-
 /**
- *  CylonSphero stores all available Spheros (after testing a ping on them)
- *    and allow Spheros to be controlled by browser code
- *
- *          TODO: Sphero color
- *          TODO: RPi Network
+ *  For ONE Sphero, in a separate process forked
  */
 function CylonSphero()
 {
+    // TODO: get params process.argv[2..4]
+
+    // TODO: SE.on => on('message')
+
+/*
     // Dark sphero is the one set at (0,0), and Light sphero will be at (0,20)
     this.darkSpheroIndex         = 0;    // May change if the Sphero at index 0 is disconnected
 
@@ -45,7 +35,9 @@ function CylonSphero()
     this.spheroMacAddresses     = [];
     this.spheroCylonRobots      = [];   // When not connected, the value is null. WARNING: mySphero == spheroCylonRobots[].sphero
     this.spheroMacAddress2Index = [];   // Associative array to reuse the same index in case of disconnection. Note: inquire() does not return the ones already connected
+*/
 
+/*
     // Running code:
     this.spheroUserCodeRuns     = [];
     this.isCodeRunning          = function() {
@@ -55,6 +47,7 @@ function CylonSphero()
         }
         return false;
     };
+*/
 
     // Threads to run user code
     //this.spheroUserCodeWorkers  = [];
@@ -63,10 +56,12 @@ function CylonSphero()
     // Closure for on(...)
     var _this = this;
 
+/*
     // --- When new device detected
     SE.on( "bt-device-connected", function(deviceDescription) {
         onBluetoothDeviceConnected( _this, deviceDescription );
     });
+*/
 
     // --- When user code pushed!
     SE.on( "push-code", function( userDescription ) {
@@ -90,13 +85,13 @@ function onUserCodePushed( _this, userDescription )
 {
     try {
         var userInfo    = JSON.parse( userDescription );
-        var spheroIndex = fromDarkToIndex( _this, userInfo.spheroIsDark );
+        var spheroIndex = fromDarkToIndex( _this, userInfo.spheroIsDark );      // FIXME
         if ( typeof spheroIndex === "undefined" || !userInfo.userCode ) {
             console.error("ERROR in CylonSphero onUserCodePushed: spheroIndex/userCode is null for [%s]", userInfo.spheroIndex);
             return;
         }
 
-        // --- Check that Sphero still connected
+        // --- Check that Sphero still connected        // FIXME
         if ( !_this.spheroCylonRobots[ spheroIndex ] ) {
             console.error("ERROR in CylonSphero onUserCodePushed: sphero DISCONNECTED [%s]", spheroIndex);
             SE.emit( "sphero-disconnect", JSON.stringify({ "spheroIndex": spheroIndex }) );
@@ -168,7 +163,7 @@ function onUserStop( _this, userDescription )
 
 
 /** Private function for onUserStop & onUserCodePushed */
-function fromDarkToIndex( _this, spheroIsDark )
+function fromDarkToIndex( _this, spheroIsDark )         // FIXME: to remove!
 {
     if ( spheroIsDark ) {
         return _this.darkSpheroIndex;
@@ -309,6 +304,9 @@ function initCylonRobot( _this, mySphero )
         mySphero.accelY     = data.yAccel.value[0];
         mySphero.accelOne   = data.accelOne.value[0];
 
+        // TODO parent.send( mySphero );
+
+        // FIXME
         // --- Set all other Spheros
         for ( var i = 0; i < _this.spheroCylonRobots.length; i++) {
             if ( i == mySphero.hocIndex || !_this.spheroCylonRobots[i] )
@@ -352,11 +350,13 @@ function initCylonRobot( _this, mySphero )
     // --- Detect Collisions
     mySphero.on("collision", function() {
         console.log( "CylonRobot [%s] COLLISION", mySphero.name );
-        SE.emit( "sphero-collision", JSON.stringify({ "spheroIndex": mySphero.hocIndex }) );
+        SE.emit( "sphero-collision", JSON.stringify({ "spheroIndex": mySphero.hocIndex }) );    //FIXME
+
+        // TODO: COLORING
     });
     mySphero.detectCollisions( function(err, data) {
         //console.log( "CylonRobot [%s] detectCollisions error/data:", mySphero.hocIndex );
-        //console.log( err || data );
+        //console.log( err || data );   // FIXME if error
     });
 
 
@@ -365,15 +365,15 @@ function initCylonRobot( _this, mySphero )
         console.log( "CylonRobot [%s] powerStateInfo", mySphero.name );
         console.log( data );
         if ( data.batteryState == 0x03 ) {
-            SE.emit( "sphero-battery-low", JSON.stringify({ "spheroIndex": mySphero.hocIndex }) );
+            SE.emit( "sphero-battery-low", JSON.stringify({ "spheroIndex": mySphero.hocIndex }) );          // FIXME
         } else if ( data.batteryState == 0x04 ) {
-            SE.emit( "sphero-battery-critical", JSON.stringify({ "spheroIndex": mySphero.hocIndex }) );
+            SE.emit( "sphero-battery-critical", JSON.stringify({ "spheroIndex": mySphero.hocIndex }) );     // FIXME
         }
     });
     // Power notifications are async notifications
     mySphero.setPowerNotification( true, function(err, data) {      // sphero asynchronously notifies of power state periodically (every 10 seconds, or immediately when a change occurs)
         //console.log( "CylonRobot [%s] setPowerNotification error/data:", mySphero.hocIndex );
-        //console.log( err || data );
+        //console.log( err || data );        // FIXME if error
     });
 
 
@@ -409,7 +409,7 @@ function _onDisconnect( _this, mySphero, idx )
 {
     console.log( "CylonRobot [%s] DISCONNECTED", idx );
     global.currentNumberOfSpherosConnected--;
-    SE.emit( "sphero-disconnect", JSON.stringify({ "spheroIndex": idx }) );
+    SE.emit( "sphero-disconnect", JSON.stringify({ "spheroIndex": idx }) );         // FIXME
     // Reset array values
     _this.spheroCommPorts[ idx ]      = null;      // When not connected, the value is null
     _this.spheroCylonRobots[ idx ]    = null;      // When not connected, the value is null

@@ -39,6 +39,13 @@ var SpheroEvents    = require('../sphero/SpheroEvents');
 var SE = global.spheroEvents;                   // Replaces jQuery $ events here
 
 
+// Sphero colors (associative array, dark & light)      // FIXME: Choose different colors
+global.SPHERO_COLORS = { "red": [0x7F0000, 0xFF0000], "green": [0x007F00, 0x00FF00],
+    "blue": [0x00007F, 0x0000FF], "yellow": [0x007F7F, 0x00FFFF], "purple": [0x7F7F00, 0xFFFF00]
+};
+
+
+
 /**
  *  Main
  */
@@ -77,14 +84,17 @@ function SpheroConnectionManager()
     this.disconnectedSpheros = [];      // TODO
     this.connectingInProcess = [];      // Array of macAddresses of Spheros getting connected (between inquire and connect)
     this.isInquiring         = false;   // Only once at a time: prevent to have 2 bluetoothInquire() running at the same time
+    // Storing mySphero objects from CylonSphero
+    this.mySpheros           = [];      // Key = macAddress, Object = mySphero  // TODO
 
+// TODO: la connection entre l'interface et le Cylon doit se faire par * macAddress *
 
 // TODO: SE.on( "disconnected", ... eagerness back ??? )
 
     var _this = this;
     SE.on( "disconnectedSphero", function( port, macAddress ) {
         // If a Sphero gets disconnected, restart the Bluetooth inquire
-        ArrayUtils.removeObjectWithPropertyFromArray( _this.activeSpheros, "macAddress", macAddress );              // array, propertyName, propertyValue )
+        ArrayUtils.removeObjectWithPropertyFromArray( _this.activeSpheros, "macAddress", macAddress );     // array, propertyName, propertyValue )
         _this.bluetoothInquire();
         return;
     });
@@ -249,8 +259,29 @@ SpheroConnectionManager.prototype.startNewCylonSphero  =  function(port, macAddr
     }
     this.activeSpheros.push( { "port":port, "macAddress":macAddress } );        // Array of Objects { port: , macAddress: }
 
+    // TODO args = [ port, macAddress, color ];     // <=> process.argv[2..4] in child
 
     // TODO fork()      // So it has access to globals
+    // var child = childProcess.fork( __dirname + '/CylonSphero.js');   //, args Array List of string arguments
+    /*
+        child.on('message', function(m) {
+            console.log('PARENT got message:', m);
+        });
+
+        child.send({ hello: 'world' });
+
+        child.on('error', function (err) {
+            console.log('Failed to start child process.');
+        });
+
+        // Other Events
+        child.on('exit'         // stdio might still be open and running
+        child.on('close'        // stdio all done (but may still be open if shared)
+        child.on('disconnected' // .disconnect() called, no more messages possible
+    */
+
+    // TODO map SE.on signaling to child.send & .on()
+    // For code push, error and info update
 
 }
 
