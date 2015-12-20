@@ -63,8 +63,10 @@ function CylonSphero()
     });
 */
 
+    // TODO: onMessage ({type:, data:})
+
     // --- When user code pushed!
-    SE.on( "push-code", function( userDescription ) {
+    SE.on( "push-code", function( userDescription ) {          // FIXME
         onUserCodePushed( _this, userDescription );         // spheroIndex, userCode
     });
 
@@ -162,7 +164,7 @@ function onUserStop( _this, userDescription )
 }
 
 
-/** Private function for onUserStop & onUserCodePushed */
+/** Private function for onUserStop & onUserCodePushed * /
 function fromDarkToIndex( _this, spheroIsDark )         // FIXME: to remove!
 {
     if ( spheroIsDark ) {
@@ -175,6 +177,8 @@ function fromDarkToIndex( _this, spheroIsDark )         // FIXME: to remove!
         return i;
     }
 }
+*/
+
 
 /** Private function for onUserStop & onUserCodePushed */
 function _finalSpheroStop( _this, mySphero )
@@ -199,9 +203,10 @@ function _finalSpheroStop( _this, mySphero )
 /**
  *  SE.on( "bt-device-connected", ...)
  */
-function onBluetoothDeviceConnected( _this, deviceDescription )
+function onBluetoothDeviceConnected( _this, deviceDescription )     // FIXME deviceDescription
 {
     try {
+/*      FIXME
         var deviceInfo = JSON.parse( deviceDescription );
         if ( !deviceInfo.rfcommDev || !deviceInfo.macAddress ) {
             console.error("ERROR in CylonSphero onBluetoothDeviceConnected: rfcommDev/macAddress is null for [%s]", deviceInfo.macAddress);
@@ -211,17 +216,19 @@ function onBluetoothDeviceConnected( _this, deviceDescription )
 
         // --- Create the corresponding Cylon.robot, and use the same index if was connected before
         var idx = _this.spheroMacAddress2Index[ deviceInfo.macAddress ] || _this.spheroCommPorts.length;
+*/
+
 
         var cylonRobot = global.Cylon.robot({ name: ('Sphero-' + idx) })
-                .connection( 'sphero', { adaptor: 'sphero', port: deviceInfo.rfcommDev })
+                .connection( 'sphero', { adaptor: 'sphero', port: rfcommDev })      // FIXME
                 .device('sphero', { driver: 'sphero' })
                 .on( 'error', console.warn )
                 .on( 'ready', function(my) {
                     console.log("CylonRobot ["+ my.sphero.name+"] ready, start last initializations!");
 
                     // Store its index inside the object. Before initCylonRobot called!
-                    my.sphero.hocIndex = idx;
-                    var hocColor       = global.SPHERO_COLORS[ ""+process.env.HOC_COLOR ][ _this.darkSpheroIndex == idx ? 0 : 1 ];
+                    my.sphero.hocIndex = idx;   // FIXME
+                    var hocColor       = global.SPHERO_COLORS[ ""+process.env.HOC_COLOR ][ _this.darkSpheroIndex == idx ? 0 : 1 ];  // FIXME
                     my.sphero.hocColor = hocColor ? hocColor : 0xFF00FF;
                     console.log("CylonRobot [%s] has index[%s] and color [%s]", my.sphero.name, my.sphero.hocIndex, my.sphero.hocColor.toString(16) );
 
@@ -239,6 +246,7 @@ function onBluetoothDeviceConnected( _this, deviceDescription )
                 });
 
         // --- Now we know it is a Sphero, save info as class attributes for this Sphero
+        /* FIXME
         console.log("CylonRobot index=["+ idx+"] created, MacAddress [%s] from Orbotix => assume a Sphero!\n", deviceInfo.macAddress);
         _this.spheroMacAddresses[idx]   = deviceInfo.macAddress;
         _this.spheroCommPorts[idx]      = deviceInfo.rfcommDev;
@@ -248,6 +256,7 @@ function onBluetoothDeviceConnected( _this, deviceDescription )
         if (_this.darkSpheroIndex === undefined) {
             _this.darkSpheroIndex = idx;
         }
+        */
 
         // --- Start Cylon: global to all spheros!
         global.Cylon.start();

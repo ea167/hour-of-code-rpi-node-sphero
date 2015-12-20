@@ -88,8 +88,10 @@ function SpheroConnectionManager()
     this.mySpheros           = [];      // Key = macAddress, Object = mySphero  // TODO
 
 // TODO: la connection entre l'interface et le Cylon doit se faire par * macAddress *
+//      Il faudrait qu'on puisse avoir dans l'interface les positions, etc (mySpheros)
 
-// TODO: SE.on( "disconnected", ... eagerness back ??? )
+
+// TODO: SE.on( "disconnected", ... eagerness back !!!
 
     var _this = this;
     SE.on( "disconnectedSphero", function( port, macAddress ) {
@@ -266,6 +268,14 @@ SpheroConnectionManager.prototype.startNewCylonSphero  =  function(port, macAddr
     /*
         child.on('message', function(m) {
             console.log('PARENT got message:', m);
+
+            // mySphero
+            // to store in _this.mySpheros[ macAddress ] = mySphero
+
+            // alerts
+
+            // disconnects (should the process exit ???)
+
         });
 
         child.send({ hello: 'world' });
