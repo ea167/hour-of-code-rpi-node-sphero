@@ -3,28 +3,82 @@
  */
 var $ = require('jquery');
 
-// To avoid double-clicks
+var CodeMirror = require('codemirror/lib/codemirror');
+
+require('codemirror/mode/javascript/javascript');
+//require('codemirror/mode/css/css');
+//require('codemirror/mode/htmlmixed/htmlmixed');
+
+// ----- Addons: see https://codemirror.net/doc/manual.html#addons -----
+// Search-replace
+require('codemirror/addon/dialog/dialog');
+require('codemirror/addon/search/searchcursor');
+require('codemirror/addon/search/search');
+// Adds a highlightSelectionMatches option that can be enabled to highlight all instances of a currently selected word
+require('codemirror/addon/search/match-highlighter');
+
+// Defines an option matchBrackets which, when set to true, causes matching brackets to be highlighted whenever the cursor is next to them
+require('codemirror/addon/edit/matchbrackets');
+
+// Defines an interface component for showing linting warnings, with pluggable warning sources
+require('codemirror/addon/lint/lint');
+require('codemirror/addon/lint/javascript-lint');
+
+// Provides a framework for showing autocompletion hints. Defines editor.showHint, which takes an optional options object, and pops up a widget that allows the user to select a completion
+require('codemirror/addon/hint/show-hint');
+require('codemirror/addon/hint/javascript-hint');
+// TODO: Define additional hints for Sphero
+
+
+
+// --- To avoid double-clicks
 var lastClickOnPushToSphero     = null;
 var lastClickOnStopSphero       = null;
 // To avoid duplicate saves
 var lastContentSaveEditorGeneration = null;
 
 
-function initEditorButtons()
-{
-    // Listeners
-    $("#push_to_sphero").on("click", pushToSpheroOnClick );                      // function() { pushToSpheroOnClick( browserWebSocket); });
-    $("#stop_sphero").on("click",    stopSpheroOnClick );
 
-    // Save on unload
+function initEditor()
+{
+    // var codeMirrorEditor globally defined
+    codeMirrorEditor = CodeMirror( document.getElementById("code_mirror_id"), {
+        value: "// Type your code here",
+        lineNumbers: true,
+        indentUnit: 4,
+        viewportMargin: Infinity,
+        mode:  "javascript",
+        // Addons
+        highlightSelectionMatches: true,
+        matchBrackets: true,
+        lint: CodeMirror.lint.javascript,
+        hint: CodeMirror.hint.javascript
+    });
+
+
+    // --- Save on unload
     $(window).on("unload", saveCurrentEditorCodeToLocalStorage );
 
-    // Onload, charge the previous code, or default.js
+    // --- Onload, charge the previous code, or default.js
     loadEditorFirstCode();
 
     // Interval to record code history, when there are changes, in local storage,
     //  every minute at most, keep the last 50 max of codes posted (they should be stored on RPi)
     setInterval( saveCodeEveryMinuteToLocalStorage, 60000 );
+
+    // --- Init the behaviour of buttons for the JS editor
+    initEditorButtons();
+
+    return;
+}
+
+
+
+function initEditorButtons()
+{
+    // Listeners
+    $("#push_to_sphero").on("click", pushToSpheroOnClick );        // function() { pushToSpheroOnClick( browserWebSocket); });
+    $("#stop_sphero").on("click",    stopSpheroOnClick );
     return;
 }
 
@@ -154,5 +208,5 @@ function saveCurrentEditorCodeToLocalStorage()
 
 
 
-exports.initEditorButtons = initEditorButtons;
+exports.initEditor = initEditor;
 exports.saveCurrentEditorCodeToLocalStorage = saveCurrentEditorCodeToLocalStorage;

@@ -5,7 +5,7 @@
 
 // ===== Modules Required =====
 var initBrowserSocket   = require('./socket').initBrowserSocket;
-var initEditorButtons   = require('./js-editor').initEditorButtons;
+var initEditor          = require('./js-editor').initEditor;
 var initExamplesButtons = require('./example-buttons').initExamplesButtons;
 var initUserName        = require('./user-name').initUserName;
 var initSelectSphero    = require('./select-sphero').initSelectSphero;
@@ -19,8 +19,8 @@ $(document).ready( function() {
     // --- Start the WebSocket between the browser and the RPi
     browserWebSocket = initBrowserSocket();
 
-    // --- Init the behaviour of buttons for the JS editor
-    initEditorButtons();
+    // --- Init the JS editor
+    initEditor();
     //
     initExamplesButtons();
     //
