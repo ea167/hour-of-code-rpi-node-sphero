@@ -26,10 +26,6 @@ function CylonSphero()
     this.macAddress = process.argv[3];
     this.color      = process.argv[4];
 
-    // TODO: get params process.argv[2..4]
-
-    // TODO: SE.on => on('message')
-
 /*
     // Dark sphero is the one set at (0,0), and Light sphero will be at (0,20)
     this.darkSpheroIndex         = 0;    // May change if the Sphero at index 0 is disconnected
@@ -40,7 +36,6 @@ function CylonSphero()
     this.spheroCylonRobots      = [];   // When not connected, the value is null. WARNING: mySphero == spheroCylonRobots[].sphero
     this.spheroMacAddress2Index = [];   // Associative array to reuse the same index in case of disconnection. Note: inquire() does not return the ones already connected
 */
-
 /*
     // Running code:
     this.spheroUserCodeRuns     = [];
@@ -52,14 +47,9 @@ function CylonSphero()
         return false;
     };
 */
-
     // Threads to run user code
     //this.spheroUserCodeWorkers  = [];
     //this.templateUserCodeRun    = readTemplateUserCodeRun();
-
-    // Closure for on(...)
-    var _this = this;
-
 /*
     // --- When new device detected
     SE.on( "bt-device-connected", function(deviceDescription) {
@@ -67,16 +57,33 @@ function CylonSphero()
     });
 */
 
-    // TODO: onMessage ({type:, data:})
 
-    // --- When user code pushed!
-    SE.on( "push-code", function( userDescription ) {          // FIXME
-        onUserCodePushed( _this, userDescription );         // spheroIndex, userCode
-    });
+    // Closure for on(...)
+    var _this = this;
 
-    // --- When user stop clicked!
-    SE.on( "stop-code", function( userDescription ) {
-        onUserStop( _this, userDescription );               // spheroIndex
+    // --- onMessage ({type:, data:})
+    process.on( 'message', function(msg) {
+        switch (msg.type) {
+            // --- When user code pushed!
+            case "push-code":                                                   // msg = { type:, XXX:} // FIXME
+                // TODO
+                onUserCodePushed( _this, userDescription );         // spheroIndex, userCode
+                break;
+
+            // --- When user click stop!
+            case "stop-code":                                                   // msg = { type:, XXX:} // FIXME
+                // TODO
+                onUserStop( _this, userDescription );               // spheroIndex, userCode
+                break;
+
+            // TODO !!!
+
+            default:
+                console.error( "\nERROR in CylonSphero.on.MESSAGE, msg is:" );
+                console.error( msg );
+                return;
+        }
+        return;
     });
 
     return;
@@ -85,7 +92,7 @@ function CylonSphero()
 
 
 /**
- *  SE.on( "user-code-pushed", ...)
+ *  .on( "user-code-pushed", ...)
  */
 function onUserCodePushed( _this, userDescription )
 {
@@ -97,7 +104,7 @@ function onUserCodePushed( _this, userDescription )
             return;
         }
 
-        // --- Check that Sphero still connected        // FIXME
+        // --- Check that Sphero still connected                    // FIXME
         if ( !_this.spheroCylonRobots[ spheroIndex ] ) {
             console.error("ERROR in CylonSphero onUserCodePushed: sphero DISCONNECTED [%s]", spheroIndex);
             SE.emit( "sphero-disconnect", JSON.stringify({ "spheroIndex": spheroIndex }) );
@@ -114,12 +121,6 @@ function onUserCodePushed( _this, userDescription )
         var mySphero    = _this.spheroCylonRobots[ spheroIndex ].sphero;
         var userCode    = userInfo.userCode;
 
-        // Segmentation fault!!!
-        /*** worker = new Threads.Worker('src/sphero/ThreadedSpheroUserCodeRun.js');
-        _this.spheroUserCodeWorkers[ spheroIndex ] = worker;
-        worker.postMessage( { mySphero: mySphero, userCode: userCode, SE: SE } ); ***/
-
-
         // --- Require version, same thread
         var SpheroUserCodeRun = require("./RequireSpheroUserCodeRun");
         console.log( "\nCylonRobot [%s] REQUIRE USER-CODE completed -- run SpheroUserCodeRun NOW", spheroIndex );
@@ -134,7 +135,7 @@ function onUserCodePushed( _this, userDescription )
 
 
 /**
- *  SE.on( "user-stop", ...)
+ *  .on( "user-stop", ...)
  */
 function onUserStop( _this, userDescription )
 {
@@ -152,13 +153,6 @@ function onUserStop( _this, userDescription )
             SE.emit( "sphero-disconnect", JSON.stringify({ "spheroIndex": spheroIndex }) );         // FIXME
             return;
         }
-
-        /*** // --- Existing Thread?
-        var worker = _this.spheroUserCodeWorkers[ spheroIndex ];
-        if (worker) {
-            worker.terminate();               // Terminate the worker when needed!
-        }
-        _this.spheroUserCodeWorkers[ spheroIndex ] = null;  ***/
 
         // --- Stop Sphero and show tail Led
         _finalSpheroStop( _this, _this.spheroCylonRobots[ spheroIndex ].sphero );
@@ -189,7 +183,7 @@ function _finalSpheroStop( _this, mySphero )
 {
     var spheroIndex = mySphero.hocIndex;
     console.log( "\nCylonRobot [%s] stopping", spheroIndex );
-    _this.spheroUserCodeRuns[spheroIndex].sandbox._endLoop = true;
+    _this.spheroUserCodeRuns[spheroIndex].markLoopToEnd();              // sandbox._endLoop = true;
 
     mySphero.stop();
 

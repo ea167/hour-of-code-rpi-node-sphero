@@ -16,6 +16,7 @@ function SpheroUserCodeRun( mySphero, userCode, SE )
     if ( !mySphero || typeof userCode === "undefined" ) {
         console.warn( "CylonRobot [%s] USER-CODE VARIABLES error, userCode: \n%s\n", mySphero.hocIndex, userCode );
         SE.emit( "sphero-internal-error", JSON.stringify({ "spheroIndex": mySphero.hocIndex, "exception": "mySphero/userCode not defined" }) );
+        // FIXME
         return;
     }
 
@@ -30,7 +31,7 @@ function SpheroUserCodeRun( mySphero, userCode, SE )
     // --2-- Create the sandbox for to execute the user code
     this.sandbox = {
         mySphero:       mySphero,
-        //_intervalLoop:  null,       
+        //_intervalLoop:  null,
         _endLoop:       false,
         setInterval:    setInterval,        // Globals in node.js, not available anymore when sandboxed!
         clearInterval:  clearInterval
@@ -67,6 +68,13 @@ function SpheroUserCodeRun( mySphero, userCode, SE )
         return;
     }
 } // end of SpheroUserCodeRun()
+
+
+/** To stop the loop at the next iteration */
+SpheroUserCodeRun.prototype.markLoopToEnd  =  function()
+{
+    vm.runInContext( " _endLoop = true; ", this.sandbox );
+}
 
 
 module.exports = SpheroUserCodeRun;
