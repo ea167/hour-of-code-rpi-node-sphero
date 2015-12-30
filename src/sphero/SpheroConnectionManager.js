@@ -43,7 +43,8 @@ var SE = global.spheroEvents;                   // Replaces jQuery $ events here
 
 
 // Spheros' colors & names. Associative array Key= RPi-color, Value= list of {name:,color:} for Spheros
-// Potentially could have different names and colors depending on the RPi
+//      Potentially could have different names and colors depending on the RPi
+//      Warning: all names must be unique for a given RPi
 global.STANDARD_SPHERO_LIST = [
     { name:"Santa",     color:0xFF0000 },                       // Add macAddress + activeUser (student name)
     { name:"Sapphire",  color:0x0000FF },
@@ -325,7 +326,7 @@ SpheroConnectionManager.prototype.startNewCylonSphero  =  function(port, macAddr
     var spheroAttributes = this.findBestSpheroAttributes( macAddress ) || { "name":"UNKNOWN", "color":0xFFFFFF };         // TODO !!!!
     var name  = spheroAttributes.name;
     var color = spheroAttributes.color;
-
+    // TODO: ASSERT NAME NOT ALREADY in activeSpheros
 
     // --- Start the new process
     var args      = [ port, macAddress, name, color ];                              // <=> process.argv[2..5] in child
@@ -390,6 +391,44 @@ SpheroConnectionManager.prototype.startNewCylonSphero  =  function(port, macAddr
 
     return;         // end of startNewCylonSphero()
 }
+
+
+/** Find the best attributes {name:, color:} for this newly (re-)connected Sphero */
+SpheroConnectionManager.prototype.findBestSpheroAttributes  =  function( macAddress )
+{
+    if ( !macAddress ) {
+        console.error( "\nERROR in findBestSpheroAttributes: macAddress PARAM NULL !!\n" );
+        return null;
+    }
+
+    // 1. In disconnectedSpheros? Try to reuse the same attributes on reconnection
+    var disconnectedSphero = this.disconnectedSpheros[ macAddress ];
+    if ( disconnectedSphero ) {
+        return disconnectedSphero;
+    }
+
+    // 2. Is there favorite attributes for this macAddress in global defined list?
+    var elm = ArrayUtils.findFirstObjectWithPropertyInArray( this.spheroAttributesByNames, "macAddress", macAddress );  // array, propertyName, propertyValue )
+    if (elm) {
+        return elm;
+    }
+
+    // 3. Get the first available from this.spheroAttributesByNames, always in the same order "for of"
+    for ( var namColor of this.spheroAttributesByNames ) {
+        elm = ArrayUtils.findFirstObjectWithPropertyInArray( this.activeSpheros, "name", namColor.name );  // array, propertyName, propertyValue )
+        if (! elm) {
+            return namColor;
+        }
+    }
+
+    // Error, nothing found!
+    console.error( "\nERROR in findBestSpheroAttributes: NO AVAILABLE SpheroAttributes found !!\n" );
+    return null;    // { "name":"UNKNOWN", "color":0xFFFFFF };
+}
+
+
+
+
 
 
 // TODO: MAPPING must be for ALL Spheros, with macAddress as param => NOT in startNewCylonSphero !!

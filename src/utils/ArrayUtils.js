@@ -84,7 +84,7 @@ function findFirstObjectWithPropertyInArray( array, propertyName, propertyValue 
     if (!array || !propertyName || !propertyValue ) {
         console.warn('Warning in findFirstObjectWithPropertyInArray EMPTY variables: array=[%s], propertyName=[%s], propertyValue=[%s]',
             array, propertyName, propertyValue );
-        return;
+        return null;
     }
     // Find the first element which elm.propertyName has value propertyValue from array
     for (var elm of array) {

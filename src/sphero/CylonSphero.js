@@ -219,7 +219,7 @@ function onBluetoothDeviceConnected( _this, deviceDescription )     // FIXME dev
 
 
         var cylonRobot = global.Cylon.robot({ name: _this.name })                   // { name: ('Sphero-' + idx) }
-                .connection( 'sphero', { adaptor: 'sphero', port: rfcommDev })      // FIXME
+                .connection( 'sphero', { adaptor: 'sphero', port: _this.port })     
                 .device('sphero', { driver: 'sphero' })
                 .on( 'error', console.warn )
                 .on( 'ready', function(my) {
