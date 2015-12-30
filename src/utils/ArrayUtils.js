@@ -58,7 +58,7 @@ function removeObjectFromArray( array, objectVal )
 function removeObjectWithPropertyFromArray( array, propertyName, propertyValue )
 {
     if (!array || !propertyName || !propertyValue ) {
-        console.warn('Warning in removeFromArremoveObjectWithPropertyFromArrayray EMPTY variables: array=[%s], propertyName=[%s], propertyValue=[%s]',
+        console.warn('Warning in removeObjectWithPropertyFromArray EMPTY variables: array=[%s], propertyName=[%s], propertyValue=[%s]',
             array, propertyName, propertyValue );
         return;
     }
@@ -75,6 +75,29 @@ function removeObjectWithPropertyFromArray( array, propertyName, propertyValue )
 }
 
 
+
+/**
+ *  Return the first object found with given property from an array, or null
+ */
+function findFirstObjectWithPropertyInArray( array, propertyName, propertyValue )
+{
+    if (!array || !propertyName || !propertyValue ) {
+        console.warn('Warning in findFirstObjectWithPropertyInArray EMPTY variables: array=[%s], propertyName=[%s], propertyValue=[%s]',
+            array, propertyName, propertyValue );
+        return;
+    }
+    // Find the first element which elm.propertyName has value propertyValue from array
+    for (var elm of array) {
+        if ( elm[propertyName] == propertyValue ) {
+            return elm;
+        }
+    }
+    return null;
+}
+
+
+
 module.exports.removeFromArray = removeFromArray;
 module.exports.removeObjectFromArray = removeObjectFromArray;
 module.exports.removeObjectWithPropertyFromArray = removeObjectWithPropertyFromArray;
+module.exports.findFirstObjectWithPropertyInArray = findFirstObjectWithPropertyInArray;

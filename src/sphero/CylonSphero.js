@@ -24,7 +24,8 @@ function CylonSphero()
 {
     this.port       = process.argv[2];
     this.macAddress = process.argv[3];
-    this.color      = process.argv[4];
+    this.name       = process.argv[4];
+    this.color      = process.argv[5];
 
 /*
     // Dark sphero is the one set at (0,0), and Light sphero will be at (0,20)
@@ -217,7 +218,7 @@ function onBluetoothDeviceConnected( _this, deviceDescription )     // FIXME dev
 */
 
 
-        var cylonRobot = global.Cylon.robot({ name: ('Sphero-' + idx) })
+        var cylonRobot = global.Cylon.robot({ name: _this.name })                   // { name: ('Sphero-' + idx) }
                 .connection( 'sphero', { adaptor: 'sphero', port: rfcommDev })      // FIXME
                 .device('sphero', { driver: 'sphero' })
                 .on( 'error', console.warn )
@@ -356,7 +357,7 @@ function initCylonRobot( _this, mySphero )
 
     // --- Detect Collisions
     mySphero.on("collision", function() {
-        console.log( "CylonRobot [%s] COLLISION", mySphero.name );
+        console.log( "CylonRobot [%s] COLLISION ", mySphero.name );
         SE.emit( "sphero-collision", JSON.stringify({ "spheroIndex": mySphero.hocIndex }) );    //FIXME
 
         // TODO: COLORING

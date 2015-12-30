@@ -8,7 +8,7 @@ var $ = require('jquery');
 var STUDENT_FANCY_NAMES = [
     "Mama Bear", "Papa Bear", "Iron Pacman", "Phineas Berf", "Stuart Minion",
     "Flash Cordon", "Chef Sayram", "Marcus Lemon", "Lion Messy", "Elsa Frozin",
-    "Clown Bozo", "Rabbi Jacob"
+    "Clown Bozo", "Rabbi Jacob", "Beary Suzuki", "Freddy Heron", "Sammy Squirly"
 ];
 
 /**

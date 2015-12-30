@@ -97,11 +97,11 @@ function SpheroConnectionManager()
 
 
     // ----- List of Spheros that the user can see in their browser, with HOC_FAVORITE_SPHERO_ATTRIBUTES added
-    //       this.userSpherosByName[spheroName] = { name:, color:, macAddress:, activeUser: }
+    //       this.spheroAttributesByNames[spheroName] = { name:, color:, macAddress: }
     global.RPI_SPHERO_LIST  = global.SPHERO_COLORS_FROM_RPI[ global.RPI_COLOR ]  || global.STANDARD_SPHERO_LIST;
-    this.userSpherosByName  = [];
+    this.spheroAttributesByNames  = [];
     for (var rsl of global.RPI_SPHERO_LIST) {
-            this.userSpherosByName[ rsl.name ] = rsl;
+            this.spheroAttributesByNames[ rsl.name ] = rsl;
     }
     // Add env HOC_FAVORITE_SPHERO_ATTRIBUTES preferences
     var envFavSpheroAttributes = null;
@@ -111,8 +111,8 @@ function SpheroConnectionManager()
         for (var fsa of envFavSpheroAttributes) {
             if ( !fsa.name || !fsa.macAddress )
                 continue;
-            if ( this.userSpherosByName[ fsa.name ] ) {
-                this.userSpherosByName[ fsa.name ].macAddress = fsa.macAddress;
+            if ( this.spheroAttributesByNames[ fsa.name ] ) {
+                this.spheroAttributesByNames[ fsa.name ].macAddress = fsa.macAddress;
                 continue;
             }
             // Otw new sphero name & color
@@ -120,14 +120,16 @@ function SpheroConnectionManager()
                 console.error("\nERROR in env HOC_FAVORITE_SPHERO_ATTRIBUTES, no COLOR defined for name=[%s]: IGNORING\n", fsa.name);
                 continue;
             }
-            this.userSpherosByName[ fsa.name ] = fsa;
-            this.userSpherosByName[ fsa.name ].activeUser = null;
+            this.spheroAttributesByNames[ fsa.name ] = fsa;
         }
-    }       // Done about  this.userSpherosByName[spheroName] = { name:, color:, macAddress:, activeUser: }
+    }       // Done about  this.spheroAttributesByNames[spheroName] = { name:, color:, macAddress: }
 
 
-    // ----- Keeping track of Active and recently Disconnected Spheros
-    this.activeSpheros       = [];      // Associative array of Key = macAddress, Objects = { port:, macAddress:, color:, proc: }
+    // +++++++ Keeping track of Active and recently Disconnected Spheros
+    //
+    // FIXME: USER NAME ????
+    this.activeSpheros       = [];      // Associative array of Key = macAddress,
+                                        //    Objects = { port:, macAddress:, name:, color:, proc:, user: }
     this.disconnectedSpheros = [];      // TODO
     this.connectingInProcess = [];      // Array of macAddresses of Spheros getting connected (between inquire and connect)
     this.isInquiring         = false;   // Only once at a time: prevent to have 2 bluetoothInquire() running at the same time
@@ -298,31 +300,40 @@ SpheroConnectionManager.prototype.connectBtSphero  =  function( macAddress, rfco
 
 
 /**
- *  Create a new CylonSphero through a direct serial Port.  macAddress may be null
+ *  Create a new CylonSphero through a direct serial Port.
+ *      macAddress may be null if HOC_DIRECT_SERIAL_PORTS is set
  */
 SpheroConnectionManager.prototype.startNewCylonSphero  =  function(port, macAddress)
 {
-    if ( !port || !macAddress ) {
+    if ( !port || (!macAddress && this.DIRECT_SERIAL_PORTS.length == 0) {
         console.error( "\nERROR in startNewCylonSphero: PARAM NULL port=[%s] macAddress=[%s] !!\n", port, macAddress );
         return;
     }
+    // on MacOS, we don't get the MacAddress, so we just store the port as MacAddress instead
+    if ( !macAddress && this.DIRECT_SERIAL_PORTS.length > 0 ) {
+        macAddress = port;
+    }
+
     // --- Check it does not already exist
     if ( this.activeSpheros[ macAddress ] ) {
         console.error( "\nERROR in startNewCylonSphero: activeSpheros has already macAddress=[%s], value [%s] !!\n", macAddress, this.activeSpheros[macAddress] );
         // FIXME
     }
 
-    // --- Assign color to Sphero
-    // TODO: Set up COLOR !!!!
-    var color = "green";            // FIXME
+
+    // --- Assign color and name to Sphero
+    var spheroAttributes = this.findBestSpheroAttributes( macAddress ) || { "name":"UNKNOWN", "color":0xFFFFFF };         // TODO !!!!
+    var name  = spheroAttributes.name;
+    var color = spheroAttributes.color;
 
 
     // --- Start the new process
-    var args      = [ port, macAddress, color ];                                // <=> process.argv[2..4] in child
-    var childProc = childProcess.fork( __dirname + '/CylonSphero.js', args );   // args Array List of string arguments
+    var args      = [ port, macAddress, name, color ];                              // <=> process.argv[2..5] in child
+    var childProc = childProcess.fork( __dirname + '/CylonSphero.js', args );       // args Array List of string arguments
 
-    // --- Store as activeSpheros
-    this.activeSpheros[macAddress] = { "port":port, "macAddress":macAddress, "color":color, "proc":childProc };     // Array of Objects { port: , macAddress:, color: }
+    // Store as activeSpheros
+    this.activeSpheros[macAddress] = { "port":port, "macAddress":macAddress, "name":name, "color":color, "proc":childProc };     // Array of Objects { port: , macAddress:, color:... }
+
 
     // --- Communication between forked process and this master process.  msg = { type:, macAddress:, ...}
     var _this = this;
@@ -389,108 +400,3 @@ SpheroConnectionManager.prototype.startNewCylonSphero  =  function(port, macAddr
 
 
 module.exports = SpheroConnectionManager;
-
-
-
-/***
-    // ---
-    var rfcommIndex = 1;    // Starts at 1 to avoid collisions
-    var childProcs  = [];
-    global.currentNumberOfSpherosConnected = 0;         // To enforce limit of global.MAX_NUMBER_OF_SPHEROS
-
-    btSerial.on('found', function(macAddress, name) {
-
-        // --- Any bluetooth device found. Orbotix, Inc. OUI (macAddress Prefix) is 68:86:E7
-        console.log( "Bluetooth device found: name [%s] at macAddress [%s]", name, macAddress );     // But not only paired!
-        if ( !macAddress || !macAddress.toString().toUpperCase().startsWith("68:86:E7")) {
-            console.log( "   Bt device NOT a Sphero! Ignoring macAddress [%s]", macAddress );
-            return;
-        }
-
-        // --- No more than global.MAX_NUMBER_OF_SPHEROS
-        if ( global.currentNumberOfSpherosConnected >= global.MAX_NUMBER_OF_SPHEROS ) {
-            console.warn( "Soft MAX number of Spheros [%s / %s] REACHED, Ignoring macAddress [%s]",
-                global.currentNumberOfSpherosConnected, global.MAX_NUMBER_OF_SPHEROS, macAddress );
-            return;
-        }
-
-        // --- Connect to the Sphero through exec 'sudo rfcomm ...'
-        //      Exec 'sudo rfcomm connect rfcommX {macAddress}'
-        var rfcommDev   = "/dev/rfcomm" + rfcommIndex;
-        var cmdExec     = "sudo rfcomm connect rfcomm"+ rfcommIndex +" "+ macAddress;
-        rfcommIndex     = (1 + rfcommIndex) & 63;           // Limit the value to 63 and loop otherwise (if conflict, will fail and retry)
-        var cmdOk       = true;
-
-        childProcs.push( childProcess.exec( cmdExec,
-            function (error, stdOutContent, stdErrContent) {
-                console.log('Exec rfcomm stdOutContent: ' + stdOutContent);
-                console.warn('Exec rfcomm stdErrContent: ' + stdErrContent);
-                if (error) {
-                    cmdOk = false;
-                    console.error('Exec rfcomm ERROR: ' + error);
-                }
-        }) );
-
-        // --- Delay by 7s so we roughly know whether Rpi has successfully CONNECTED to this Sphero
-        setTimeout( function() {
-            if ( !cmdOk ) {
-                console.log( "Bluetooth Sphero connection FAILED for macAddress [%s] with rfcommDev [%s]. Recycling.\n", macAddress, rfcommDev );
-                return;
-            }
-
-            global.currentNumberOfSpherosConnected++;
-            console.log( "Bluetooth device macAddress [%s] with rfcommDev [%s] CONNECTED\n", macAddress, rfcommDev );
-            SE.emit("node-user-log", "Bluetooth device macAddress ["+ macAddress +"] with rfcommDev ["+ rfcommDev +"] CONNECTED");
-
-            // Signal so that CylonSphero (and others) can use this channel. They will have to check that it is actually a Sphero!
-            SE.emit( "bt-device-connected", JSON.stringify({ "macAddress": macAddress, "rfcommDev": rfcommDev }) );
-        }, 7000 );
-
-    }); // end of btSerial.on('found',...)
-
-
-
-    // --- INQUIRE repeatedly
-    var isInquiring = false;
-
-    btSerial.on('finished', function () {
-        console.log('------- Bluetooth Serial INQUIRE finished -------');
-        isInquiring = false;
-    });
-
-    // --- Start the bluetooth scanning!
-    function btSerialInquire()
-    {
-        if ( global.currentNumberOfSpherosConnected >= global.MAX_NUMBER_OF_SPHEROS ) {
-            console.info( "Max number of Spheros [%s / %s] REACHED, skipping btSerialInquire",
-                global.currentNumberOfSpherosConnected, global.MAX_NUMBER_OF_SPHEROS );
-            return;
-        }
-        if (isInquiring) {
-            console.warn( "btSerialInquire already/still inquiring!" );
-            return;
-        }
-        if ( global.cylonSphero.isCodeRunning() ) {
-            console.info( "Code is currently running, so skipping btSerialInquire" );
-            return;
-        } else {
-            console.info( "NO running Code, call btSerialInquire" );
-        }
-        isInquiring = true;
-        btSerial.inquire();
-    }
-    // Right now
-    btSerialInquire();
-
-    // And then repeatedly every 20 seconds
-    var intervalId = setInterval( btSerialInquire, 20000 );
-
-
-    // --- If we need to close the connections. Warning: in the module code, it looks that close() may take a macAddress as argument
-    SE.on( "bt-close", function () {
-        console.log('===== Bluetooth Serial CLOSED =====');
-        btSerial.close();
-    });
-
-}
-***/
