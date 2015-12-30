@@ -39,9 +39,23 @@ var SpheroEvents    = require('../sphero/SpheroEvents');
 var SE = global.spheroEvents;                   // Replaces jQuery $ events here
 
 
-// Sphero colors (associative array, dark & light)      // FIXME: Choose different colors
-global.SPHERO_COLORS = { "red": [0x7F0000, 0xFF0000], "green": [0x007F00, 0x00FF00],
-    "blue": [0x00007F, 0x0000FF], "yellow": [0x007F7F, 0x00FFFF], "purple": [0x7F7F00, 0xFFFF00]
+// Spheros' colors & names. Associative array Key= RPi-color, Value= list of {name:,color:} for Spheros
+// Potentially could have different names and colors depending on the RPi
+global.STANDARD_SPHERO_LIST = [
+    { name:"Santa",     color:0xFF0000 },
+    { name:"Sapphire",  color:0x0000FF },
+    { name:"Froggy",    color:0x00FF00 },
+    { name:"Pumpkin",   color:0xff8800 },   // orange
+    { name:"Amethyst",  color:0xFF00FF },   // purple
+    { name:"Banana",    color:0xFFFF00 },   // yellow
+    { name:"Cyan",      color:0x00FFFF }    // cyan - LAST
+];
+global.SPHERO_COLORS_FROM_RPI = {
+    "red":      global.STANDARD_SPHERO_LIST,
+    "green":    global.STANDARD_SPHERO_LIST,
+    "blue":     global.STANDARD_SPHERO_LIST,
+    "yellow":   global.STANDARD_SPHERO_LIST,
+    "purple":   global.STANDARD_SPHERO_LIST     // LAST
 };
 
 

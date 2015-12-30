@@ -226,7 +226,7 @@ function onBluetoothDeviceConnected( _this, deviceDescription )     // FIXME dev
 
                     // Store its index inside the object. Before initCylonRobot called!
                     my.sphero.hocIndex = idx;   // FIXME
-                    var hocColor       = global.SPHERO_COLORS[ ""+process.env.HOC_COLOR ][ _this.darkSpheroIndex == idx ? 0 : 1 ];  // FIXME
+                    var hocColor       = global.SPHERO_COLORS_FROM_RPI[ ""+process.env.HOC_COLOR ][ _this.darkSpheroIndex == idx ? 0 : 1 ];  // FIXME
                     my.sphero.hocColor = hocColor ? hocColor : 0xFF00FF;
                     console.log("CylonRobot [%s] has index[%s] and color [%s]", my.sphero.name, my.sphero.hocIndex, my.sphero.hocColor.toString(16) );
 
