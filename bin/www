@@ -18,9 +18,8 @@ var url = require('url');
 var WebSocketServer = require('ws').Server;
 var onWsConnection  = require('../routes/websocket-server').onWsConnection;
 
-// Bluetooth Connections and CylonSphero        // FIXME !!!!
-var BluetoothConnections    = require('../src/sphero/BluetoothConnectionsByCLI');
-var CylonSphero             = require('../src/sphero/CylonSphero');
+// Bluetooth Sphero Connections
+var SpheroConnectionManager = require('../src/sphero/SpheroConnectionManager');
 
 
 /** ****************************************************************************
@@ -28,8 +27,7 @@ var CylonSphero             = require('../src/sphero/CylonSphero');
  */
 
 // Get port from environment and store in Express
-///var port = normalizePort(process.env.PORT || '3000');
-var port = normalizePort(process.env.PORT || '80');         // port 80
+var port = normalizePort(process.env.NODEJS_PORT || '3000');    // port 3000 by default: define NODEJS_PORT in ENV variables
 app.set('port', port);
 
 // --- Create HTTP server
@@ -93,8 +91,7 @@ process.on('uncaughtException', function(err) {
  *              Messaging through SpheroEvents
  */
 console.log("\nRaspberry HOC_COLOR is %s\n", process.env.HOC_COLOR);
-global.cylonSphero          = new CylonSphero();
-global.bluetoothConnections = new BluetoothConnections();                          // FIXME !!!!!
+global.spheroConnectionManager = new SpheroConnectionManager();
 
 
 

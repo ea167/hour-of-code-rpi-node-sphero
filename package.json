@@ -33,11 +33,11 @@
       "ws": "^0.8.0"
   },
   "devDependencies": {
-    "browserify": "^10.2.4",
-    "browserify-shim": "^3.8.9",
-    "watchify": "^3.2.3"
+      "browserify": "^10.2.4",
+      "browserify-shim": "^3.8.9",
+      "watchify": "^3.2.3"
   },
-  "EricComments-RemovedDependencies": {
+  "EricComments-RemovedDeps": {
       "clone": ">=1.0.2",
       "mdns": "^2.2.10",
       "the-end": "---"
