@@ -15,6 +15,10 @@
  *      // List of Sphero Mac addresses NOT to connect to, separated by commas
  *      HOC_FORBIDDEN_SPHERO_MACADDRS="68:86:E7:04:BC:EA,68:86:E7:04:CF:8F"
  *
+ *      // List of favorite bindings. JSON list of objects {macAddress:,name:}
+ *      //      or for completely new names {macAddress:'68:86:E7:22:11:33',name:'BB-8',color:'0x99ff33'}
+ *      HOC_FAVORITE_SPHERO_ATTRIBUTES="[{macAddress:'68:86:E7:22:11:00',name:'Santa'},{macAddress:'68:86:E7:22:11:33',name:'Turquoise'}]"
+ *
  *      // To bypass Bluetooth discovery and directly connect to Serial ports.
  *      // Use this on Apple MACs: (ls /dev/tty.Sphero*) see http://cylonjs.com/documentation/platforms/sphero/
  *      HOC_DIRECT_SERIAL_PORTS="/dev/tty.Sphero-BBP-AMP-SPP,/dev/tty.Sphero-BBP-AMP-SQQ"
@@ -29,7 +33,6 @@ var childProcess = require('child_process');
 
 // We do not use https://www.npmjs.com/package/bluetooth-serial-port anymore
 //    as it blocks the main thread for several seconds while doing inquire()
-// var bluetoothSerialPort = require('bluetooth-serial-port');
 
 // Array utils
 var ArrayUtils = require("../utils/ArrayUtils");
@@ -42,13 +45,13 @@ var SE = global.spheroEvents;                   // Replaces jQuery $ events here
 // Spheros' colors & names. Associative array Key= RPi-color, Value= list of {name:,color:} for Spheros
 // Potentially could have different names and colors depending on the RPi
 global.STANDARD_SPHERO_LIST = [
-    { name:"Santa",     color:0xFF0000 },
+    { name:"Santa",     color:0xFF0000 },                       // Add macAddress + activeUser (student name)
     { name:"Sapphire",  color:0x0000FF },
     { name:"Froggy",    color:0x00FF00 },
     { name:"Pumpkin",   color:0xff8800 },   // orange
     { name:"Amethyst",  color:0xFF00FF },   // purple
     { name:"Banana",    color:0xFFFF00 },   // yellow
-    { name:"Cyan",      color:0x00FFFF }    // cyan - LAST
+    { name:"Turquoise", color:0x00FFFF }    // cyan - LAST
 ];
 global.SPHERO_COLORS_FROM_RPI = {
     "red":      global.STANDARD_SPHERO_LIST,
@@ -71,7 +74,7 @@ function SpheroConnectionManager()
     global.RPI_COLOR                = process.env.HOC_COLOR || "purple";
 
     // Aggressive connection mode until the number of connected Spheros equals this one
-    this.EAGER_SPHERO_MAX_COUNT     = Number( process.env.HOC_EAGER_SPHERO_MAX_COUNT) || 2;   // Note: (NaN) false, (!NaN) true
+    this.EAGER_SPHERO_MAX_COUNT     = Number( process.env.HOC_EAGER_SPHERO_MAX_COUNT ) || 2;   // Note: (NaN) false, (!NaN) true
 
     // Array of Sphero Mac addresses NOT to connect to, separated by commas
     //          HOC_FORBIDDEN_SPHERO_MACADDRS="68:86:E7:04:BC:EA, 68:86:E7:04:CF:8F"
@@ -91,6 +94,36 @@ function SpheroConnectionManager()
     serlPorts.foreach( function( element, index, array ){
         this.DIRECT_SERIAL_PORTS[ this.DIRECT_SERIAL_PORTS.length ] = element.trim();
     });
+
+
+    // ----- List of Spheros that the user can see in their browser, with HOC_FAVORITE_SPHERO_ATTRIBUTES added
+    //       this.userSpherosByName[spheroName] = { name:, color:, macAddress:, activeUser: }
+    global.RPI_SPHERO_LIST  = global.SPHERO_COLORS_FROM_RPI[ global.RPI_COLOR ]  || global.STANDARD_SPHERO_LIST;
+    this.userSpherosByName  = [];
+    for (var rsl of global.RPI_SPHERO_LIST) {
+            this.userSpherosByName[ rsl.name ] = rsl;
+    }
+    // Add env HOC_FAVORITE_SPHERO_ATTRIBUTES preferences
+    var envFavSpheroAttributes = null;
+    try { envFavSpheroAttributes = JSON.parse( process.env.HOC_FAVORITE_SPHERO_ATTRIBUTES ); }
+    catch(exc) {}
+    if ( envFavSpheroAttributes ) {
+        for (var fsa of envFavSpheroAttributes) {
+            if ( !fsa.name || !fsa.macAddress )
+                continue;
+            if ( this.userSpherosByName[ fsa.name ] ) {
+                this.userSpherosByName[ fsa.name ].macAddress = fsa.macAddress;
+                continue;
+            }
+            // Otw new sphero name & color
+            if ( !fsa.color ) {
+                console.error("\nERROR in env HOC_FAVORITE_SPHERO_ATTRIBUTES, no COLOR defined for name=[%s]: IGNORING\n", fsa.name);
+                continue;
+            }
+            this.userSpherosByName[ fsa.name ] = fsa;
+            this.userSpherosByName[ fsa.name ].activeUser = null;
+        }
+    }       // Done about  this.userSpherosByName[spheroName] = { name:, color:, macAddress:, activeUser: }
 
 
     // ----- Keeping track of Active and recently Disconnected Spheros
@@ -123,6 +156,7 @@ function SpheroConnectionManager()
 
     return;     // end of SpheroConnectionManager()
 };
+
 
 
 
