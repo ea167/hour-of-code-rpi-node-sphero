@@ -80,21 +80,26 @@ function SpheroConnectionManager()
     // Array of Sphero Mac addresses NOT to connect to, separated by commas
     //          HOC_FORBIDDEN_SPHERO_MACADDRS="68:86:E7:04:BC:EA, 68:86:E7:04:CF:8F"
     this.FORBIDDEN_SPHERO_MACADDRS  = [];
-    var macAddrs                    = (process.env.HOC_FORBIDDEN_SPHERO_MACADDRS || "").split(',');
-    macAddrs.foreach( function( element, index, array ){
+    var macAddrs                    = (process.env.HOC_FORBIDDEN_SPHERO_MACADDRS || "").split(',');     // [ '' ] when not defined
+    macAddrs.forEach( function( element, index, array ){
         // foreach trim, uppercase, and replace '-' by ':'
-        element = element.trim().uppercase().replace(/\-/g,':');
-        this.FORBIDDEN_SPHERO_MACADDRS[ this.FORBIDDEN_SPHERO_MACADDRS.length ] = element;
-    });
+        element = element.trim().toUpperCase().replace(/\-/g,':');
+        if (element) {
+            this.FORBIDDEN_SPHERO_MACADDRS[ this.FORBIDDEN_SPHERO_MACADDRS.length ] = element;
+        }
+    }, this );  // Optional. Value to use as this when executing callback.
 
     // To bypass Bluetooth discovery and directly connect to Serial ports.
     //      Use this on Apple MACs: (ls /dev/tty.Sphero*). See http://cylonjs.com/documentation/platforms/sphero/
     //      HOC_DIRECT_SERIAL_PORTS="/dev/tty.Sphero-BBP-AMP-SPP, /dev/tty.Sphero-BBP-AMP-SQQ"
     this.DIRECT_SERIAL_PORTS = [];
     var serlPorts           = (process.env.HOC_DIRECT_SERIAL_PORTS || "").split(',');
-    serlPorts.foreach( function( element, index, array ){
-        this.DIRECT_SERIAL_PORTS[ this.DIRECT_SERIAL_PORTS.length ] = element.trim();
-    });
+    serlPorts.forEach( function( element, index, array ){
+        element = element.trim();
+        if (element) {
+            this.DIRECT_SERIAL_PORTS[ this.DIRECT_SERIAL_PORTS.length ] = element.trim();
+        }
+    }, this );
 
 
     // ----- List of Spheros that the user can see in their browser, with HOC_FAVORITE_SPHERO_ATTRIBUTES added
@@ -187,11 +192,11 @@ SpheroConnectionManager.prototype.bluetoothInquire  =  function()
         }
         return;
     }
+    var _this = this;
 
     // --- isInquiring or Spheros still connecting?
     if ( this.isInquiring || ( this.connectingInProcess && this.connectingInProcess.length > 0 ) ) {
         console.log("bluetoothInquire: a Sphero is still in the process of connecting, delaying by 5 seconds");
-        var _this = this;
         setTimeout( function(){ _this.bluetoothInquire(); } , 5000 );            // retry after 5 seconds delay
         return;
     }
@@ -205,37 +210,40 @@ SpheroConnectionManager.prototype.bluetoothInquire  =  function()
     // --- Otw, we are supposed to be on Linux (RPi), and we'll find the Spheros automatically
     var cmdInquire      = "hcitool inq";            // TODO: if too slow to inquire, start hcitool spinq while eager, and hcitool epinq when done
     this.isInquiring    = true;
-    childProcess.exec( cmdInquire, function (error, stdOutContent, stdErrContent) {
-        if (error) {
-            console.error("ERROR Exec cmdInquire [%s]: %s\n", cmdInquire, error.toString() );
-        }
-        else {
-            console.log( "Exec cmdInquire stdOutContent: %s", stdOutContent);
-            console.warn("Exec cmdInquire stdErrContent: %s", stdErrContent);
-            if ( stdOutContent ) {
-                stdOutContent = stdOutContent.toUpperCase();        // Just to be sure Mac address is with capital letters
-                // Orbotix, Inc. Bluetooth OUI (macAddress Prefix) is 68:86:E7
-                var pos = stdOutContent.indexOf( "68:86:E7" );
-                while ( pos >= 0 ) {
-                    var macAddress = stdOutContent.substr( pos, 17 );
-                    if ( macAddress.length == 17 ) {
-                        // Is this Sphero macAddress allowed?
-                        if ( this.FORBIDDEN_SPHERO_MACADDRS.indexOf( macAddress ) < 0 ) {
-                            // --- Ok, now we do connect!
-                            this.connectingInProcess.push( macAddress );
-                            var _this = this;
-                            setTimeout( function(){ _this.connectBtSphero( macAddress ); }, 0 );    // So not blocking main thread
+    try {
+        childProcess.exec( cmdInquire, function (error, stdOutContent, stdErrContent) {
+            if (error) {
+                console.error("ERROR Exec cmdInquire [%s]: %s\n", cmdInquire, error.toString() );
+            }
+            else {
+                console.log( "Exec cmdInquire stdOutContent: %s", stdOutContent);
+                console.warn("Exec cmdInquire stdErrContent: %s", stdErrContent);
+                if ( stdOutContent ) {
+                    stdOutContent = stdOutContent.toUpperCase();        // Just to be sure Mac address is with capital letters
+                    // Orbotix, Inc. Bluetooth OUI (macAddress Prefix) is 68:86:E7
+                    var pos = stdOutContent.indexOf( "68:86:E7" );
+                    while ( pos >= 0 ) {
+                        var macAddress = stdOutContent.substr( pos, 17 );
+                        if ( macAddress.length == 17 ) {
+                            // Is this Sphero macAddress allowed?
+                            if ( _this.FORBIDDEN_SPHERO_MACADDRS.indexOf( macAddress ) < 0 ) {
+                                // --- Ok, now we do connect!
+                                _this.connectingInProcess.push( macAddress );
+                                var _zis = _this;
+                                setTimeout( function(){ _zis.connectBtSphero( macAddress ); }, 0 );    // So not blocking main thread
+                            }
                         }
+                        pos = stdOutContent.indexOf( "68:86:E7", pos + macAddress.length );
                     }
-                    pos = stdOutContent.indexOf( "68:86:E7", pos + macAddress.length );
                 }
             }
-        }
-        // Ends by rescheduling bluetoothInquire()
-        this.isInquiring = false;
-        var _this = this;
-        setTimeout( function(){ _this.bluetoothInquire(); } , 5000 );            // retry after 5 seconds delay
-    });
+            // Ends by rescheduling bluetoothInquire()
+            _this.isInquiring = false;
+            var _zis = _this;
+            setTimeout( function(){ _zis.bluetoothInquire(); } , 5000 );            // retry after 5 seconds delay
+        });
+    }
+    catch (exc) { console.error( "\nTRY-CATCH ERROR in SpheroConnectionManager.bluetoothInquire: " + exc.stack + "\n" ); }
     return;
 }
 
@@ -306,7 +314,7 @@ SpheroConnectionManager.prototype.connectBtSphero  =  function( macAddress, rfco
  */
 SpheroConnectionManager.prototype.startNewCylonSphero  =  function(port, macAddress)
 {
-    if ( !port || (!macAddress && this.DIRECT_SERIAL_PORTS.length == 0) {
+    if ( !port || (!macAddress && this.DIRECT_SERIAL_PORTS.length == 0) ) {
         console.error( "\nERROR in startNewCylonSphero: PARAM NULL port=[%s] macAddress=[%s] !!\n", port, macAddress );
         return;
     }
