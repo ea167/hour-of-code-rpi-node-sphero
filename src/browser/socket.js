@@ -16,19 +16,20 @@ function initBrowserSocket()
     $.unsubscribe = o.off.bind(o);
     $.publish     = o.trigger.bind(o);
 
+
     // --- Open socket
+    try {
+       socket = new WebSocket(url);
+    } catch(exc) {
+       console.error('Browser WS connection error: ', exc);
+    }
+
     socket.onopen = function(evt) {
         $.subscribe( 'socketstop', function(data) {
             socket.close();
         });
         /// socket.send(JSON.stringify(message));
     };
-
-    try {
-       socket = new WebSocket(url);
-    } catch(exc) {
-       console.error('Browser WS connection error: ', exc);
-    }
 
 
     // ----- on.MESSAGE: Here we get the info!

@@ -322,7 +322,8 @@ SpheroConnectionManager.prototype.startNewCylonSphero  =  function(port, macAddr
 
     // --- Assign color and name to Sphero
     var spheroAttributes = this.findBestSpheroAttributes( macAddress ) || { "name":"UNKNOWN", "color":0xFFFFFF };
-    console.log( "INFO in startNewCylonSphero: new Sphero macAddress=[%s] gets findBestSpheroAttributes: %s", macAddress, spheroAttributes );
+    console.log( "INFO in startNewCylonSphero: new Sphero macAddress=[%s] gets findBestSpheroAttributes: ", macAddress);
+    console.log( spheroAttributes );
     var name  = spheroAttributes.name;
     var color = spheroAttributes.color;
     // Assert the name is not already in activeSpherosMap

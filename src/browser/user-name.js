@@ -20,6 +20,7 @@ function initUserName()
 
     // Listeners
     $("#student_name").on("change", saveStudentName );                      // function() { pushToSpheroOnClick( browserWebSocket); });
+    $("#student_name").on("blur",   _checkEmptyStudentName );
 
     return;
 }
@@ -29,10 +30,24 @@ function loadStudentName()
 {
     var nam = localStorage.getItem("studentName");
     if (!nam) {
-        nam = STUDENT_FANCY_NAMES[ Math.floor( Math.random() * STUDENT_FANCY_NAMES.length ) ];
+        nam = _getRandomStudentName();
     }
     $("#student_name").val( nam );
 }
+
+function _getRandomStudentName()
+{
+    return STUDENT_FANCY_NAMES[ Math.floor( Math.random() * STUDENT_FANCY_NAMES.length ) ];
+}
+
+function _checkEmptyStudentName()
+{
+    if ( !( $("#student_name").val() ) ) {
+        loadStudentName();
+    }
+}
+
+
 
 function saveStudentName()
 {
