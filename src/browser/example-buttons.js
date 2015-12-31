@@ -11,8 +11,8 @@ var EXAMPLE_CODE_IDS = [
     "advanced1", "advanced2", "advanced3"
 ];
 
-// Key = html id, Value = text of the code
-var EXAMPLE_CODES = [];
+// Associative array: Key = html id, Value = text of the code
+var EXAMPLE_CODES_MAP = [];
 
 // The one currently displayed in the example zone (may be null)
 var currentExampleCodeIdDisplayed;
@@ -49,7 +49,7 @@ function downloadExampleCode( exampleId )
 {
     // Download and Save it
     $.get('/js/code-examples/'+ exampleId +'.js', function( data ) {
-        EXAMPLE_CODES[ exampleId ] = data;
+        EXAMPLE_CODES_MAP[ exampleId ] = data;
     });
 }
 
@@ -59,7 +59,7 @@ function showExampleArea( exampleId )
 {
     currentExampleCodeIdDisplayed = exampleId;
     // Set div content + show div
-    $("#example_code").html( EXAMPLE_CODES[ exampleId ] );
+    $("#example_code").html( EXAMPLE_CODES_MAP[ exampleId ] );
     $("#example_zone").show( 400 );  // ms
 }
 
@@ -74,7 +74,7 @@ function transferExampleCodeToEditor()
     $("#example_zone").hide( 300 );
 
     // Transfer in editor
-    codeMirrorEditor.setValue( EXAMPLE_CODES[ currentExampleCodeIdDisplayed ].toString() );
+    codeMirrorEditor.setValue( EXAMPLE_CODES_MAP[ currentExampleCodeIdDisplayed ].toString() );
 }
 
 

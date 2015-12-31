@@ -3,11 +3,12 @@
  */
 
 /**
- * Remove a given value, possibly several times, from an array
+ *  Remove a given value, possibly several times, from an array
+ *  WARNING: Does NOT work with associative arrays!
  */
 function removeFromArray( array, value )
 {
-    if (!array || !value) {
+    if (!array || !array.length || !value) {
         console.warn('Warning in removeFromArray: array=[%s], value=[%s]', array, value);
         return;
     }
@@ -23,11 +24,12 @@ function removeFromArray( array, value )
 
 
 /**
- * Remove a given Object, possibly several times, from an array
+ *  Remove a given Object, possibly several times, from an array
+ *  WARNING: Does NOT work with associative arrays!
  */
 function removeObjectFromArray( array, objectVal )
 {
-    if (!array || !objectVal || Object.keys( objectVal ).length < 1 ) {
+    if (!array || !array.length || !objectVal || Object.keys( objectVal ).length < 1 ) {
         console.warn('Warning in removeObjectFromArray EMPTY variables: array=[%s], objectVal=[%s]', array, objectVal);
         return;
     }
@@ -53,11 +55,12 @@ function removeObjectFromArray( array, objectVal )
 
 
 /**
- * Remove objects with given property, possibly several times, from an array
+ *  Remove objects with given property, possibly several times, from an array
+ *  WARNING: Does NOT work with associative arrays!
  */
 function removeObjectWithPropertyFromArray( array, propertyName, propertyValue )
 {
-    if (!array || !propertyName || !propertyValue ) {
+    if (!array || !array.length || !propertyName || !propertyValue ) {
         console.warn('Warning in removeObjectWithPropertyFromArray EMPTY variables: array=[%s], propertyName=[%s], propertyValue=[%s]',
             array, propertyName, propertyValue );
         return;
@@ -78,6 +81,7 @@ function removeObjectWithPropertyFromArray( array, propertyName, propertyValue )
 
 /**
  *  Return the first object found with given property from an array, or null
+ *      Works for Associative Arrays and Objects too!
  */
 function findFirstObjectWithPropertyInArray( array, propertyName, propertyValue )
 {
@@ -86,7 +90,18 @@ function findFirstObjectWithPropertyInArray( array, propertyName, propertyValue 
             array, propertyName, propertyValue );
         return null;
     }
-    // Find the first element which elm.propertyName has value propertyValue from array
+
+    // --- Case of associative Arrays (for Objects too, obj.length is undefined, so could work)
+    if ( !array.length ) {
+        for (var key in array) {
+            if ( array[key][propertyName] == propertyValue ) {
+                return array[key];
+            }
+        }
+        return null;
+    }
+
+    // --- Regular Array: Find the first element which elm.propertyName has value propertyValue from array
     for (var elm of array) {
         if ( elm[propertyName] == propertyValue ) {
             return elm;

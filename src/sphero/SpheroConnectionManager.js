@@ -42,7 +42,7 @@ var SpheroEvents    = require('../sphero/SpheroEvents');
 var SE = global.spheroEvents;                   // Replaces jQuery $ events here
 
 
-// Spheros' colors & names. Associative array Key= RPi-color, Value= list of {name:,color:} for Spheros
+// --- Spheros' colors & names.
 //      Potentially could have different names and colors depending on the RPi
 //      Warning: all names must be unique for a given RPi
 global.STANDARD_SPHERO_LIST = [
@@ -54,7 +54,8 @@ global.STANDARD_SPHERO_LIST = [
     { name:"Banana",    color:0xFFFF00 },   // yellow
     { name:"Turquoise", color:0x00FFFF }    // cyan - LAST
 ];
-global.SPHERO_COLORS_FROM_RPI = {
+// Associative array Key= RPi-color, Value= list of {name:,color:} for Spheros
+global.SPHERO_COLORS_FROM_RPI_MAP = {
     "red":      global.STANDARD_SPHERO_LIST,
     "green":    global.STANDARD_SPHERO_LIST,
     "blue":     global.STANDARD_SPHERO_LIST,
@@ -103,11 +104,11 @@ function SpheroConnectionManager()
 
 
     // ----- List of Spheros that the user can see in their browser, with HOC_FAVORITE_SPHERO_ATTRIBUTES added
-    //       this.spheroAttributesByNames[spheroName] = { name:, color:, macAddress: }
-    global.RPI_SPHERO_LIST  = global.SPHERO_COLORS_FROM_RPI[ global.RPI_COLOR ]  || global.STANDARD_SPHERO_LIST;
-    this.spheroAttributesByNames  = [];
+    //       this.spheroAttributesByNamesMap[spheroName] = { name:, color:, macAddress: }
+    global.RPI_SPHERO_LIST  = global.SPHERO_COLORS_FROM_RPI_MAP[ global.RPI_COLOR ]  || global.STANDARD_SPHERO_LIST;
+    this.spheroAttributesByNamesMap  = [];
     for (var rsl of global.RPI_SPHERO_LIST) {
-            this.spheroAttributesByNames[ rsl.name ] = rsl;
+            this.spheroAttributesByNamesMap[ rsl.name ] = rsl;
     }
     // Add env HOC_FAVORITE_SPHERO_ATTRIBUTES preferences
     var envFavSpheroAttributes = null;
@@ -117,8 +118,8 @@ function SpheroConnectionManager()
         for (var fsa of envFavSpheroAttributes) {
             if ( !fsa.name || !fsa.macAddress )
                 continue;
-            if ( this.spheroAttributesByNames[ fsa.name ] ) {
-                this.spheroAttributesByNames[ fsa.name ].macAddress = fsa.macAddress;
+            if ( this.spheroAttributesByNamesMap[ fsa.name ] ) {
+                this.spheroAttributesByNamesMap[ fsa.name ].macAddress = fsa.macAddress;
                 continue;
             }
             // Otw new sphero name & color
@@ -126,24 +127,24 @@ function SpheroConnectionManager()
                 console.error("\nERROR in env HOC_FAVORITE_SPHERO_ATTRIBUTES, no COLOR defined for name=[%s]: IGNORING\n", fsa.name);
                 continue;
             }
-            this.spheroAttributesByNames[ fsa.name ] = fsa;
+            this.spheroAttributesByNamesMap[ fsa.name ] = fsa;
         }
-    }       // Done about  this.spheroAttributesByNames[spheroName] = { name:, color:, macAddress: }
+    }       // Done about  this.spheroAttributesByNamesMap[spheroName] = { name:, color:, macAddress: }
 
 
     // +++++++ Keeping track of Active and recently Disconnected Spheros
     //
     // FIXME: USER NAME ????
-    this.activeSpheros       = [];      // Associative array of Key = macAddress,
-                                        //    Objects = { port:, macAddress:, name:, color:, proc:, user: }
-    this.disconnectedSpheros = [];      // TODO
-    this.connectingInProcess = [];      // Array of macAddresses of Spheros getting connected (between inquire and connect)
-    this.isInquiring         = false;   // Only once at a time: prevent to have 2 bluetoothInquire() running at the same time
+    this.activeSpherosMap       = [];       // Associative array of Key = macAddress,
+                                            //    Objects = { port:, macAddress:, name:, color:, proc:, user: }
+    this.disconnectedSpherosMap = [];       // Associative array same structure as activeSpherosMap         // TODO
+    this.connectingInProcess    = [];       // Array of macAddresses of Spheros getting connected (between inquire and connect)
+    this.isInquiring            = false;    // Only once at a time: prevent to have 2 bluetoothInquire() running at the same time
     // Storing mySphero objects from CylonSphero
-    this.mySpheros           = [];      // Associative array of Key = macAddress, Object = mySphero  // TODO
+    this.mySpherosMap           = [];       // Associative array of Key = macAddress, Object = mySphero     // TODO
 
 // TODO: la connection entre l'interface et le Cylon doit se faire par * macAddress *
-//      Il faudrait qu'on puisse avoir dans l'interface les positions, etc (mySpheros)
+//      Il faudrait qu'on puisse avoir dans l'interface les positions, etc (mySpherosMap)
 
 
 // TODO: SE.on( "disconnected", ... eagerness back !!!
@@ -152,8 +153,8 @@ function SpheroConnectionManager()
     SE.on( "disconnectedSphero", function( port, macAddress ) {
         // If a Sphero gets disconnected, restart the Bluetooth inquire
         // FIXME: kill proc ???
-        delete _this.activeSpheros[ macAddress ];       // Warning: setting to null is not enough, it keeps the key in the array!
-        // ArrayUtils.removeObjectWithPropertyFromArray( _this.activeSpheros, "macAddress", macAddress );     // array, propertyName, propertyValue )
+        delete _this.activeSpherosMap[ macAddress ];       // Warning: setting to null is not enough, it keeps the key in the array!
+        // ArrayUtils.removeObjectWithPropertyFromArray( _this.activeSpherosMap, "macAddress", macAddress );     // array, propertyName, propertyValue )
 
         _this.bluetoothInquire();
         return;
@@ -177,18 +178,13 @@ SpheroConnectionManager.prototype.bluetoothInquire  =  function()
     if ( this.DIRECT_SERIAL_PORTS && this.DIRECT_SERIAL_PORTS.length > 0 ) {
         console.log( "\n=== Using DIRECT_SERIAL_PORTS connection mode with ports: %s \n", this.DIRECT_SERIAL_PORTS.toString() );
         for ( var dsp of this.DIRECT_SERIAL_PORTS ) {
-            var isAvail = true;
-            for ( var as of this.activeSpheros ) {
-                if ( as.port == dsp ) {
-                    isAvail = false;
-                    console.log( "    Serial Port [%s] in use, skipping", dsp.toString() );
-                    break;
-                }
-            }
-            if (!isAvail)
+            var elm = ArrayUtils.findFirstObjectWithPropertyInArray( this.activeSpherosMap, "port", dsp );  // array, propertyName, propertyValue )
+            if ( elm ) {
+                console.log( "    Serial Port [%s] in use, skipping", dsp );
                 continue;
+            }
             // Init a new Cylon Sphero
-            this.startNewCylonSphero( port, null );          // serialPort, macAddress
+            this.startNewCylonSphero( dsp, null );          // serialPort, macAddress
         }
         return;
     }
@@ -202,7 +198,7 @@ SpheroConnectionManager.prototype.bluetoothInquire  =  function()
     }
 
     // --- Enough Spheros connected already?
-    if ( Object.keys( this.activeSpheros ).length >= this.EAGER_SPHERO_MAX_COUNT ) {
+    if ( Object.keys( this.activeSpherosMap ).length >= this.EAGER_SPHERO_MAX_COUNT ) {
         console.log( "\n=== Number of active Spheros already at EAGER_SPHERO_MAX_COUNT [%s] -> Skipping Inquire\n", this.EAGER_SPHERO_MAX_COUNT );
         return;
     }
@@ -265,15 +261,9 @@ SpheroConnectionManager.prototype.connectBtSphero  =  function( macAddress, rfco
     }
 
     // --- First check there is no active Spheros on that port
-    var isAvail = true;
-    for (var as of this.activeSpheros ) {
-        if ( as.port == "/dev/rfcomm"+rfcommIndexToTry ) {
-            isAvail = false;
-            console.log( "/dev/rfcomm [%d] Port is already in use, skipping", rfIdx );
-            break;
-        }
-    }
-    if (!isAvail) {
+    var elm = ArrayUtils.findFirstObjectWithPropertyInArray( this.activeSpherosMap, "port", "/dev/rfcomm"+rfcommIndexToTry );  // array, propertyName, propertyValue )
+    if (elm) {
+        console.log( "/dev/rfcomm [%d] Port is already in use, skipping", rfIdx );
         var _this = this;
         setTimeout( function(){ _this.connectBtSphero( macAddress, 1 + rfcommIndexToTry ); }, 0 );    // So not blocking main thread
         return;
@@ -324,24 +314,24 @@ SpheroConnectionManager.prototype.startNewCylonSphero  =  function(port, macAddr
     }
 
     // --- Check it does not already exist
-    if ( this.activeSpheros[ macAddress ] ) {
-        console.error( "\nERROR in startNewCylonSphero: activeSpheros has already macAddress=[%s], value [%s] !!\n", macAddress, this.activeSpheros[macAddress] );
+    if ( this.activeSpherosMap[ macAddress ] ) {
+        console.error( "\nERROR in startNewCylonSphero: activeSpherosMap has already macAddress=[%s], value [%s] !!\n", macAddress, this.activeSpherosMap[macAddress] );
         // FIXME
     }
 
 
     // --- Assign color and name to Sphero
-    var spheroAttributes = this.findBestSpheroAttributes( macAddress ) || { "name":"UNKNOWN", "color":0xFFFFFF };         // TODO !!!!
+    var spheroAttributes = this.findBestSpheroAttributes( macAddress ) || { "name":"UNKNOWN", "color":0xFFFFFF };
     var name  = spheroAttributes.name;
     var color = spheroAttributes.color;
-    // TODO: ASSERT NAME NOT ALREADY in activeSpheros
+    // TODO: ASSERT NAME NOT ALREADY in activeSpherosMap
 
     // --- Start the new process
     var args      = [ port, macAddress, name, color ];                              // <=> process.argv[2..5] in child
     var childProc = childProcess.fork( __dirname + '/CylonSphero.js', args );       // args Array List of string arguments
 
-    // Store as activeSpheros
-    this.activeSpheros[macAddress] = { "port":port, "macAddress":macAddress, "name":name, "color":color, "proc":childProc };     // Array of Objects { port: , macAddress:, color:... }
+    // Store as activeSpherosMap
+    this.activeSpherosMap[macAddress] = { "port":port, "macAddress":macAddress, "name":name, "color":color, "proc":childProc };     // Array of Objects { port: , macAddress:, color:... }
 
 
     // --- Communication between forked process and this master process.  msg = { type:, macAddress:, ...}
@@ -349,7 +339,7 @@ SpheroConnectionManager.prototype.startNewCylonSphero  =  function(port, macAddr
     childProc.on('message', function(msg) {
         switch (msg.type) {
             case "dataStreaming":                                               // msg = { type:, macAddress:, mySphero:}
-                _this.mySpheros[ msg.macAddress ] = JSON.parse( msg.mySphero ); // Key = macAddress, Object = mySphero
+                _this.mySpherosMap[ msg.macAddress ] = JSON.parse( msg.mySphero ); // Key = macAddress, Object = mySphero
                 break;
 
             // TODO !!!
@@ -368,7 +358,7 @@ SpheroConnectionManager.prototype.startNewCylonSphero  =  function(port, macAddr
 
 
     // --- Error catching in childProc process
-    child.on('error', function (err) {
+    childProc.on('error', function (err) {
         console.error( "\nERROR in SpheroConnectionManager.childProc.on.ERROR:");
         console.error( err );
         return;                                                                 // TODO ????
@@ -376,17 +366,17 @@ SpheroConnectionManager.prototype.startNewCylonSphero  =  function(port, macAddr
 
 
     // --- Exit or disconnect in childProc process
-    child.on('exit', function (data) {                                          // stdio might still be open and running
+    childProc.on('exit', function (data) {                                      // stdio might still be open and running
         console.info( "INFO in SpheroConnectionManager.childProc.on.EXIT:");
         console.info( data );
         return;                                                                 // TODO ????
     });
-    child.on('close', function (data) {                                          // stdio all done (but may still be open if shared)
+    childProc.on('close', function (data) {                                     // stdio all done (but may still be open if shared)
         console.info( "INFO in SpheroConnectionManager.childProc.on.CLOSE:");
         console.info( data );
         return;                                                                 // TODO ????
     });
-    child.on('disconnected', function (data) {                                          // .disconnect() called, no more messages possible
+    childProc.on('disconnected', function (data) {                              // .disconnect() called, no more messages possible
         console.info( "INFO in SpheroConnectionManager.childProc.on.DISCONNECTED:");
         console.info( data );
         return;                                                                 // TODO ????
@@ -409,21 +399,24 @@ SpheroConnectionManager.prototype.findBestSpheroAttributes  =  function( macAddr
         return null;
     }
 
-    // 1. In disconnectedSpheros? Try to reuse the same attributes on reconnection
-    var disconnectedSphero = this.disconnectedSpheros[ macAddress ];
+    // 1. In disconnectedSpherosMap? Try to reuse the same attributes on reconnection
+    var disconnectedSphero = this.disconnectedSpherosMap[ macAddress ];
     if ( disconnectedSphero ) {
         return disconnectedSphero;
     }
 
     // 2. Is there favorite attributes for this macAddress in global defined list?
-    var elm = ArrayUtils.findFirstObjectWithPropertyInArray( this.spheroAttributesByNames, "macAddress", macAddress );  // array, propertyName, propertyValue )
+    var elm = ArrayUtils.findFirstObjectWithPropertyInArray( this.spheroAttributesByNamesMap, "macAddress", macAddress );  // array, propertyName, propertyValue )
     if (elm) {
         return elm;
     }
 
-    // 3. Get the first available from this.spheroAttributesByNames, always in the same order "for of"
-    for ( var namColor of this.spheroAttributesByNames ) {
-        elm = ArrayUtils.findFirstObjectWithPropertyInArray( this.activeSpheros, "name", namColor.name );  // array, propertyName, propertyValue )
+    // 3. Get the first available from this.spheroAttributesByNamesMap, always in the same order "for of"
+    console.log( this.spheroAttributesByNamesMap );
+    for ( var key in this.spheroAttributesByNamesMap ) {
+        var namColor = this.spheroAttributesByNamesMap[key];
+        console.log( namColor );
+        elm = ArrayUtils.findFirstObjectWithPropertyInArray( this.activeSpherosMap, "name", namColor.name );  // array, propertyName, propertyValue )
         if (! elm) {
             return namColor;
         }
@@ -440,7 +433,7 @@ SpheroConnectionManager.prototype.findBestSpheroAttributes  =  function( macAddr
 
 
 // TODO: MAPPING must be for ALL Spheros, with macAddress as param => NOT in startNewCylonSphero !!
-// TODO map SE.on signaling to child.send & .on()
+// TODO map SE.on signaling to childProc.send & .on()
 // For code push, error and info update
 
 
