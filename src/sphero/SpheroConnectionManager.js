@@ -322,9 +322,14 @@ SpheroConnectionManager.prototype.startNewCylonSphero  =  function(port, macAddr
 
     // --- Assign color and name to Sphero
     var spheroAttributes = this.findBestSpheroAttributes( macAddress ) || { "name":"UNKNOWN", "color":0xFFFFFF };
+    console.log( "INFO in startNewCylonSphero: new Sphero macAddress=[%s] gets findBestSpheroAttributes: %s", macAddress, spheroAttributes );
     var name  = spheroAttributes.name;
     var color = spheroAttributes.color;
-    // TODO: ASSERT NAME NOT ALREADY in activeSpherosMap
+    // Assert the name is not already in activeSpherosMap
+    var assertElm = ArrayUtils.findFirstObjectWithPropertyInArray( this.activeSpherosMap, "name", name );  // array, propertyName, propertyValue )
+    if ( assertElm ) {
+        console.error( "\nERROR in startNewCylonSphero: activeSpherosMap already has name=[%s], value [%s] !!\n", name, this.activeSpherosMap[macAddress] );
+    }
 
     // --- Start the new process
     var args      = [ port, macAddress, name, color ];                              // <=> process.argv[2..5] in child
@@ -412,10 +417,8 @@ SpheroConnectionManager.prototype.findBestSpheroAttributes  =  function( macAddr
     }
 
     // 3. Get the first available from this.spheroAttributesByNamesMap, always in the same order "for of"
-    console.log( this.spheroAttributesByNamesMap );
     for ( var key in this.spheroAttributesByNamesMap ) {
         var namColor = this.spheroAttributesByNamesMap[key];
-        console.log( namColor );
         elm = ArrayUtils.findFirstObjectWithPropertyInArray( this.activeSpherosMap, "name", namColor.name );  // array, propertyName, propertyValue )
         if (! elm) {
             return namColor;
