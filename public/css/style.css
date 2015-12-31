@@ -9,10 +9,15 @@ label {
     font-weight: bold;
 }
 
+
+/* To get full height for the CodeMirror editor */
+html, body { height: 100%; }
+
 #code_mirror_id {
     margin-top: 20px;
     border: 1px solid #eee;
     height: auto;
+    min-height: 300px;
     /* min-height: 500px; */
 }
 

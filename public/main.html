@@ -40,19 +40,20 @@
                 <div class="col-xs-8">
                     <h2>Hausner Hour of Code</h2>
                     <p>Javascript Fun with <em>Raspberry-Pi</em> &amp; <em>Sphero</em></p>
-                </div><!-- .col-lg-9 -->
+                </div><!-- .col-lg-8 -->
             </div>
 
-            <div class="row" style="margin-top:50px; margin-bottom:20px;">
+            <div class="row" style="margin-top:30px; margin-bottom:20px;">
                 <div class="col-xs-6 text-center">
 
                     <label>Your Name:  &nbsp;</label>   <!-- TODO: By default come up randomly from a set of funny names, with -2|3|4... -->
-                    <input type="text" id="student_name" size="40" value="-" />  <!-- FIXME: rest must be hidden when empty -->
+                    <input type="text" id="student_name" size="30" value="-" />  <!-- FIXME: rest must be hidden when empty -->
 
                 </div>
                 <div class="col-xs-6 text-left">
 
                     <label>Choose your Sphero: &nbsp;</label>
+
 
 
 
@@ -134,7 +135,7 @@
 
 
         <!-- ===== Buttons for HELP, HISTORY, PUSH ===== -->
-        <div class="row" style="margin-top:30px; margin-bottom:20px; vertical-align:bottom;">
+        <div class="row" style="margin-top:25px; margin-bottom:15px; vertical-align:bottom;">
 
             <div class="col-xs-5 text-center">
                 <button id="trigger_help" class="btn btn-info">Documentation &amp; Help</button>
@@ -155,7 +156,7 @@
 
 
         <!-- JS HELP (Button with side panel)  -->
-        <div id="slider_help" class="panel panel-default" style="background-color:white; overflow: scroll; ">
+        <div id="slider_help" class="panel panel-default" style="background-color:white; overflow: scroll; z-index:1000;">
             <div class="panel-heading" style="padding:0px;">
                 <button type="button" class="close" style="margin-top:0px; padding-top:0px;"
                     onclick="$('#slider_help').slideReveal('hide');">
@@ -169,8 +170,9 @@
                 <h4>Sphero useful commands</h4>
 
                 <h5>Rolling</h5>
-                <div class="help_legend">speed (0..255), heading angle (0..359)</div>
+                <div class="help_legend">speed (0..255), heading angle (0..359), 1 - yes | 0 - no</div>
                 <pre>mySphero.roll( <em>speed</em>, <em>heading</em> );</pre>
+                <pre>mySphero.boost( <em>1 | 0</em> );</pre>
                 <pre>mySphero.stop();</pre>
 
                 <h5>Position &amp; Speed</h5>

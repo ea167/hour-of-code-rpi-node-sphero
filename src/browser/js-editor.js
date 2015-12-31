@@ -74,6 +74,10 @@ function initEditor()
     });
 
 
+    // --- Set proper size
+    setEditorSize();
+    $(window).on("resize", setEditorSize );
+
     // --- Save on unload
     $(window).on("unload", saveCurrentEditorCodeToLocalStorage );
 
@@ -90,6 +94,12 @@ function initEditor()
     return;
 }
 
+
+function setEditorSize()
+{
+    var maxAvailHeight = $(window).height() - $("#code_mirror_id").offset().top - 80;
+    codeMirrorEditor.setSize( $("#code_mirror_id").width(), Math.max( 300, maxAvailHeight ) );
+}
 
 
 function initEditorButtons()
