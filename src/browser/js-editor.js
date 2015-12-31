@@ -10,6 +10,15 @@ require('codemirror/mode/javascript/javascript');
 //require('codemirror/mode/htmlmixed/htmlmixed');
 
 // ----- Addons: see https://codemirror.net/doc/manual.html#addons -----
+//
+// WARNING: .css files in addon directory MUST BE COPIED in public/lib/codemirror
+//          and INCLUDED MANUALLY IN THE HTML PAGE !!
+//
+// The simplest is to copy ALL .css from addon directories into public/lib/codemirror:
+//
+//     cp `ls  node_modules/codemirror/addon/*/*.css` public/lib/codemirror/
+//
+
 // Search-replace
 require('codemirror/addon/dialog/dialog');
 require('codemirror/addon/search/searchcursor');
@@ -19,6 +28,12 @@ require('codemirror/addon/search/match-highlighter');
 
 // Defines an option matchBrackets which, when set to true, causes matching brackets to be highlighted whenever the cursor is next to them
 require('codemirror/addon/edit/matchbrackets');
+
+// Defines a styleActiveLine option that, when enabled, gives the wrapper of the active line the class CodeMirror-activeline, and adds a background with the class CodeMirror-activeline-background.
+require('codemirror/addon/selection/active-line');
+
+// Full screen: F11 does not work on Mac
+require('codemirror/addon/display/fullscreen');
 
 // Defines an interface component for showing linting warnings, with pluggable warning sources
 require('codemirror/addon/lint/lint');
@@ -51,8 +66,11 @@ function initEditor()
         // Addons
         highlightSelectionMatches: true,
         matchBrackets: true,
-        lint: CodeMirror.lint.javascript,
-        hint: CodeMirror.hint.javascript
+        styleActiveLine: true,
+        extraKeys: { 'Ctrl-Space': 'autocomplete' },
+        gutters: ['CodeMirror-lint-markers'],
+        hint: true,             // CodeMirror.hint.javascript,
+        lint: true              // CodeMirror.lint.javascript,
     });
 
 

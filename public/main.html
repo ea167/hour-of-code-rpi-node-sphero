@@ -18,6 +18,10 @@
     <!-- CodeMirror CSS. See http://codemirror.net -->
     <link rel="stylesheet" href="lib/codemirror/codemirror.css">
     <link rel="stylesheet" href="lib/codemirror/elegant.css">
+    <link rel="stylesheet" href="lib/codemirror/dialog.css">
+    <link rel="stylesheet" href="lib/codemirror/fullscreen.css">
+    <link rel="stylesheet" href="lib/codemirror/lint.css">
+    <link rel="stylesheet" href="lib/codemirror/show-hint.css">
 
     <!-- FIXME !!! -->
     <link href="css/style.css" rel="stylesheet">
@@ -49,6 +53,9 @@
                 <div class="col-xs-6 text-left">
 
                     <label>Choose your Sphero: &nbsp;</label>
+
+
+
 
                     <!-- TODO !!!!!! -->
 
@@ -254,6 +261,12 @@
     <script src="lib/bootstrap-3.3.6-dist/js/bootstrap.min.js"></script>
 
     <!-- CodeMirror. See http://codemirror.net we use a module loader! -->
+
+    <!-- CodeMirror JS-Lint depends on a global JSHint function. This was downloaded from JSHint.com
+            In the CodeMirror Lint demo, they refer to
+            <script src="//ajax.aspnetcdn.com/ajax/jshint/r07/jshint.js"></script>
+    -->
+    <script src="lib/codemirror/jshint.js"></script>
 
     <!-- SlideReveal jQuery plugin. See http://nnattawat.github.io/slideReveal/ -->
     <script src="lib/jquery.slidereveal.min.js"></script>
