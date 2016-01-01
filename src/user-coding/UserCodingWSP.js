@@ -42,8 +42,8 @@ UserCodingWSP.prototype.parent       = WebSocketProcessor.prototype;         // 
 UserCodingWSP.prototype.onConnectionEstablished = function() {
     this.parent.onConnectionEstablished.call(this);
 
-    // FIXME global.darkSpheroStudentName not used at all right now
-    this.ws.send( JSON.stringify( { "HOC_COLOR": process.env.HOC_COLOR, "darkStudent": global.darkSpheroStudentName } ) );
+    // Send the RPi's HOC_COLOR
+    this.ws.send( JSON.stringify( { "HOC_COLOR": process.env.HOC_COLOR } ) );
 
 
 /*
@@ -107,6 +107,16 @@ UserCodingWSP.prototype.onMessage = function(data, flags) {
             console.log('\nUserCodingWSP WS STOP-CODE received: %s', data);
             SE.emit( "stop-code", data );
         }
+        else if (dataObj.action == "get-spheros") {
+            // --- Send the list of active spheros that are available
+            console.log('\nUserCodingWSP WS GET-SPHEROS received: %s', data);
+
+            this.ws.send( JSON.stringify( {
+                "type": "activeSpherosMap",
+                "activeSpherosMap": global.spheroConnectionManager.activeSpherosMap
+            } ) );
+        }
+        // FIXME: update when user selects a Sphero !!!
         else if (dataObj.action == "student-sphero-change") {                   // TODO
             // --- Keep track of global.darkSpheroStudentName { studentName: "", isDark: true, wasDark:true }
             console.log('\nUserCodingWSP WS student-sphero-change received: %s', data);

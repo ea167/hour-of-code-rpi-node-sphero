@@ -10,30 +10,17 @@ var $ = require('jquery');
  */
 function initSelectSphero()
 {
-    setSelectSpheroColor();
-    loadSpheroChoice();
+    // Update dropdown when activeSpherosMap info is available
+    $.subscribe( 'activeSpherosMap', function(data) {
+        fillSpheroDropdown();
+        loadSpheroChoice();
+    });
 
-    // Listeners
-    $("#rpi_sphero").on("change", saveSpheroChoice );
-    return;
-}
+    // Make sure activeSpherosMap gets initialized when browser connects
+    $.publish('get-spheros');
 
-
-function setSelectSpheroColor()
-{
-    if (HOC_COLOR != "red" && HOC_COLOR != "green" && HOC_COLOR != "blue" && HOC_COLOR != "yellow" && HOC_COLOR != "purple" ) {
-        console.error( "HOC_COLOR has wrong value: " + HOC_COLOR );
-        return;
-    }
-
-    // Set the right color to the select box
-    $("#rpi_sphero").removeClass( "red-bg-txt green-bg-txt blue-bg-txt yellow-bg-txt purple-bg-txt" );
-    $("#rpi_sphero option").removeClass( "red-bg-txt green-bg-txt blue-bg-txt yellow-bg-txt purple-bg-txt" );
-    $("#rpi_sphero").addClass( HOC_COLOR + "-bg-txt" );
-    $("#rpi_sphero option").addClass( HOC_COLOR + "-bg-txt" );
-
-    $("#rpi_sphero option[value='0']").text("Sphero Dark "+ HOC_COLOR );
-    $("#rpi_sphero option[value='1']").text("Sphero Light "+ HOC_COLOR );
+    // Listener when Dropdown option is selected
+    $("#rpi_sphero").on("change", saveSpheroChoice );       // FIXME
     return;
 }
 
@@ -55,3 +42,25 @@ function saveSpheroChoice()
 
 
 exports.initSelectSphero = initSelectSphero;
+
+
+// \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+/*
+function setSelectSpheroColor()
+{
+    if (HOC_COLOR != "red" && HOC_COLOR != "green" && HOC_COLOR != "blue" && HOC_COLOR != "yellow" && HOC_COLOR != "purple" ) {
+        console.error( "HOC_COLOR has wrong value: " + HOC_COLOR );
+        return;
+    }
+
+    // Set the right color to the select box
+    $("#rpi_sphero").removeClass( "red-bg-txt green-bg-txt blue-bg-txt yellow-bg-txt purple-bg-txt" );
+    $("#rpi_sphero option").removeClass( "red-bg-txt green-bg-txt blue-bg-txt yellow-bg-txt purple-bg-txt" );
+    $("#rpi_sphero").addClass( HOC_COLOR + "-bg-txt" );
+    $("#rpi_sphero option").addClass( HOC_COLOR + "-bg-txt" );
+
+    $("#rpi_sphero option[value='0']").text("Sphero Dark "+ HOC_COLOR );
+    $("#rpi_sphero option[value='1']").text("Sphero Light "+ HOC_COLOR );
+    return;
+}
+*/

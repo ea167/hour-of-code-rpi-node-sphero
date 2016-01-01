@@ -17,7 +17,7 @@ function initBrowserSocket()
     $.publish     = o.trigger.bind(o);
 
 
-    // --- Open socket
+    // ----- Open socket
     try {
        socket = new WebSocket(url);
     } catch(exc) {
@@ -28,6 +28,12 @@ function initBrowserSocket()
         $.subscribe( 'socketstop', function(data) {
             socket.close();
         });
+
+        // Get the activeSpherosMap
+        $.subscribe( 'get-spheros', function(data) {
+            socket.send( JSON.stringify(  { "action":"get-spheros" } ) );
+        });
+
         /// socket.send(JSON.stringify(message));
     };
 
@@ -36,33 +42,31 @@ function initBrowserSocket()
     socket.onmessage = function(evt) {
         var dataObj = JSON.parse( evt.data );
         if (dataObj.error) {
+            console.error('ERROR Browser socket.onmessage received error message:');
+            console.error( evt );
             /// showError(msg.error);
             $.publish('socketstop');
             return;
         }
-        // --- This is the RPi/Sphero color
-        if (dataObj.HOC_COLOR) {
-            HOC_COLOR = dataObj.HOC_COLOR;             // defined in the html page
-            $.publish('hoc_color');
+
+        // --- Receives an update of activeSpherosMap
+        if (dataObj.type == "activeSpherosMap") {
+            activeSpherosMap = dataObj.activeSpherosMap;                 // defined (globally) in the html page
+            $.publish('activeSpherosMap');
+            return;
         }
+
+
 
         // TODO: Feedback from errors, connected Spheros, code pushed, Sphero stopped, positions, collisions, etc.
 
 
-         /*
-         var jsonBrowser = dataObj;
-         if (jsonBrowser) {
-             if (jsonBrowser.results[0].final) {
-                 // global function
-                 updateFinalBrowser( jsonBrowser );
-             } else {
-                 // global function
-                 updateInterimBrowser( jsonBrowser );
-             }
+         // --- This is the RPi/Sphero color
+         if (dataObj.HOC_COLOR) {
+             HOC_COLOR = dataObj.HOC_COLOR;             // defined in the html page
+             $.publish('hoc_color');
+             return;
          }
-         else {
-             console.error('Browser onmessage jsonBrowser EMPTY ', evt);
-         } */
 
          return;
     };
