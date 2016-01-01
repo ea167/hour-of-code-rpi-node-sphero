@@ -33,9 +33,9 @@ function initBrowserSocket()
 
     // ----- on.MESSAGE: Here we get the info!
     socket.onmessage = function(evt) {
-
-        console.log("socket.onmessage with ");
-        console.log( evt );
+        // console.log("socket.onmessage with ");
+        // console.log( evt );
+        
         var dataObj = JSON.parse( evt.data );
         if (dataObj.error) {
             console.error('ERROR Browser socket.onmessage received error message:');
@@ -49,7 +49,7 @@ function initBrowserSocket()
         if (dataObj.action == "activeSpherosMap") {
             activeSpherosMap = dataObj.activeSpherosMap;                 // defined (globally) in the html page
             console.log( "socket.onmessage: activeSpherosMap received" );
-            console.log( dataObj.activeSpherosMap );                    // FIXME
+            console.log( dataObj.activeSpherosMap );
             $.publish('activeSpherosMap');
             return;
         }
@@ -58,7 +58,6 @@ function initBrowserSocket()
         if (dataObj.action == "initDropdown") {
              HOC_COLOR = dataObj.HOC_COLOR;             // defined in the html page
              $.publish('init_sphero_dropdown');
-             console.log("init_sphero_dropdown publish");
              return;
         }
 

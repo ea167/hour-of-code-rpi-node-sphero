@@ -25,7 +25,6 @@ $(document).ready( function() {
 
     // --- Init the Sphero dropdown as soon as the ws connection is established
     $.subscribe('init_sphero_dropdown', initSelectSphero);
-    console.log("document ready init_sphero_dropdown subscribe");
 
     // --- Start the WebSocket between the browser and the RPi
     browserWebSocket = initBrowserSocket();
