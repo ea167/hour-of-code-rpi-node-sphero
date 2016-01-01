@@ -279,7 +279,7 @@ SpheroConnectionManager.prototype.connectBtSphero  =  function( macAddress, rfco
     // var rfcommDev   = "/dev/rfcomm" + rfcommIndexToTry;
     var cmdRfcomm   = "sudo rfcomm connect rfcomm"+ rfcommIndexToTry +" "+ macAddress +" &";
     var _this = this;
-    childProcess.exec( cmdRfcomm,   function (error, stdOutContent, stdErrContent) {
+    childProcess.spawn( cmdRfcomm,   function (error, stdOutContent, stdErrContent) {
         if (error || stdErrContent) {
             console.error('ERROR in Exec %s  || error is: ', cmdRfcomm);
             console.error( error );
@@ -293,7 +293,8 @@ SpheroConnectionManager.prototype.connectBtSphero  =  function( macAddress, rfco
             setTimeout( function(){ _this.connectBtSphero( macAddress, rfcommIndexToTry, 1 + nbAttempts ); }, 0 );    // So not blocking main thread
             return;
         }
-        // FIXME: Does NOT callback when works!!!
+
+        // FIXME: Does NOT callback when works !!!!!!!!!!!!!
         // Connection supposed to be a success!
         console.log( "\nHurray! Success connecting Sphero [%s] to rfcomm[%d]\n    stdOut=[%s]\n    stdErr=[%s]\n",
             macAddress, rfcommIndexToTry, stdOutContent, stdErrContent );
