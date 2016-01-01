@@ -256,6 +256,8 @@ SpheroConnectionManager.prototype.bluetoothInquire  =  function()
  */
 SpheroConnectionManager.prototype.connectBtSphero  =  function( macAddress, rfcommIndexToTry, nbAttempts )
 {
+    console.log("DEBUG SpheroConnectionManager.connectBtSphero macAddress=[%s], rfcommIndexToTry=[%s], nbAttempts=[%s]",
+        macAddress, rfcommIndexToTry, nbAttempts );
     if (! rfcommIndexToTry) {
         rfcommIndexToTry = 1;       // Always start at /dev/rfcomm1 so that if another process takes rfcomm0, we avoid collision
     } else if ( rfcommIndexToTry > 31 ) {
