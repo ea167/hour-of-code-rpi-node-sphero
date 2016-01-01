@@ -215,7 +215,9 @@ SpheroConnectionManager.prototype.bluetoothInquire  =  function()
             }
             else {
                 console.log( "Exec cmdInquire stdOutContent: %s", stdOutContent);
-                console.warn("Exec cmdInquire stdErrContent: %s", stdErrContent);
+                if (stdErrContent) {
+                    console.warn("Exec cmdInquire stdErrContent: %s", stdErrContent);
+                }
                 if ( stdOutContent ) {
                     stdOutContent = stdOutContent.toUpperCase();        // Just to be sure Mac address is with capital letters
                     // Orbotix, Inc. Bluetooth OUI (macAddress Prefix) is 68:86:E7
@@ -276,8 +278,9 @@ SpheroConnectionManager.prototype.connectBtSphero  =  function( macAddress, rfco
     var cmdRfcomm   = "sudo rfcomm connect rfcomm"+ rfcommIndexToTry +" "+ macAddress;
     var _this = this;
     childProcess.exec( cmdRfcomm,   function (error, stdOutContent, stdErrContent) {
-        if (error) {
-            console.error('ERROR in Exec rfcomm [%d, %s] : %s', rfcommIndexToTry, macAddress, error);
+        if (error || stdErrContent) {
+            console.error('ERROR in Exec %s  || error is: ', cmdRfcomm);
+            console.error( error );
             // --- /dev/rfcommX already in use?  Otw try this port at most 3 times
             if (! nbAttempts)
                 nbAttempts = 1;
