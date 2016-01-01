@@ -269,7 +269,7 @@ SpheroConnectionManager.prototype.connectBtSphero  =  function( macAddress, rfco
     // --- First check there is no active Spheros on that port
     var elm = ArrayUtils.findFirstObjectWithPropertyInArray( this.activeSpherosMap, "port", "/dev/rfcomm"+rfcommIndexToTry );  // array, propertyName, propertyValue )
     if (elm) {
-        console.log( "/dev/rfcomm [%d] Port is already in use, skipping", rfIdx );
+        console.log( "/dev/rfcomm [%d] Port is already in use, skipping", rfcommIndexToTry );
         var _this = this;
         setTimeout( function(){ _this.connectBtSphero( macAddress, 1 + rfcommIndexToTry ); }, 0 );    // So not blocking main thread
         return;

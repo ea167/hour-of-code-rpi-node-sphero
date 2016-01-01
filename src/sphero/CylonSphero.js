@@ -221,7 +221,7 @@ CylonSphero.prototype.createCylonSphero  =  function()
  */
 CylonSphero.prototype.initCylonRobot  =  function()
 {
-    console.log( "CylonRobot [%s] initialization\n", _this.name );
+    console.log( "CylonRobot [%s] initialization\n", this.name );
     var _this = this;
 
     // --- AutoReconnect & InactivityTimeout
