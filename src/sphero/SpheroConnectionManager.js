@@ -298,8 +298,7 @@ SpheroConnectionManager.prototype.connectBtSphero  =  function( macAddress, rfco
     setTimeout( function(){
         // FIXME: Does NOT callback when works !!!!!!!!!!!!!
         // Connection supposed to be a success!
-        console.log( "\nHurray! Success connecting Sphero [%s] to rfcomm[%d]\n    stdOut=[%s]\n    stdErr=[%s]\n",
-            macAddress, rfcommIndexToTry, stdOutContent, stdErrContent );
+        console.log( "\nHurray! Success connecting Sphero [%s] to rfcomm[%d]\n", macAddress, rfcommIndexToTry );
         ArrayUtils.removeFromArray( _this.connectingInProcess, macAddress );                // array, value
 
         // Launch new Cylon Sphero
