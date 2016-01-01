@@ -118,17 +118,22 @@ UserCodingWSP.prototype.onMessage = function(data, flags) {
 
             this.sendActiveSpherosMap();
         }
-        // FIXME: update when user selects a Sphero !!!
-        else if (dataObj.action == "student-sphero-change") {                   // TODO
-            // --- Keep track of global.darkSpheroStudentName { studentName: "", isDark: true, wasDark:true }
-            console.log('\nUserCodingWSP WS student-sphero-change received: %s', data);
-            if (dataObj.isDark) {
-                global.darkSpheroStudentName = dataObj.studentName;
-                SE.emit("dark-sphero-owner-change", dataObj.studentName);       // TODO
-            } else if (dataObj.wasDark) {
-                global.darkSpheroStudentName = null;
-                SE.emit("dark-sphero-owner-change", "");                        // TODO
+        else if (dataObj.action == "sphero-selected") {
+            // Warning: the only two params that we are supposed to use here are .macAddress and .user
+            // .user may be "" (deselect), but .macAddress must be valid
+            var activeSphero = dataObj.activeSphero;
+            if (!activeSphero || !activeSphero.macAddress) {
+                console.error("ERROR in UserCodingWSP.onMessage/sphero-selected: WRONG param activeSphero:");
+                console.error( activeSphero );
+                return;
+            } else {
+                global.spheroConnectionManager.activeSpherosMap[activeSphero.macAddress].user = activeSphero.user;
+                this.sendActiveSpherosMap();
+                // Let's make sure the Sphero is stopped for the new user!
+
+                // TODO: STOP Sphero !!!!!
             }
+            SE.emit('user-change', activeSphero);
         }
         else {
             console.log('\nUserCodingWSP WS received flags: %s', JSON.stringify(flags) );

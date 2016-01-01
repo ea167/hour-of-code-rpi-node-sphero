@@ -22,12 +22,17 @@ function initBrowserSocket()
             socket.close();
         });
 
-        // Get the activeSpherosMap
-        $.subscribe( 'get-spheros', function(data) {
-            socket.send( JSON.stringify(  { "action":"get-spheros" } ) );
+        // Get the activeSpherosMap on request
+        $.subscribe('get-spheros', function(data) {
+            socket.send( JSON.stringify( { "action":"get-spheros" } ) );
         });
 
-        /// socket.send(JSON.stringify(message));
+        // A new sphero has been selected
+        $.subscribe('sphero-selected', function(activeSphero) {     // isReset ? { "macAddress":currentMacAddress, "user":"" } : activeSphero
+            socket.send( JSON.stringify( { "action":"sphero-selected", "activeSphero":JSON.parse(activeSphero) } ) );
+        });
+
+        return;
     };
 
 
@@ -35,7 +40,7 @@ function initBrowserSocket()
     socket.onmessage = function(evt) {
         // console.log("socket.onmessage with ");
         // console.log( evt );
-        
+
         var dataObj = JSON.parse( evt.data );
         if (dataObj.error) {
             console.error('ERROR Browser socket.onmessage received error message:');

@@ -10,18 +10,17 @@
  */
 function initSelectSphero()
 {
+     // Load localStorage into global currentMacAddress if exists
+    loadSpheroChoice();
+
     // Update dropdown when activeSpherosMap info is available
     $.subscribe( 'activeSpherosMap', function(data) {
-        fillSpheroDropdown();
-        loadSpheroChoice();
         console.log( activeSpherosMap );
+        fillSpheroDropdown();
     });
 
     // Make sure activeSpherosMap gets initialized when browser connects
     $.publish('get-spheros');
-
-    // Listener when Dropdown option is selected
-    $("#rpi_sphero").on("change", saveSpheroChoice );       // FIXME
     return;
 }
 
@@ -45,13 +44,15 @@ function fillSpheroDropdown()
             + ( as.user ? ' &lt;=&gt; ' + escape(as.user) : '' )
             + '</a></li>' );
     }
+    // Try to select the currentMacAddress
+    displayDropDownChoice( currentMacAddress );
 
     // ----- On selection: replace the main value if valid + call RPi to update activeSpherosMap!
     $("#sphero_name_ul li a").on('click', function(evt) {
         var macAddress = $(evt.target).parent().attr("data-macaddr");
         console.log("DEBUG: click on Sphero dropdown with macaddr=[%s]", macAddress);
         if (!macAddress) {
-            console.info("DEBUG in select-sphero.fillSpheroDropdown: data-macaddr attribute null => dropdown reset!");
+            console.log("DEBUG in select-sphero.fillSpheroDropdown: data-macaddr attribute null => dropdown reset!");
             newSpheroSelected( null, null );
             return;
         }
@@ -91,49 +92,61 @@ function fillSpheroDropdown()
 function newSpheroSelected( macAddress, activeSphero )
 {
     // --- Set the dropdown
-    var isReset = !macAddress || !activeSphero;
-    $("#sphero_name_id").attr( "data-macaddr", macAddress );
-    $("#sphero_name_txt").html( isReset ? "Select..." : escape(activeSphero.name) );
-    // console.log( activeSphero.cssColor );
-    $("#sphero_name_btn").css("background-color",   isReset ? "" : activeSphero.cssColor );
-    $("#sphero_name_btn").css("color",              isReset ? "black" : "white");
-
-
+    displayDropDownChoice( macAddress );
 
     // ---  Link this activeSphero to this User (currentUser)
+    if ( (!macAddress && !currentMacAddress) || currentMacAddress == macAddress ) {
+        // No changes, nothing to Signal
+        console.log("DEBUG in select-sphero.newSpheroSelected: NO CHANGES in macAddress=[%s]", macAddress);
+        return;
+    }
 
+    // At that point, the selection has changed, we want to update the RPi-color
+    var isReset = !macAddress || !activeSphero;
+    $.publish('sphero-selected', JSON.stringify( isReset
+        ? { "macAddress":currentMacAddress, "user":"" }
+        : activeSphero ) );
 
-
+    saveSpheroChoice( isReset ? null : macAddress );
     return;
 }
 
 
 
 /** \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ */
-function loadSpheroChoice()
+function displayDropDownChoice( macAddress )
 {
-    var idx = localStorage.getItem("spheroIdx");
-    if (!idx) {
-        idx = 0;
+    var isReset      = !macAddress;
+    var activeSphero = isReset ? null : activeSpherosMap[ macAddress ];
+    if (!activeSphero) {            // May be disconnected by now!
+        isReset = true;
     }
-    /// $("#rpi_sphero").val( idx );
+
+    $("#sphero_name_id").attr( "data-macaddr", isReset ? "" : macAddress );
+    $("#sphero_name_txt").html( isReset ? "Select..." : escape(activeSphero.name) );
+    // console.log( activeSphero.cssColor );
+    $("#sphero_name_btn").css("background-color",   isReset ? "" : activeSphero.cssColor );
+    $("#sphero_name_btn").css("color",              isReset ? "black" : "white");
+    return;
 }
 
 
-/** \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ */
 function loadSpheroChoice()
 {
-    var idx = localStorage.getItem("spheroIdx");
-    if (!idx) {
-        idx = 0;
+    if (!currentMacAddress) {
+        currentMacAddress = localStorage.getItem("spheroMacAddress");
     }
-    /// $("#rpi_sphero").val( idx );
 }
 
-function saveSpheroChoice()
+
+function saveSpheroChoice( macAddress )
 {
-    var idx = $("#rpi_sphero").val();
-    localStorage.setItem( "spheroIdx", idx );
+    currentMacAddress =  macAddress;               // isReset ? null : macAddress;
+    if (macAddress) {
+        localStorage.setItem( "spheroMacAddress", macAddress );
+    } else {
+        localStorage.removeItem( "spheroMacAddress" );
+    }
 }
 
 
