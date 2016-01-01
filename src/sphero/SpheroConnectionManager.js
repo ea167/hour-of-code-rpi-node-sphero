@@ -277,7 +277,7 @@ SpheroConnectionManager.prototype.connectBtSphero  =  function( macAddress, rfco
 
     // --- Now try to connect on that port: Exec 'sudo rfcomm connect rfcommX {macAddress}'
     // var rfcommDev   = "/dev/rfcomm" + rfcommIndexToTry;
-    var cmdRfcomm   = "sudo rfcomm connect rfcomm"+ rfcommIndexToTry +" "+ macAddress +" &";
+    var cmdRfcomm   = "/usr/bin/sudo /usr/bin/rfcomm connect rfcomm"+ rfcommIndexToTry +" "+ macAddress;
     var _this = this;
     var cproc = childProcess.spawn( cmdRfcomm );
     cproc.on('error',  function (error) {   // }, stdOutContent, stdErrContent) {
