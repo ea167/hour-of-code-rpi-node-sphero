@@ -279,8 +279,9 @@ SpheroConnectionManager.prototype.connectBtSphero  =  function( macAddress, rfco
     // var rfcommDev   = "/dev/rfcomm" + rfcommIndexToTry;
     var cmdRfcomm   = "sudo rfcomm connect rfcomm"+ rfcommIndexToTry +" "+ macAddress +" &";
     var _this = this;
-    childProcess.spawn( cmdRfcomm,   function (error, stdOutContent, stdErrContent) {
-        if (error || stdErrContent) {
+    var cproc = childProcess.spawn( cmdRfcomm );
+    cproc.on('error',  function (error) {   // }, stdOutContent, stdErrContent) {
+        //if (error || stdErrContent) {
             console.error('ERROR in Exec %s  || error is: ', cmdRfcomm);
             console.error( error );
             // --- /dev/rfcommX already in use?  Otw try this port at most 3 times
@@ -292,8 +293,9 @@ SpheroConnectionManager.prototype.connectBtSphero  =  function( macAddress, rfco
             }
             setTimeout( function(){ _this.connectBtSphero( macAddress, rfcommIndexToTry, 1 + nbAttempts ); }, 0 );    // So not blocking main thread
             return;
-        }
+    });
 
+    setTimeout( function(){
         // FIXME: Does NOT callback when works !!!!!!!!!!!!!
         // Connection supposed to be a success!
         console.log( "\nHurray! Success connecting Sphero [%s] to rfcomm[%d]\n    stdOut=[%s]\n    stdErr=[%s]\n",
@@ -302,7 +304,7 @@ SpheroConnectionManager.prototype.connectBtSphero  =  function( macAddress, rfco
 
         // Launch new Cylon Sphero
         _this.startNewCylonSphero( "/dev/rfcomm"+rfcommIndexToTry, macAddress );
-    });
+    }, 7000);
     console.log("DEBUG END of SpheroConnectionManager.connectBtSphero macAddress=[%s], rfcommIndexToTry=[%s], nbAttempts=[%s]",
         macAddress, rfcommIndexToTry, nbAttempts );
     return;
