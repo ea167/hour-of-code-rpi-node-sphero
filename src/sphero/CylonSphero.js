@@ -29,7 +29,7 @@ function CylonSphero()
     this.name       = process.argv[4];
     this.color      = process.argv[5];
     //
-    this.posYCorrection = ( isNan(process.argv[6]) ? 0 : Number(process.argv[6]) );
+    this.posYCorrection = ( isNaN(process.argv[6]) ? 0 : Number(process.argv[6]) );
     //
     this.cylonRobot         = null;
     this.mySphero           = null;
