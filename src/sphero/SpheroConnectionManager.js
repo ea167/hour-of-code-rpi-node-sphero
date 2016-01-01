@@ -284,7 +284,7 @@ SpheroConnectionManager.prototype.connectBtSphero  =  function( macAddress, rfco
             // --- /dev/rfcommX already in use?  Otw try this port at most 3 times
             if (! nbAttempts)
                 nbAttempts = 1;
-            if ( error.toString().toLowerCase().indexOf("already in use") >= 0 || nbAttempts > 3 ) {
+            if ( (error && error.toString().toLowerCase().indexOf("already in use") >= 0) || nbAttempts > 3 ) {
                 setTimeout( function(){ _this.connectBtSphero( macAddress, 1 + rfcommIndexToTry ); }, 0 );    // So not blocking main thread
                 return;
             }
