@@ -396,7 +396,7 @@ SpheroConnectionManager.prototype.startNewCylonSphero  =  function(port, macAddr
 
 
     // --- Signals an updated activeSpherosMap (here a new activeSphero)
-    SE.emit( 'activeSpherosMap' );                                              // TODO: do the same for disconnection !!!! 
+    SE.emit( 'activeSpherosMap' );                                              // TODO: do the same for disconnection !!!!
 
     return;         // end of startNewCylonSphero()
 }

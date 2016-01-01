@@ -149,19 +149,27 @@ function pushToSpheroOnClick()
     }
     lastClickOnPushToSphero = now;
 
+    // --- Check the currentUser & currentMacAddress
+    var dataMacAddr = $("#sphero_name_id").attr("data-macaddr");
+    if ( !currentUser || !currentMacAddress || !dataMacAddr || currentMacAddress != dataMacAddr ) {
+
+        // TODO ALERT "danger" !!!
+
+        console.error("ERROR in js-editor.stopSpheroOnClick: WRONG user=[%s] or macAddr=[%s] or Selected Sphero=[%s]",
+            currentUser, currentMacAddress, dataMacAddr );
+        return;
+    }
+
+
     // --- Transfer the CODE to RPi
     var userCode = codeMirrorEditor.getValue();                                     // codeMirrorEditor global var
-    //
-    var myIndex = $("#rpi_sphero").val();           // FIXME
-    //
-    var studentName = $("#student_name").val();
 
     // Send the code!
     browserWebSocket.send( JSON.stringify( {
         "action": "push-code",
-        "spheroIsDark": (!myIndex || myIndex == 0),
-        "studentName": studentName,
-        "userCode": userCode } )
+        "macAddress":   currentMacAddress,                  // TODO
+        "user":         currentUser,
+        "userCode":     userCode } )
     );  // browserWebSocket global var
 
     // --- Save userCode to localStorage
@@ -182,12 +190,19 @@ function stopSpheroOnClick()
     }
     lastClickOnStopSphero = now;
 
-    var myIndex = $("#rpi_sphero").val();                   // FIXME
-    //
-    var studentName = $("#student_name").val();
+    // --- Check the currentUser & currentMacAddress
+    var dataMacAddr = $("#sphero_name_id").attr("data-macaddr");
+    if ( !currentUser || !currentMacAddress || !dataMacAddr || currentMacAddress != dataMacAddr ) {
+
+        // TODO ALERT "danger" !!!
+
+        console.error("ERROR in js-editor.stopSpheroOnClick: WRONG user=[%s] or macAddr=[%s] or Selected Sphero=[%s]",
+            currentUser, currentMacAddress, dataMacAddr );
+        return;
+    }
 
     // --- Transfer the STOP command to RPi
-    browserWebSocket.send( JSON.stringify( { "action":"stop-code", "studentName": studentName, "spheroIsDark": (!myIndex || myIndex == 0) } ));   // browserWebSocket global var
+    browserWebSocket.send( JSON.stringify( { "action":"stop-code", "user": currentUser, "macAddress": currentMacAddress } ));   // browserWebSocket global var
     return;
 }
 
