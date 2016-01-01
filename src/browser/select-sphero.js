@@ -83,6 +83,8 @@ function fillSpheroDropdown()
             $("#alert_danger_id").show();
             return;
         }
+        // Set the user as the current one
+        as.user = currentUser;
 
         // --- We have a new Sphero selected!
         newSpheroSelected( macAddress, as );
