@@ -42,10 +42,7 @@ html, body { height: 100%; }
     font-style: italic;
 }
 
-.rpi_sphero, .rpi_sphero option {
-    text-transform: capitalize;
-}
-
+/*
 .red-bg-txt {
     background-color: red;
     color: white;
@@ -66,3 +63,4 @@ html, body { height: 100%; }
     background-color: purple;
     color: white;
 }
+*/

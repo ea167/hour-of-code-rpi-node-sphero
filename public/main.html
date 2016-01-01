@@ -32,42 +32,48 @@
 
     <!-- Description Header -->
     <div class="page-header">
-        <div class="container">
+        <div class="container-fluid">
             <div class="row">
-                <div class="col-xs-4">
+                <div class="col-md-3 hidden-xs hidden-sm text-left" style="padding-right:20px;">
                     <img src="images/hoc-banner.jpg" height="138" />
-                </div><!-- .col-lg-4 -->
-                <div class="col-xs-8">
+                </div><!-- .col-md-3 -->
+                <div class="col-xs-12 col-md-9 text-center">
                     <h2>Hausner Hour of Code</h2>
-                    <p>Javascript Fun with <em>Raspberry-Pi</em> &amp; <em>Sphero</em></p>
-                </div><!-- .col-lg-8 -->
+                    <p style="color:#888888; margin-top:-5px;">Javascript Fun with <em>Raspberry-Pi</em> &amp; <em>Sphero</em></p>
+
+                    <!-- Nested row style="margin-top:30px; margin-bottom:20px;" -->
+                    <div class="row" style="margin-top:25px;">
+                        <div class="col-xs-6 text-center">
+
+                            <label>Your Name:  &nbsp;</label>   <!-- TODO: By default come up randomly from a set of funny names, with -2|3|4... -->
+                            <input type="text" id="student_name" size="25" value="-" />  <!-- FIXME: rest must be hidden when empty -->
+
+                        </div>
+                        <div class="col-xs-6 text-left">
+
+                            <label>Choose your Sphero: &nbsp;</label>
+
+                            <!-- TODO: List of Spheros !!!!!! -->
+                            <div id="sphero_name_id" class="dropdown" style="display:inline;">
+                                <button id="sphero_name_btn" type="button" data-toggle="dropdown">
+                                    <span id="sphero_name_txt">Select...</span>
+                                    <span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    ...
+                                </ul>
+                            </div>
+
+                    <!--         <select id="rpi_sphero" onchange="this.className=this.options[this.selectedIndex].className">
+                                <option value="0">Sphero Dark</option>
+                                <option value="1">Sphero Light</option>
+                            </select>    -->
+
+                        </div>
+                    </div><!-- row -->
+
+                </div><!-- .col-xs-9 -->
             </div>
-
-            <div class="row" style="margin-top:30px; margin-bottom:20px;">
-                <div class="col-xs-6 text-center">
-
-                    <label>Your Name:  &nbsp;</label>   <!-- TODO: By default come up randomly from a set of funny names, with -2|3|4... -->
-                    <input type="text" id="student_name" size="30" value="-" />  <!-- FIXME: rest must be hidden when empty -->
-
-                </div>
-                <div class="col-xs-6 text-left">
-
-                    <label>Choose your Sphero: &nbsp;</label>
-
-
-
-
-
-                    <!-- TODO !!!!!! -->
-
-                    <select id="rpi_sphero" onchange="this.className=this.options[this.selectedIndex].className">
-                        <option value="0">Sphero Dark</option>
-                        <option value="1">Sphero Light</option>
-                    </select>
-
-                </div>
-            </div><!-- row -->
-
         </div><!-- .container -->
     </div><!-- .header -->
 

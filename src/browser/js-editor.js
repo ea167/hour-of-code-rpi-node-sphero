@@ -152,7 +152,7 @@ function pushToSpheroOnClick()
     // --- Transfer the CODE to RPi
     var userCode = codeMirrorEditor.getValue();                                     // codeMirrorEditor global var
     //
-    var myIndex = $("#rpi_sphero").val();
+    var myIndex = $("#rpi_sphero").val();           // FIXME
     //
     var studentName = $("#student_name").val();
 
@@ -182,7 +182,7 @@ function stopSpheroOnClick()
     }
     lastClickOnStopSphero = now;
 
-    var myIndex = $("#rpi_sphero").val();
+    var myIndex = $("#rpi_sphero").val();                   // FIXME
     //
     var studentName = $("#student_name").val();
 
