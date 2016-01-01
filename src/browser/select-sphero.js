@@ -9,8 +9,6 @@ var $ = require('jquery');
  */
 function initSelectSphero()
 {
-    console.log("initSelectSphero");
-
     // Update dropdown when activeSpherosMap info is available
     $.subscribe( 'activeSpherosMap', function(data) {
         fillSpheroDropdown();

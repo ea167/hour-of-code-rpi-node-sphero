@@ -390,10 +390,13 @@ SpheroConnectionManager.prototype.startNewCylonSphero  =  function(port, macAddr
         return;                                                                 // TODO ????
     });
 
-
     /*
         childProc.send({ hello: 'world' });
     */
+
+
+    // --- Signals an updated activeSpherosMap (here a new activeSphero)
+    SE.emit( 'activeSpherosMap' );                                              // TODO: do the same for disconnection !!!! 
 
     return;         // end of startNewCylonSphero()
 }

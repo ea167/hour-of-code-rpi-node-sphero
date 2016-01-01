@@ -45,6 +45,11 @@ UserCodingWSP.prototype.onConnectionEstablished = function() {
     // This triggers the Spheros Dropdown filling, and send the RPi's HOC_COLOR too
     this.ws.send( JSON.stringify( { "action":"initDropdown", "HOC_COLOR": global.RPI_COLOR } ) );
 
+    // --- Establish SE listeners when there is updated info to send to the browser
+    var _this = this;
+    SE.on('activeSpherosMap', function(){ _this.sendActiveSpherosMap(); } );
+    //SE.on('activeSpherosMap', function(_this) { return function(){ _this.sendActiveSpherosMap(); } }(this) );
+
     /*
         var _this = this;
         var closureFuncSendWords = this.closureFuncSendWords = function () {
@@ -111,10 +116,7 @@ UserCodingWSP.prototype.onMessage = function(data, flags) {
             console.log('\nUserCodingWSP WS GET-SPHEROS received: %s', data);
             //console.log(global.spheroConnectionManager.activeSpherosMap);
 
-            this.ws.send( JSON.stringify( {
-                "action": "activeSpherosMap",
-                "activeSpherosMap": global.spheroConnectionManager.activeSpherosMap
-            } ) );
+            this.sendActiveSpherosMap();
         }
         // FIXME: update when user selects a Sphero !!!
         else if (dataObj.action == "student-sphero-change") {                   // TODO
@@ -139,15 +141,16 @@ UserCodingWSP.prototype.onMessage = function(data, flags) {
 /** +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  *  Send info to WS socket
  */
-UserCodingWSP.prototype.sendBlabla = function()
+UserCodingWSP.prototype.sendActiveSpherosMap = function()
 {
     try {
-/*
-            this.ws.send( JSON.stringify( blablaObj ) );
-*/
+        this.ws.send( JSON.stringify( {
+            "action": "activeSpherosMap",
+            "activeSpherosMap": global.spheroConnectionManager.activeSpherosMap
+        }) );
     }
-    catch (exc) { console.error( "\nTRY-CATCH ERROR in UserCodingWSP.sendBlabla: " + exc.stack + "\n" ); }
-    return false;
+    catch (exc) { console.error( "\nTRY-CATCH ERROR in UserCodingWSP.sendActiveSpherosMap: " + exc.stack + "\n" ); }
+    return;
 };
 
 
