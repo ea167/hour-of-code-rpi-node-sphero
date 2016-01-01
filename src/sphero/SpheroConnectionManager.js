@@ -141,7 +141,7 @@ function SpheroConnectionManager()
     this.connectingInProcess    = [];       // Array of macAddresses of Spheros getting connected (between inquire and connect)
     this.isInquiring            = false;    // Only once at a time: prevent to have 2 bluetoothInquire() running at the same time
     // Child processes: These js object have circular references and consequently break JSON.stringify: we store them separately
-    this.childProcessesMap      = {};       // Object (and NOT Associative array) of Key = macAddress, Object = childProc    // TODO
+    this.childProcessesMap      = {};       // Object (and NOT Associative array) of Key = macAddress, Object = childProc
     // Storing mySphero objects from CylonSphero
     this.mySpherosMap           = {};       // Object (and NOT Associative array) of Key = macAddress, Object = mySphero     // TODO
 
@@ -340,7 +340,7 @@ SpheroConnectionManager.prototype.startNewCylonSphero  =  function(port, macAddr
 
     // Store as activeSpherosMap
     this.activeSpherosMap[macAddress]   = { "port":port, "macAddress":macAddress, "name":name, "color":color };     // Array of Objects { port: , macAddress:, color:... }
-    this.childProcessesMap[macAddress]    = childProc;
+    this.childProcessesMap[macAddress]  = childProc;
 
     // --- Communication between forked process and this master process.  msg = { type:, macAddress:, ...}
     var _this = this;
@@ -438,14 +438,57 @@ SpheroConnectionManager.prototype.findBestSpheroAttributes  =  function( macAddr
 
 
 
+// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+/**
+ * Code pushed by User from browser
+ */
+SpheroConnectionManager.prototype.pushCode  =  function( browserMacAddress, browserUser, browserUserCode )
+{
+    var activeSphero = this.activeSpherosMap[browserMacAddress];
+    if ( !browserUser || !activeSphero ) {
+        console.error("ERROR in SpheroConnectionManager.pushCode: WRONG PARAMs macAddress=[%s], user=[%s]", browserMacAddress, browserUser);
+        return;
+    }
+
+    // --- Is there an active childProcess?
+    var childProc = this.childProcessesMap[browserMacAddress];
+    if (! childProc ) {
+        console.error("ERROR in SpheroConnectionManager.pushCode: NO CHILD PROCESS for macAddress=[%s], user=[%s]", browserMacAddress, browserUser);
+
+        // TODO: signal disconnect !! Or make sure it is connecting
+        return;
+    }
+
+    // --- Ok, send the new code to this childProc
+    if (!browserUserCode) {
+        console.info("INFO in SpheroConnectionManager.pushCode: code EMPTY so perform STOP, for macAddress=[%s], user=[%s]", browserMacAddress, browserUser);
+        childProc.send( JSON.stringify( { "action": "stop-code" } ) );
+        return;
+    }
+
+    childProc.send( JSON.stringify( { "action": "push-code", "userCode": browserUserCode } ) );
+    return;
+}
+
+
+/**
+ * Stop order from user browser
+ */
+SpheroConnectionManager.prototype.stopCode  =  function( browserMacAddress, browserUser )
+{
+    console.info("INFO in SpheroConnectionManager.stopCode: for macAddress=[%s], user=[%s]", browserMacAddress, browserUser);
+    this.pushCode( browserMacAddress, browserUser, "" );
+    return;
+}
+
+
 
 
 
 // TODO: MAPPING must be for ALL Spheros, with macAddress as param => NOT in startNewCylonSphero !!
 // TODO map SE.on signaling to childProc.send & .on()
 // For code push, error and info update
-
-
 
 
 module.exports = SpheroConnectionManager;

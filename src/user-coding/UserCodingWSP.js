@@ -88,6 +88,7 @@ UserCodingWSP.prototype.onMessage = function(data, flags) {
         console.log('UserCodingWSP WS received: BINARY length %s', data.length);
 
         // Nothing to do ???
+        return;
     }
     else {
         var dataObj = JSON.parse( data );
@@ -102,16 +103,18 @@ UserCodingWSP.prototype.onMessage = function(data, flags) {
         // ======= Actions from UI buttons =======
         else if (dataObj.action == "push-code") {
             // --- Receiving code for Sphero!
-            console.log('\nUserCodingWSP ws PUSH-CODE received: %s', data);
-            SE.emit( "push-code", data );
+            console.log('\nUserCodingWSP ws PUSH-CODE received:');
+            console.log( dataObj );
+            global.spheroConnectionManager.pushCode( dataObj.macAddress, dataObj.user, dataObj.userCode );
 
             // TODO: Archive the code  !!
 
         }
         else if (dataObj.action == "stop-code") {
             // --- Stop the Sphero!
-            console.log('\nUserCodingWSP WS STOP-CODE received: %s', data);
-            SE.emit( "stop-code", data );
+            console.log('\nUserCodingWSP WS STOP-CODE received:');
+            console.log( dataObj );
+            global.spheroConnectionManager.stopCode( dataObj.macAddress, dataObj.user );
         }
         else if (dataObj.action == "get-spheros") {
             // --- Send the list of active spheros that are available
@@ -159,6 +162,7 @@ UserCodingWSP.prototype.onMessage = function(data, flags) {
             console.log('\nUserCodingWSP WS received: %s', data);
         }
     }
+    return;
 };
 
 
