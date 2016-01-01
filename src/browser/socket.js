@@ -1,7 +1,7 @@
 /**
  *  Handle WebSocket connection from browser to Raspberry Pi
  */
-//var $ = require('jquery');
+var $ = require('jquery');
 
 function initBrowserSocket()
 {
@@ -9,13 +9,6 @@ function initBrowserSocket()
     var loc = window.location;
     var url = 'ws://'+ loc.hostname+(loc.port ? ':'+loc.port: '') +'/ws/usercoding/'+ (loc.search ? loc.search : ''); // Forward url parameters
     console.log('Socket URL = ', url);
-
-    // --- utils
-    var o         = $({});
-    $.subscribe   = o.on.bind(o);
-    $.unsubscribe = o.off.bind(o);
-    $.publish     = o.trigger.bind(o);
-
 
     // ----- Open socket
     try {
@@ -40,6 +33,9 @@ function initBrowserSocket()
 
     // ----- on.MESSAGE: Here we get the info!
     socket.onmessage = function(evt) {
+
+        console.log("socket.onmessage with ");
+        console.log( evt );
         var dataObj = JSON.parse( evt.data );
         if (dataObj.error) {
             console.error('ERROR Browser socket.onmessage received error message:');
@@ -50,25 +46,29 @@ function initBrowserSocket()
         }
 
         // --- Receives an update of activeSpherosMap
-        if (dataObj.type == "activeSpherosMap") {
+        if (dataObj.action == "activeSpherosMap") {
             activeSpherosMap = dataObj.activeSpherosMap;                 // defined (globally) in the html page
+            console.log( "socket.onmessage: activeSpherosMap received" );
+            console.log( dataObj.activeSpherosMap );                    // FIXME
             $.publish('activeSpherosMap');
             return;
         }
+
+        // --- This triggers the filling of the Sphero Dropdown, and sets the RPi color -
+        if (dataObj.action == "initDropdown") {
+             HOC_COLOR = dataObj.HOC_COLOR;             // defined in the html page
+             $.publish('init_sphero_dropdown');
+             console.log("init_sphero_dropdown publish");
+             return;
+        }
+
 
 
 
         // TODO: Feedback from errors, connected Spheros, code pushed, Sphero stopped, positions, collisions, etc.
 
 
-         // --- This is the RPi/Sphero color
-         if (dataObj.HOC_COLOR) {
-             HOC_COLOR = dataObj.HOC_COLOR;             // defined in the html page
-             $.publish('hoc_color');
-             return;
-         }
-
-         return;
+        return;
     };
 
 

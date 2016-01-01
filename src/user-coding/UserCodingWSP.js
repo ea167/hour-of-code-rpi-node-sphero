@@ -42,8 +42,10 @@ UserCodingWSP.prototype.parent       = WebSocketProcessor.prototype;         // 
 UserCodingWSP.prototype.onConnectionEstablished = function() {
     this.parent.onConnectionEstablished.call(this);
 
-    // Send the RPi's HOC_COLOR
-    this.ws.send( JSON.stringify( { "HOC_COLOR": process.env.HOC_COLOR } ) );
+    console.log('UserCodingWSP.onConnectionEstablished about to send WS initDropdown action \n');
+
+    // Send the RPi's HOC_COLOR. Triggers the Spheros Dropdown filling too
+    this.ws.send( JSON.stringify( { "action":"initDropdown", "HOC_COLOR": global.RPI_COLOR } ) );
 
 
 /*
@@ -111,8 +113,10 @@ UserCodingWSP.prototype.onMessage = function(data, flags) {
             // --- Send the list of active spheros that are available
             console.log('\nUserCodingWSP WS GET-SPHEROS received: %s', data);
 
+            console.log(global.spheroConnectionManager.activeSpherosMap);   // FIXME
+
             this.ws.send( JSON.stringify( {
-                "type": "activeSpherosMap",
+                "action": "activeSpherosMap",
                 "activeSpherosMap": global.spheroConnectionManager.activeSpherosMap
             } ) );
         }

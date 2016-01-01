@@ -106,7 +106,7 @@ function SpheroConnectionManager()
     // ----- List of Spheros that the user can see in their browser, with HOC_FAVORITE_SPHERO_ATTRIBUTES added
     //       this.spheroAttributesByNamesMap[spheroName] = { name:, color:, macAddress: }
     global.RPI_SPHERO_LIST  = global.SPHERO_COLORS_FROM_RPI_MAP[ global.RPI_COLOR ]  || global.STANDARD_SPHERO_LIST;
-    this.spheroAttributesByNamesMap  = [];
+    this.spheroAttributesByNamesMap  = {};                                      //  Object (and NOT Associative array)
     for (var rsl of global.RPI_SPHERO_LIST) {
             this.spheroAttributesByNamesMap[ rsl.name ] = rsl;
     }
@@ -135,13 +135,15 @@ function SpheroConnectionManager()
     // +++++++ Keeping track of Active and recently Disconnected Spheros
     //
     // FIXME: USER NAME ????
-    this.activeSpherosMap       = [];       // Associative array of Key = macAddress,
-                                            //    Objects = { port:, macAddress:, name:, color:, proc:, user: }
-    this.disconnectedSpherosMap = [];       // Associative array same structure as activeSpherosMap         // TODO
+    this.activeSpherosMap       = {};       // Object (and NOT Associative array) of Key = macAddress,
+                                            //    Values = { port:, macAddress:, name:, color:, user: }
+    this.disconnectedSpherosMap = {};       // Object (and NOT Associative array) same structure as activeSpherosMap         // TODO
     this.connectingInProcess    = [];       // Array of macAddresses of Spheros getting connected (between inquire and connect)
     this.isInquiring            = false;    // Only once at a time: prevent to have 2 bluetoothInquire() running at the same time
+    // Child processes: These js object have circular references and consequently break JSON.stringify: we store them separately
+    this.childProcessesMap      = {};       // Object (and NOT Associative array) of Key = macAddress, Object = childProc    // TODO
     // Storing mySphero objects from CylonSphero
-    this.mySpherosMap           = [];       // Associative array of Key = macAddress, Object = mySphero     // TODO
+    this.mySpherosMap           = {};       // Object (and NOT Associative array) of Key = macAddress, Object = mySphero     // TODO
 
 // TODO: la connection entre l'interface et le Cylon doit se faire par * macAddress *
 //      Il faudrait qu'on puisse avoir dans l'interface les positions, etc (mySpherosMap)
@@ -337,8 +339,8 @@ SpheroConnectionManager.prototype.startNewCylonSphero  =  function(port, macAddr
     var childProc = childProcess.fork( __dirname + '/CylonSphero.js', args );       // args Array List of string arguments
 
     // Store as activeSpherosMap
-    this.activeSpherosMap[macAddress] = { "port":port, "macAddress":macAddress, "name":name, "color":color, "proc":childProc };     // Array of Objects { port: , macAddress:, color:... }
-
+    this.activeSpherosMap[macAddress]   = { "port":port, "macAddress":macAddress, "name":name, "color":color };     // Array of Objects { port: , macAddress:, color:... }
+    this.childProcessesMap[macAddress]    = childProc;
 
     // --- Communication between forked process and this master process.  msg = { type:, macAddress:, ...}
     var _this = this;

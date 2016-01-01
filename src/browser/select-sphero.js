@@ -1,7 +1,6 @@
 /**
  *  UI on User Name + its repercussions
  */
-
 var $ = require('jquery');
 
 
@@ -10,10 +9,13 @@ var $ = require('jquery');
  */
 function initSelectSphero()
 {
+    console.log("initSelectSphero");
+
     // Update dropdown when activeSpherosMap info is available
     $.subscribe( 'activeSpherosMap', function(data) {
         fillSpheroDropdown();
         loadSpheroChoice();
+        console.log( activeSpherosMap );
     });
 
     // Make sure activeSpherosMap gets initialized when browser connects
@@ -23,6 +25,15 @@ function initSelectSphero()
     $("#rpi_sphero").on("change", saveSpheroChoice );       // FIXME
     return;
 }
+
+
+function fillSpheroDropdown()
+{
+    console.log( "fillSpheroDropdown TODO" );
+}
+
+
+
 
 
 function loadSpheroChoice()
