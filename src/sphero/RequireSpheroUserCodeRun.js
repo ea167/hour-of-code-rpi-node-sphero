@@ -10,12 +10,12 @@ var vm = require('vm');
 
 // FIXME: SE !!!
 
-function SpheroUserCodeRun( mySphero, userCode, SE )
+function SpheroUserCodeRun( mySphero, userCode )
 {
     // --0-- Check mySphero and userCode variables
     if ( !mySphero || typeof userCode === "undefined" ) {
         console.warn( "CylonRobot [%s] USER-CODE VARIABLES error, userCode: \n%s\n", mySphero.hocIndex, userCode );
-        SE.emit( "sphero-internal-error", JSON.stringify({ "spheroIndex": mySphero.hocIndex, "exception": "mySphero/userCode not defined" }) );
+        process.send( JSON.stringify({ "action":"sphero-internal-error", "spheroIndex": mySphero.hocIndex, "exception": "mySphero/userCode not defined" }) );
         // FIXME
         return;
     }
@@ -46,12 +46,12 @@ function SpheroUserCodeRun( mySphero, userCode, SE )
                     + "\n /* */ function check_the_syntax_of_your_code() {} /* */ \n"
                     + "\n if (once && typeof once === 'function') { try { once(mySphero); } catch(exc) { "
                     + "\n     console.warn( 'CylonRobot [%s] USER-CODE ONCE error: %s\\n', mySphero.hocIndex, exc.stack );  "
-                    // + SE.emit( "sphero-code-once-error", JSON.stringify({ "spheroIndex": mySphero.hocIndex, "exception": exc }) );
+    //FIXME                // + SE.emit( "sphero-code-once-error", JSON.stringify({ "spheroIndex": mySphero.hocIndex, "exception": exc }) );
                     + "\n } } "
                     + "\n if (loop && typeof loop === 'function') { _intervalLoop = setInterval( tryCatchLoop, 490 ); } "     // Every 500ms
                     + "\n function tryCatchLoop() { try { if (_endLoop) { endLoops(); } else loop(mySphero); } catch(exc) { "
                     + "\n     console.warn( 'CylonRobot [%s] USER-CODE LOOP error: %s\\n', mySphero.hocIndex, exc.stack ); "
-                    // + SE.emit( "sphero-code-loop-error", JSON.stringify({ "spheroIndex": mySphero.hocIndex, "exception": exc }) );
+    //FIXME                // + SE.emit( "sphero-code-loop-error", JSON.stringify({ "spheroIndex": mySphero.hocIndex, "exception": exc }) );
                     + "\n } } "
                     + "\n function endLoops() { clearInterval( _intervalLoop ); } ";
     // console.log( "\ntotalCode:\n" + totalCode +"\n\n" );
@@ -63,8 +63,9 @@ function SpheroUserCodeRun( mySphero, userCode, SE )
         vm.runInContext( totalCode, this.sandbox );
     }
     catch( exc ) {
-        console.warn( "CylonRobot [%s] VM.runInContext error: %s\n", mySphero.hocIndex, exc.stack );
-        ///SE.emit( "sphero-code-vm-error", JSON.stringify({ "spheroIndex": mySphero.hocIndex, "exception": exc }) );
+        console.warn( "CylonRobot [%s] VM.runInContext error: %s\n", mySphero.name, exc.stack );
+        process.send( JSON.stringify({ "action":"sphero-code-vm-error", "name": mySphero.name, "exception": exc }) );
+        // FIXME
         return;
     }
 } // end of SpheroUserCodeRun()

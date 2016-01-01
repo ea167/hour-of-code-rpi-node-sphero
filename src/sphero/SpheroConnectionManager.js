@@ -335,7 +335,7 @@ SpheroConnectionManager.prototype.startNewCylonSphero  =  function(port, macAddr
     }
 
     // --- Start the new process
-    var args      = [ port, macAddress, name, color ];                              // <=> process.argv[2..5] in child
+    var args      = [ port, macAddress, name, color, 0 ];   // FIXME: STARTING_POS_Y_CORRECTION        // <=> process.argv[2..6] in child
     var childProc = childProcess.fork( __dirname + '/CylonSphero.js', args );       // args Array List of string arguments
 
     // Store as activeSpherosMap
