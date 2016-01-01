@@ -31,7 +31,9 @@ function loadStudentName()
     var nam = localStorage.getItem("studentName");
     if (!nam) {
         nam = _getRandomStudentName();
+        localStorage.setItem( "studentName", nam );
     }
+    currentUser = nam;                                      // Global variable defined in main.html
     $("#student_name").val( nam );
 }
 
@@ -57,6 +59,9 @@ function saveStudentName()
     } else {
         localStorage.removeItem( "studentName" );
     }
+
+    // TODO: transmit to RPi and update dropdown and activeSpherosMap !!!
+
 }
 
 

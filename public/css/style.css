@@ -42,6 +42,17 @@ html, body { height: 100%; }
     font-style: italic;
 }
 
+#sphero_name_ul li {
+    color: white;
+}
+#sphero_name_ul a {
+    color: white;
+}
+#sphero_name_ul a:hover {
+    color: black;
+    background-color: transparent;
+}
+
 /*
 .red-bg-txt {
     background-color: red;
