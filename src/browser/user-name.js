@@ -59,11 +59,11 @@ function saveStudentName()
     } else {
         localStorage.removeItem( "studentName" );
     }
+    currentUser = nam;                                      // Global variable defined in main.html
 
-    // TODO: transmit to RPi and update dropdown and activeSpherosMap !!!
-
+    // Transmit to RPi, which will consequently update activeSpherosMap and dropdown!
+    $.IBC.trigger('sphero-selected', JSON.stringify( { "macAddress":currentMacAddress, "user":nam } ) );
 }
-
 
 
 exports.initUserName = initUserName;

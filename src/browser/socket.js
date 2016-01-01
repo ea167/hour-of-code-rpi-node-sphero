@@ -17,18 +17,18 @@ function initBrowserSocket()
        console.error('Browser WS connection error: ', exc);
     }
 
-    socket.onopen = function(evt) {
-        $.subscribe( 'socketstop', function(data) {
+    socket.onopen = function(onOpenEvent) {
+        $.IBC.on( 'socketstop', function(evt) {
             socket.close();
         });
 
         // Get the activeSpherosMap on request
-        $.subscribe('get-spheros', function(data) {
+        $.IBC.on('get-spheros', function(evt) {
             socket.send( JSON.stringify( { "action":"get-spheros" } ) );
         });
 
         // A new sphero has been selected
-        $.subscribe('sphero-selected', function(activeSphero) {     // isReset ? { "macAddress":currentMacAddress, "user":"" } : activeSphero
+        $.IBC.on('sphero-selected', function(evt, activeSphero) {     // isReset ? { "macAddress":currentMacAddress, "user":"" } : activeSphero
             socket.send( JSON.stringify( { "action":"sphero-selected", "activeSphero":JSON.parse(activeSphero) } ) );
         });
 
@@ -46,7 +46,7 @@ function initBrowserSocket()
             console.error('ERROR Browser socket.onmessage received error message:');
             console.error( evt );
             /// showError(msg.error);
-            $.publish('socketstop');
+            $.IBC.trigger('socketstop');
             return;
         }
 
@@ -55,14 +55,14 @@ function initBrowserSocket()
             activeSpherosMap = dataObj.activeSpherosMap;                 // defined (globally) in the html page
             console.log( "socket.onmessage: activeSpherosMap received" );
             console.log( dataObj.activeSpherosMap );
-            $.publish('activeSpherosMap');
+            $.IBC.trigger('activeSpherosMap');
             return;
         }
 
         // --- This triggers the filling of the Sphero Dropdown, and sets the RPi color -
         if (dataObj.action == "initDropdown") {
              HOC_COLOR = dataObj.HOC_COLOR;             // defined in the html page
-             $.publish('init_sphero_dropdown');
+             $.IBC.trigger('init_sphero_dropdown');
              return;
         }
 
@@ -80,7 +80,7 @@ function initBrowserSocket()
     socket.onerror = function(evt) {
         console.error('Browser onerror Server error ' + evt.code + ': please refresh your browser and try again');
         /// showError('Application error ' + evt.code + ': please refresh your browser and try again');
-        // TODO ?? Close ?? // $.publish('socketstop');
+        // TODO ?? Close ?? // $.IBC.trigger('socketstop');
     };
 
     socket.onclose = function(evt) {
@@ -91,7 +91,7 @@ function initBrowserSocket()
              // return false;
         }
         // Made it through, normal close
-        $.unsubscribe('socketstop');
+        $.IBC.off('socketstop');
     };
 
     return socket;

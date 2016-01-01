@@ -4,6 +4,8 @@ var url  = require('url');
 
 // Eric class to structure WebSocket processing
 var WebSocketProcessor      = require('../WebSocketProcessor');
+// Array utils
+var ArrayUtils              = require('../utils/ArrayUtils');
 
 // Sphero & log events
 var SpheroEvents            = require('../sphero/SpheroEvents');
@@ -119,6 +121,7 @@ UserCodingWSP.prototype.onMessage = function(data, flags) {
             this.sendActiveSpherosMap();
         }
         else if (dataObj.action == "sphero-selected") {
+            // --- Change the user of the selected activeSphero (may fill or empty it)
             // Warning: the only two params that we are supposed to use here are .macAddress and .user
             // .user may be "" (deselect), but .macAddress must be valid
             var activeSphero = dataObj.activeSphero;
@@ -127,8 +130,24 @@ UserCodingWSP.prototype.onMessage = function(data, flags) {
                 console.error( activeSphero );
                 return;
             } else {
+                // First remove this user from all Spheros (should be at most once)
+                if ( activeSphero.user ) {
+                    var as = null;
+                    do {
+                        as = ArrayUtils.findFirstObjectWithPropertyInArray(
+                            global.spheroConnectionManager.activeSpherosMap, "user", activeSphero.user );  // array, propertyName, propertyValue )
+                        if (as) {
+                            as.user = "";
+                        }
+                    } while ( as );
+                }
+                // We consider updated names as being from the same user, who has changed her name.
+                //      The limitation of not selecting a Sphero already taken is done on the server side.
+                //      We don't expect nasty hackers who would like to hijack Spheros from others :-)
                 global.spheroConnectionManager.activeSpherosMap[activeSphero.macAddress].user = activeSphero.user;
+                // Resend the updated activeSpherosMap
                 this.sendActiveSpherosMap();
+
                 // Let's make sure the Sphero is stopped for the new user!
 
                 // TODO: STOP Sphero !!!!!

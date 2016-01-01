@@ -14,13 +14,13 @@ function initSelectSphero()
     loadSpheroChoice();
 
     // Update dropdown when activeSpherosMap info is available
-    $.subscribe( 'activeSpherosMap', function(data) {
-        console.log( activeSpherosMap );
+    $.IBC.on( 'activeSpherosMap', function(data) {
+        console.log("DEBUG: update of activeSpherosMap => update of the Sphero dropdown, currentMacAddress=[%s]", currentMacAddress);
         fillSpheroDropdown();
     });
 
     // Make sure activeSpherosMap gets initialized when browser connects
-    $.publish('get-spheros');
+    $.IBC.trigger('get-spheros');
     return;
 }
 
@@ -46,6 +46,13 @@ function fillSpheroDropdown()
     }
     // Try to select the currentMacAddress
     displayDropDownChoice( currentMacAddress );
+
+    // --- If effective, then we have to tell RPi the currentUser has attached to that Sphero!
+    var dataMacAddr = $("#sphero_name_id").attr("data-macaddr");
+    if ( dataMacAddr && activeSpherosMap[ dataMacAddr ].user != currentUser ) {
+        $.IBC.trigger('sphero-selected', JSON.stringify( { "macAddress":currentMacAddress, "user":currentUser } ) );
+    }
+
 
     // ----- On selection: replace the main value if valid + call RPi to update activeSpherosMap!
     $("#sphero_name_ul li a").on('click', function(evt) {
@@ -103,7 +110,7 @@ function newSpheroSelected( macAddress, activeSphero )
 
     // At that point, the selection has changed, we want to update the RPi-color
     var isReset = !macAddress || !activeSphero;
-    $.publish('sphero-selected', JSON.stringify( isReset
+    $.IBC.trigger('sphero-selected', JSON.stringify( isReset
         ? { "macAddress":currentMacAddress, "user":"" }
         : activeSphero ) );
 
