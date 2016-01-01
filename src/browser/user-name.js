@@ -55,6 +55,12 @@ function saveStudentName()
 {
     var nam = $("#student_name").val();
     if (nam) {
+
+        // TODO: Should check this name is not already a user in activeSpherosMap[].user !!!
+        //       Otherwise should prompt an alert with "name not unique, already taken"
+        //       However we need to be sure that there is no bug that would left
+        //       a disconnected user in activeSpherosMap
+
         localStorage.setItem( "studentName", nam );
     } else {
         localStorage.removeItem( "studentName" );
@@ -62,7 +68,9 @@ function saveStudentName()
     currentUser = nam;                                      // Global variable defined in main.html
 
     // Transmit to RPi, which will consequently update activeSpherosMap and dropdown!
-    $.IBC.trigger('sphero-selected', JSON.stringify( { "macAddress":currentMacAddress, "user":nam } ) );
+    if (currentMacAddress) {
+        $.IBC.trigger('sphero-selected', JSON.stringify( { "macAddress":currentMacAddress, "user":nam } ) );
+    }
 }
 
 
