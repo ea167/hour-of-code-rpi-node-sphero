@@ -301,6 +301,8 @@ SpheroConnectionManager.prototype.connectBtSphero  =  function( macAddress, rfco
         // Launch new Cylon Sphero
         _this.startNewCylonSphero( "/dev/rfcomm"+rfcommIndexToTry, macAddress );
     });
+    console.log("DEBUG END of SpheroConnectionManager.connectBtSphero macAddress=[%s], rfcommIndexToTry=[%s], nbAttempts=[%s]",
+        macAddress, rfcommIndexToTry, nbAttempts );
     return;
 }
 
