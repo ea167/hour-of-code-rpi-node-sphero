@@ -51,7 +51,7 @@ global.STANDARD_SPHERO_LIST = [
     { name:"Froggy",    color:0x00FF00 },
     { name:"Pumpkin",   color:0xff8800 },   // orange
     { name:"Amethyst",  color:0xFF00FF },   // purple
-    { name:"Banana",    color:0xFFFF00 },   // yellow
+    { name:"Banana",    color:0xFFFF00 },   // yellow 
     { name:"Turquoise", color:0x00FFFF }    // cyan - LAST
 ];
 // Associative array Key= RPi-color, Value= list of {name:,color:} for Spheros
