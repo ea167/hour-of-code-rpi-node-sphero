@@ -276,7 +276,7 @@ CylonSphero.prototype.initCylonRobot  =  function()
         _this.mySphero.accelY     = data.yAccel.value[0];
         _this.mySphero.accelOne   = data.accelOne.value[0];
 
-        process.send( JSON.stringify({ "action":"data-streaming", "mySphero":_this.mySphero });
+        process.send( JSON.stringify({ "action":"data-streaming", "mySphero":_this.mySphero }) );
     });
 
 
