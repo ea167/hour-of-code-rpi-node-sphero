@@ -46,13 +46,13 @@ var SE = global.spheroEvents;                   // Replaces jQuery $ events here
 //      Potentially could have different names and colors depending on the RPi
 //      Warning: all names must be unique for a given RPi
 global.STANDARD_SPHERO_LIST = [
-    { name:"Santa",     color:0xFF0000 },                       // Add macAddress + activeUser (student name)
-    { name:"Sapphire",  color:0x0000FF },
-    { name:"Froggy",    color:0x00FF00 },
-    { name:"Pumpkin",   color:0xff8800 },   // orange
-    { name:"Amethyst",  color:0xFF00FF },   // purple
-    { name:"Banana",    color:0xFFFF00 },   // yellow
-    { name:"Turquoise", color:0x00FFFF }    // cyan - LAST
+    { name:"Santa",     color:"#ff0000" },                       // Add macAddress + activeUser (student name)
+    { name:"Sapphire",  color:"#0000ff" },
+    { name:"Froggy",    color:"#00ff00" },
+    { name:"Pumpkin",   color:"#ff8800" },   // orange
+    { name:"Amethyst",  color:"#ff00ff" },   // purple
+    { name:"Banana",    color:"#ffff00" },   // yellow
+    { name:"Turquoise", color:"#00ffff" }    // cyan - LAST
 ];
 // Associative array Key= RPi-color, Value= list of {name:,color:} for Spheros
 global.SPHERO_COLORS_FROM_RPI_MAP = {
@@ -335,7 +335,7 @@ SpheroConnectionManager.prototype.startNewCylonSphero  =  function(port, macAddr
 
 
     // --- Assign color and name to Sphero
-    var spheroAttributes = this.findBestSpheroAttributes( macAddress ) || { "name":"UNKNOWN", "color":0xFFFFFF };
+    var spheroAttributes = this.findBestSpheroAttributes( macAddress ) || { "name":"UNKNOWN", "color":"#ffffff" };
     console.log( "INFO in startNewCylonSphero: new Sphero macAddress=[%s] gets findBestSpheroAttributes: ", macAddress);
     console.log( spheroAttributes );
     var name  = spheroAttributes.name;
