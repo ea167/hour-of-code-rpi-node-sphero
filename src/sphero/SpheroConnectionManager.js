@@ -385,8 +385,8 @@ SpheroConnectionManager.prototype.startNewCylonSphero  =  function(port, macAddr
             // TODO: Alerts
 
         // --- Otw
-        console.error( "\nERROR in SpheroConnectionManager.childProc.on.MESSAGE, msg is:" );
-        console.error( msg );
+        //console.error( "\nERROR in SpheroConnectionManager.childProc.on.MESSAGE, msg is:" );
+        //console.error( msg );
         return;
     });
 
