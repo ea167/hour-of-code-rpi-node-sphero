@@ -34,6 +34,8 @@ function CylonSphero()
     this.cylonRobot         = null;
     this.mySphero           = null;
     this.spheroUserCodeRuns = null;
+    //
+    this.others             = {};       // Map  Key = Other Sphero Name, Value = Object with properties .name, .color, .posX, .posY, etc.
 
     console.log("\nINFO in NEW CylonSphero: port, macAddress, name, color are:");
     console.log( this.port );
@@ -69,6 +71,25 @@ function CylonSphero()
             // --- When user click stop!
             case "stop-code":
                 _this.onUserStop();
+                break;
+
+            // --- Save position, speed and acceleration of ANOTHER Sphero here
+            case "other-sphero":
+                var os = dataObj.otherSphero;
+                if (os && os.name) {
+                    _this.mySphero.otherTimestamp   = os.timestamp;
+                    _this.mySphero.otherPosX        = os.posX;
+                    _this.mySphero.otherPosY        = os.posY;
+                    _this.mySphero.otherSpeedX      = os.speedX;
+                    _this.mySphero.otherSpeedY      = os.speedY;
+                    _this.mySphero.otherAccelX      = os.accelX;
+                    _this.mySphero.otherAccelY      = os.accelY;
+                    _this.mySphero.otherAccelOne    = os.accelOne;
+                    // Store also by name
+                    this.others[os.name] = os;
+                    //
+                    console.log("DEBUG Sphero[%s] \t posX=%s \t posY=%s", os.name, os.posX, os.posY);
+                }
                 break;
 
             default:
@@ -246,7 +267,6 @@ CylonSphero.prototype.initCylonRobot  =  function()
         //console.log(data);
 
         // --- Set position, speed and acceleration here!
-        //     WARNING: _this.darkSpheroIndex is corrected by 20 cm on Y axis!
         _this.mySphero.timestamp  = timestamp;
         _this.mySphero.posX       = data.xOdometer.value[0];
         _this.mySphero.posY       = data.yOdometer.value[0] + _this.posYCorrection;
@@ -256,31 +276,7 @@ CylonSphero.prototype.initCylonRobot  =  function()
         _this.mySphero.accelY     = data.yAccel.value[0];
         _this.mySphero.accelOne   = data.accelOne.value[0];
 
-        // TODO process.send( mySphero );
-
-        // FIXME
-/*
-        // --- Set all other Spheros
-        for ( var i = 0; i < _this.spheroCylonRobots.length; i++) {
-            if ( i == mySphero.hocIndex || !_this.spheroCylonRobots[i] )
-                continue;
-            var otherSphero         = _this.spheroCylonRobots[i].sphero;
-            var posYOtherCorrection = (otherSphero.hocIndex != _this.darkSpheroIndex) ? global.STARTING_POS_Y_CORRECTION : 0;
-
-            otherSphero.timestamp   = timestamp;
-            otherSphero.posX        = data.xOdometer.value[0];
-            otherSphero.posY        = data.yOdometer.value[0] + posYOtherCorrection;
-            otherSphero.speedX      = data.xVelocity.value[0];
-            otherSphero.speedY      = data.yVelocity.value[0];
-            otherSphero.accelX      = data.xAccel.value[0];
-            otherSphero.accelY      = data.yAccel.value[0];
-            otherSphero.accelOne    = data.accelOne.value[0];
-        }
-
-        // --- Signal to interested parties
-        //// SE.emit( "sphero-data-streaming", JSON.stringify({ "spheroIndex": _this.name , "data": data }) );
-        //process.send( JSON.stringify({ "action":"sphero-collision", "macAddress": _this.macAddress, "name": _this.name }) );
-*/
+        process.send( JSON.stringify({ "action":"data-streaming", "mySphero":_this.mySphero });
     });
 
 
