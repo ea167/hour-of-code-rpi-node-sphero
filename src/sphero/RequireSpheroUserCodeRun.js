@@ -45,12 +45,12 @@ function SpheroUserCodeRun( mySphero, userCode )
                     + userCode
                     + "\n /* */ function check_the_syntax_of_your_code() {} /* */ \n"
                     + "\n if (once && typeof once === 'function') { try { once(mySphero); } catch(exc) { "
-                    + "\n     console.warn( 'CylonRobot [%s] USER-CODE ONCE error: %s\\n', mySphero.hocIndex, exc.stack );  "
+                    + "\n     console.warn( 'CylonRobot [%s] USER-CODE ONCE error: %s\\n', mySphero.name, exc.stack );  "
     //FIXME                // + SE.emit( "sphero-code-once-error", JSON.stringify({ "spheroIndex": mySphero.hocIndex, "exception": exc }) );
                     + "\n } } "
-                    + "\n if (loop && typeof loop === 'function') { _intervalLoop = setInterval( tryCatchLoop, 490 ); } "     // Every 500ms
+                    + "\n if (loop && typeof loop === 'function') { _intervalLoop = setInterval( tryCatchLoop, 100 ); } "     // At most 10 times per second
                     + "\n function tryCatchLoop() { try { if (_endLoop) { endLoops(); } else loop(mySphero); } catch(exc) { "
-                    + "\n     console.warn( 'CylonRobot [%s] USER-CODE LOOP error: %s\\n', mySphero.hocIndex, exc.stack ); "
+                    + "\n     console.warn( 'CylonRobot [%s] USER-CODE LOOP error: %s\\n', mySphero.name, exc.stack ); "
     //FIXME                // + SE.emit( "sphero-code-loop-error", JSON.stringify({ "spheroIndex": mySphero.hocIndex, "exception": exc }) );
                     + "\n } } "
                     + "\n function endLoops() { clearInterval( _intervalLoop ); } ";

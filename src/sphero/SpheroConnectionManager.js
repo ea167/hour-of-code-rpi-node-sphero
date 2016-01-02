@@ -21,7 +21,7 @@
  *
  *      // To bypass Bluetooth discovery and directly connect to Serial ports.
  *      // Use this on Apple MACs: (ls /dev/tty.Sphero*) see http://cylonjs.com/documentation/platforms/sphero/
- *      HOC_DIRECT_SERIAL_PORTS="/dev/tty.Sphero-BBP-AMP-SPP,/dev/tty.Sphero-BBP-AMP-SQQ"
+ *      HOC_DIRECT_SERIAL_PORTS="/dev/tty.Sphero-YYW-AMP-SPP,/dev/tty.Sphero-BBP-AMP-SQQ"
  *
  *
  *  NOTICE: the user running Node.js (typically "pi") must be able to exec "sudo rfcomm" to connect to Sphero
@@ -51,7 +51,7 @@ global.STANDARD_SPHERO_LIST = [
     { name:"Froggy",    color:0x00FF00 },
     { name:"Pumpkin",   color:0xff8800 },   // orange
     { name:"Amethyst",  color:0xFF00FF },   // purple
-    { name:"Banana",    color:0xFFFF00 },   // yellow 
+    { name:"Banana",    color:0xFFFF00 },   // yellow
     { name:"Turquoise", color:0x00FFFF }    // cyan - LAST
 ];
 // Associative array Key= RPi-color, Value= list of {name:,color:} for Spheros
