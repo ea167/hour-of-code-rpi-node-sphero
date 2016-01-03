@@ -251,11 +251,11 @@ CylonSphero.prototype.initCylonRobot  =  function()
     //    //console.log( err || data );
     //});
     this.mySphero.setInactivityTimeout( 1800, function(err, data) {      // 30 minutes, cb    // Doc https://github.com/hybridgroup/cylon-sphero/blob/master/lib/commands.js
-        console.log( "CylonRobot [%s] InactivityTimeout error/data:", _this.name );
+        console.log( "CylonRobot [%s] InactivityTimeout error/data", _this.name );
         //console.log( err || data );
     });
     this.mySphero.stopOnDisconnect( true, function(err, data) {
-        console.log( "CylonRobot [%s] stopOnDisconnect error/data:", _this.name );
+        console.log( "CylonRobot [%s] stopOnDisconnect error/data", _this.name );
         //console.log( err || data );
     });
     this.mySphero.on( "disconnect", function() { _this._onDisconnect(); });
@@ -279,8 +279,9 @@ CylonSphero.prototype.initCylonRobot  =  function()
         // FIXME !!!
         global.DEBUG_COUNT = global.DEBUG_COUNT || 0;
         if ( global.DEBUG_COUNT < 1 ) {
-            console.log( "CylonRobot [%s] DATA-STREAMING mySphero:" );
-            //console.log( _this.mySphero );
+            console.log( "CylonRobot [%s] DATA-STREAMING mySphero:", _this.name );
+            console.log( _this.mySphero );
+            console.log("\n\n");
             global.DEBUG_COUNT++;
 
         process.send( JSON.stringify({ "action":"data-streaming", "macAddress":_this.macAddress, "mySphero":_this.mySphero }) );
