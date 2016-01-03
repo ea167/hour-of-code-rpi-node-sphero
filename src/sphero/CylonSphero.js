@@ -282,19 +282,18 @@ CylonSphero.prototype.initCylonRobot  =  function()
         _this.mySphero.accelY     = _this.mySpheroData.accelY     = data.yAccel.value[0];
         _this.mySphero.accelOne   = _this.mySpheroData.accelOne   = data.accelOne.value[0];
 
-        // FIXME !!!
+        // FIXME: Comment it!
         global.DEBUG_COUNT = global.DEBUG_COUNT || 0;
         if ( global.DEBUG_COUNT < 1 ) {
             console.log( "CylonRobot [%s] DATA-STREAMING mySphero:", _this.name );
-            console.log( _this.mySphero );
-            console.log("\n\n");
+            //console.log( _this.mySphero );
+            //console.log("\n\n");
             console.log( _this.mySpheroData );
-            console.log("\n\n");
+            console.log("\n");
             global.DEBUG_COUNT++;
+        }
 
         process.send( JSON.stringify({ "action":"data-streaming", "macAddress":_this.macAddress, "mySpheroData":_this.mySpheroData }) );
-    }// FIXME
-
     });
 
 
