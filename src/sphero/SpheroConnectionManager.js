@@ -357,7 +357,8 @@ SpheroConnectionManager.prototype.startNewCylonSphero  =  function(port, macAddr
     // --- Communication between forked process and this master process.  msg = { type:, macAddress:, ...}
     var _this = this;
     childProc.on('message', function(msg) {
-        if (msg.action == "data-streaming") {
+        var dataObj = JSON.parse(msg);
+        if (dataObj.action == "data-streaming") {
             console.log( "\nDEBUG in SpheroConnectionManager.childProc.on.MESSAGE data-streaming" );
 
             var mySphero = JSON.parse( msg.mySphero );
@@ -378,15 +379,15 @@ SpheroConnectionManager.prototype.startNewCylonSphero  =  function(port, macAddr
             return;
         }
 
-            // TODO !!!
+        // TODO !!!
 
-            // TODO: Disconnects (should the process exit ???)
+        // TODO: Disconnects (should the process exit ???)
 
-            // TODO: Alerts
+        // TODO: Alerts
 
         // --- Otw
-        //console.error( "\nERROR in SpheroConnectionManager.childProc.on.MESSAGE, msg is:" );
-        //console.error( msg );
+        console.error( "\nERROR in SpheroConnectionManager.childProc.on.MESSAGE, msg is:" );
+        console.error( msg );
         return;
     });
 
