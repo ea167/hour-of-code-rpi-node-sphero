@@ -9,6 +9,9 @@ var escape = require('./html-escape');
  */
 function fillDataStreamingTable(  )
 {
+    console.log( "DEBUG in data-streaming.fillDataStreamingTable. Emptying table" );
+    console.log(mySpherosMap);
+
     $("#data_stream_thead_tr_id th").remove();
     $("#data_stream_tbody_id    td").remove();
 
