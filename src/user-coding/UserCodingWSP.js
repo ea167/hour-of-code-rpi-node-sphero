@@ -52,7 +52,7 @@ UserCodingWSP.prototype.onConnectionEstablished = function() {
     SE.on('activeSpherosMap', function(){ _this.sendActiveSpherosMap(); } );
     //SE.on('activeSpherosMap', function(_this) { return function(){ _this.sendActiveSpherosMap(); } }(this) );
 
-    SE.on('data-streaming', function(){ _this.sendMySpherosMap(); } );
+    SE.on('data-streaming', function(){ _this.sendMySpherosDataMap(); } );
 
 
     /*
@@ -184,15 +184,15 @@ UserCodingWSP.prototype.sendActiveSpherosMap = function()
      return;
 };
 
-UserCodingWSP.prototype.sendMySpherosMap = function()
+UserCodingWSP.prototype.sendMySpherosDataMap = function()
 {
      try {
          this.ws.send( JSON.stringify( {
              "action": "data-streaming",
-             "mySpherosMap": global.spheroConnectionManager.mySpherosMap
+             "mySpherosDataMap": global.spheroConnectionManager.mySpherosDataMap
          }) );
      }
-     catch (exc) { console.error( "\nTRY-CATCH ERROR in UserCodingWSP.sendMySpherosMap: " + exc.stack + "\n" ); }
+     catch (exc) { console.error( "\nTRY-CATCH ERROR in UserCodingWSP.sendMySpherosDataMap: " + exc.stack + "\n" ); }
      return;
 };
 

@@ -63,9 +63,9 @@ function initBrowserSocket()
 
         // --- Receives an update of activeSpherosMap
         if (dataObj.action == "data-streaming") {
-            mySpherosMap = dataObj.mySpherosMap;                        // defined (globally) in the html page
-            //console.log( "socket.onmessage: mySpherosMap received" );
-            //console.log( dataObj.mySpherosMap );
+            mySpherosDataMap = dataObj.mySpherosDataMap;                        // defined (globally) in the html page
+            //console.log( "socket.onmessage: mySpherosDataMap received" );
+            //console.log( dataObj.mySpherosDataMap );
             fillDataStreamingTable();
             return;
         }

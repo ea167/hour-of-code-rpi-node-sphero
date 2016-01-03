@@ -35,6 +35,7 @@ function CylonSphero()
     this.mySphero           = null;
     this.spheroUserCodeRuns = null;
     //
+    this.mySpheroData       = { "name":this.name, "macAddress":this.macAddress, "color":this.color, "posYCorrection":this.posYCorrection };
     this.others             = {};       // Map  Key = Other Sphero Name, Value = Object with properties .name, .color, .posX, .posY, etc.
 
     console.log("\nINFO in NEW CylonSphero: port, macAddress, name, color are:");
@@ -75,20 +76,21 @@ function CylonSphero()
 
             // --- Save position, speed and acceleration of ANOTHER Sphero here
             case "other-sphero":
-                var os = dataObj.otherSphero;
-                if (os && os.name) {
-                    _this.mySphero.otherTimestamp   = os.timestamp;
-                    _this.mySphero.otherPosX        = os.posX;
-                    _this.mySphero.otherPosY        = os.posY;
-                    _this.mySphero.otherSpeedX      = os.speedX;
-                    _this.mySphero.otherSpeedY      = os.speedY;
-                    _this.mySphero.otherAccelX      = os.accelX;
-                    _this.mySphero.otherAccelY      = os.accelY;
-                    _this.mySphero.otherAccelOne    = os.accelOne;
+                var osd = dataObj.otherSpheroData;
+                if (osd && osd.name) {
+                    _this.mySphero.otherTimestamp   = osd.timestamp;
+                    _this.mySphero.otherPosX        = osd.posX;
+                    _this.mySphero.otherPosY        = osd.posY;
+                    _this.mySphero.otherSpeedX      = osd.speedX;
+                    _this.mySphero.otherSpeedY      = osd.speedY;
+                    _this.mySphero.otherAccelX      = osd.accelX;
+                    _this.mySphero.otherAccelY      = osd.accelY;
+                    _this.mySphero.otherAccelOne    = osd.accelOne;
                     // Store also by name
-                    this.others[os.name] = os;
+                    _this.others[osd.name] = osd;
+                    _this.mySphero.others  = _this.others;
                     //
-                    console.log("DEBUG Sphero[%s] \t posX=%s \t posY=%s", os.name, os.posX, os.posY);
+                    console.log("DEBUG Sphero[%s] \t posX=%s \t posY=%s", osd.name, osd.posX, osd.posY);
                 }
                 break;
 
@@ -176,13 +178,17 @@ CylonSphero.prototype._finalSpheroStop  =  function()
     console.log( "\nCylonRobot [%s] stopping", this.name );
     this.spheroUserCodeRuns.markLoopToEnd();               // sandbox._endLoop = true;
 
-    this.mySphero.stop();
-
     // RESET Sphero color!
     this.mySphero.color( this.color );
 
+    // TODO: Move back to (0,0) and as callback, stop and set color and calibration mode
+    // moveTo(0,0, (when finished) function() {
+    this.mySphero.stop();
+
+    this.mySphero.color( this.color );      // Again to be sure no race condition
     this.mySphero.setBackLed( 255 );
     this.mySphero.startCalibration();
+    // }
     return;
 }
 
@@ -206,7 +212,7 @@ CylonSphero.prototype.createCylonSphero  =  function()
                 .device('sphero', { driver: 'sphero' })
                 .on( 'error', console.warn )
                 .on( 'ready', function(my) {
-                    console.log("DEBUG CylonRobot ["+ my.sphero.name+"] ready, start last initializations!");
+                    console.log("DEBUG CylonRobot ["+ _this.name+"] ready, start last initializations!");   // my.sphero.name is wrong! (always 'sphero')
                     _this.mySphero = my.sphero;
 
                     // Init the cylonRobot with all eventListeners + initialization code (show tail Led)
@@ -267,14 +273,14 @@ CylonSphero.prototype.initCylonRobot  =  function()
         //console.log(data);
 
         // --- Set position, speed and acceleration here!
-        _this.mySphero.timestamp  = timestamp;
-        _this.mySphero.posX       = data.xOdometer.value[0];
-        _this.mySphero.posY       = data.yOdometer.value[0] + _this.posYCorrection;
-        _this.mySphero.speedX     = data.xVelocity.value[0];
-        _this.mySphero.speedY     = data.yVelocity.value[0];
-        _this.mySphero.accelX     = data.xAccel.value[0];
-        _this.mySphero.accelY     = data.yAccel.value[0];
-        _this.mySphero.accelOne   = data.accelOne.value[0];
+        _this.mySphero.timestamp  = _this.mySpheroData.timestamp  = timestamp;
+        _this.mySphero.posX       = _this.mySpheroData.posX       = data.xOdometer.value[0];
+        _this.mySphero.posY       = _this.mySpheroData.posY       = data.yOdometer.value[0] + _this.posYCorrection;
+        _this.mySphero.speedX     = _this.mySpheroData.speedX     = data.xVelocity.value[0];
+        _this.mySphero.speedY     = _this.mySpheroData.speedY     = data.yVelocity.value[0];
+        _this.mySphero.accelX     = _this.mySpheroData.accelX     = data.xAccel.value[0];
+        _this.mySphero.accelY     = _this.mySpheroData.accelY     = data.yAccel.value[0];
+        _this.mySphero.accelOne   = _this.mySpheroData.accelOne   = data.accelOne.value[0];
 
         // FIXME !!!
         global.DEBUG_COUNT = global.DEBUG_COUNT || 0;
@@ -282,9 +288,11 @@ CylonSphero.prototype.initCylonRobot  =  function()
             console.log( "CylonRobot [%s] DATA-STREAMING mySphero:", _this.name );
             console.log( _this.mySphero );
             console.log("\n\n");
+            console.log( _this.mySpheroData );
+            console.log("\n\n");
             global.DEBUG_COUNT++;
 
-        process.send( JSON.stringify({ "action":"data-streaming", "macAddress":_this.macAddress, "mySphero":_this.mySphero }) );
+        process.send( JSON.stringify({ "action":"data-streaming", "macAddress":_this.macAddress, "mySpheroData":_this.mySpheroData }) );
     }// FIXME
 
     });
@@ -296,8 +304,7 @@ CylonSphero.prototype.initCylonRobot  =  function()
     // It is also possible to pass an opts object to setDataStreaming():
     var opts = {
       // n: int, divisor of the max sampling rate, 400 hz/s     // n = 40 means 400/40 = 10 data samples per second,    // n = 200 means 400/200 = 2 data samples per second
-//FIXME      n: 100,       // 4 per seconds
-      n: 400,       // 1 per seconds
+      n: 100,       // 4 per seconds
       // m: int, number of data packets buffered before passing to the stream   // m = 10 means each time you get data it will contain 10 data packets
       // m = 1 is usually best for real time data readings.
       m: 1,

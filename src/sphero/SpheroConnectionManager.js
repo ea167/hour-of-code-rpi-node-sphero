@@ -142,8 +142,8 @@ function SpheroConnectionManager()
     this.isInquiring            = false;    // Only once at a time: prevent to have 2 bluetoothInquire() running at the same time
     // Child processes: These js object have circular references and consequently break JSON.stringify: we store them separately
     this.childProcessesMap      = {};       // Object (and NOT Associative array) of Key = macAddress, Object = childProc
-    // Storing mySphero objects from CylonSphero
-    this.mySpherosMap           = {};       // Object (and NOT Associative array) of Key = macAddress, Object = mySphero
+    // Storing mySphero dataStreaming info from CylonSphero
+    this.mySpherosDataMap           = {};       // Object (and NOT Associative array) of Key = macAddress, Object = mySpheroData
 
 // TODO: la connection entre l'interface et le Cylon doit se faire par * macAddress *
 
@@ -359,27 +359,27 @@ SpheroConnectionManager.prototype.startNewCylonSphero  =  function(port, macAddr
         var dataObj = JSON.parse(msg);
         if (dataObj.action == "data-streaming") {
             //console.log( "\nDEBUG in SpheroConnectionManager.childProc.on.MESSAGE data-streaming" );
-            var mySphero = dataObj.mySphero;
+            var mySpheroData = dataObj.mySpheroData;
             console.log("DEBUG in startNewCylonSpherochildProc.on.MESSAGE data-streaming:");
             console.log(msg);
             console.log("\n\n");
-            console.log(mySphero);
+            console.log(mySpheroData);
             console.log("\n\n");
 
-            if (!mySphero || !mySphero.name) {
-                console.error( "\nERROR in startNewCylonSpherochildProc.on.MESSAGE data-streaming: mySphero INVALID!!");
+            if (!mySpheroData || !mySpheroData.name) {
+                console.error( "\nERROR in startNewCylonSpherochildProc.on.MESSAGE data-streaming: mySpheroData INVALID!!");
                 console.error( msg );
                 return;
             }
             // Store it and send the info to other processes
-            _this.mySpherosMap[ dataObj.macAddress ] = mySphero;                // Key = macAddress, Object = mySphero
-            console.log( _this.mySpherosMap );
+            _this.mySpherosDataMap[ dataObj.macAddress ] = mySpheroData;                // Key = macAddress, Object = mySpheroData
+            console.log( _this.mySpherosDataMap );
 
             //
             for (var cpKey in this.childProcessesMap) {
                 if ( dataObj.macAddress == cpKey )
                     continue;
-                this.childProcessesMap[cpKey].send( JSON.stringify({ "action":"other-sphero", "otherSphero":mySphero }) );
+                this.childProcessesMap[cpKey].send( JSON.stringify({ "action":"other-sphero", "otherSpheroData":mySpheroData }) );
             }
             // Send to browser
             SE.emit("data-streaming");
