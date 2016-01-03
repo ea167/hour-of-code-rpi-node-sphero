@@ -278,7 +278,7 @@ CylonSphero.prototype.initCylonRobot  =  function()
 
         // FIXME !!!
         global.DEBUG_COUNT = global.DEBUG_COUNT || 0;
-        if ( global.DEBUG_COUNT < 3 ) {
+        if ( global.DEBUG_COUNT < 1 ) {
             console.log( "CylonRobot [%s] DATA-STREAMING mySphero:" );
             console.log( _this.mySphero );
             global.DEBUG_COUNT++;
