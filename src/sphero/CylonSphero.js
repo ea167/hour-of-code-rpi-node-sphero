@@ -280,7 +280,7 @@ CylonSphero.prototype.initCylonRobot  =  function()
         global.DEBUG_COUNT = global.DEBUG_COUNT || 0;
         if ( global.DEBUG_COUNT < 1 ) {
             console.log( "CylonRobot [%s] DATA-STREAMING mySphero:" );
-            console.log( _this.mySphero );
+            //console.log( _this.mySphero );
             global.DEBUG_COUNT++;
 
         process.send( JSON.stringify({ "action":"data-streaming", "macAddress":_this.macAddress, "mySphero":_this.mySphero }) );
