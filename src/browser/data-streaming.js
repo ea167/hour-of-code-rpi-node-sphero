@@ -7,7 +7,7 @@ var escape = require('./html-escape');
 /**
  *  mySpherosMap is defined globally
  */
-function fillDataStreamingTable(  )
+function fillDataStreamingTable()
 {
     console.log( "DEBUG in data-streaming.fillDataStreamingTable. Emptying table" );
     console.log(mySpherosMap);
@@ -24,6 +24,7 @@ function fillDataStreamingTable(  )
     // --- Now fills the table
     for (var macaddr in mySpherosMap) {
         var mySphero = mySpherosMap[macaddr];
+        console.log( "DEBUG in data-streaming.fillDataStreamingTable: %s", mySphero.name );
         // Header
         $("#data_stream_thead_tr_id").append("<th>"+ escape(mySphero.name) +"</th>");
         // Data

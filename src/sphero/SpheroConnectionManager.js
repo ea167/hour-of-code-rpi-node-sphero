@@ -143,10 +143,9 @@ function SpheroConnectionManager()
     // Child processes: These js object have circular references and consequently break JSON.stringify: we store them separately
     this.childProcessesMap      = {};       // Object (and NOT Associative array) of Key = macAddress, Object = childProc
     // Storing mySphero objects from CylonSphero
-    this.mySpherosMap           = {};       // Object (and NOT Associative array) of Key = macAddress, Object = mySphero     // TODO
+    this.mySpherosMap           = {};       // Object (and NOT Associative array) of Key = macAddress, Object = mySphero
 
 // TODO: la connection entre l'interface et le Cylon doit se faire par * macAddress *
-//      Il faudrait qu'on puisse avoir dans l'interface les positions, etc (mySpherosMap)
 
 
 // TODO: SE.on( "disconnected", ... eagerness back !!!
@@ -370,6 +369,8 @@ SpheroConnectionManager.prototype.startNewCylonSphero  =  function(port, macAddr
             _this.mySpherosMap[ dataObj.macAddress ] = mySphero;                // Key = macAddress, Object = mySphero
             //
             for (var cpKey in this.childProcessesMap) {
+                if ( dataObj.macAddress == cpKey )
+                    continue;
                 this.childProcessesMap[cpKey].send( JSON.stringify({ "action":"other-sphero", "otherSphero":mySphero }) );
             }
             // Send to browser
