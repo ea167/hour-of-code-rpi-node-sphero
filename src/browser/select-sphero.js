@@ -35,7 +35,7 @@ function fillSpheroDropdown()
     // Loop on activeSpherosMap
     for (var macaddr in activeSpherosMap) {
         var as = activeSpherosMap[ macaddr ];
-        var cssColor = isNaN(as.color) ? "'"+ escape(as.color) +"'" : "#"+as.color.toString(16);
+        var cssColor = isNaN(as.color) ? escape(as.color) : "#"+as.color.toString(16);
         as.cssColor  = cssColor;
         $("#sphero_name_ul").append( '<li data-macaddr="'+ escape(macaddr)
             + '" style="background-color:'+ cssColor +';">'

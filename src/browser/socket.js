@@ -2,6 +2,8 @@
  *  Handle WebSocket connection from browser to Raspberry Pi
  */
 var $ = require('jquery');
+var fillDataStreamingTable = require('./data-streaming').fillDataStreamingTable;
+
 
 function initBrowserSocket()
 {
@@ -56,6 +58,15 @@ function initBrowserSocket()
             console.log( "socket.onmessage: activeSpherosMap received" );
             console.log( dataObj.activeSpherosMap );
             $.IBC.trigger('activeSpherosMap');
+            return;
+        }
+
+        // --- Receives an update of activeSpherosMap
+        if (dataObj.action == "data-streaming") {
+            mySpherosMap = dataObj.mySpherosMap;                        // defined (globally) in the html page
+            //console.log( "socket.onmessage: mySpherosMap received" );
+            //console.log( dataObj.mySpherosMap );
+            fillDataStreamingTable();
             return;
         }
 
