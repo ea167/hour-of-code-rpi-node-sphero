@@ -16,7 +16,7 @@ var SE = global.spheroEvents;                   // Replaces jQuery $ events here
 // -----------------------------------------------------------------------------
 // global.STARTING_POS_Y_CORRECTION = 20; // FIXME
 
-// FIXME: SpheroConnectionManager childProc onMessage() de tous les process.send( JSON.stringify({ "action":"..."
+// FIXME: SpheroConnectionManager childProc onMessage() de tous les process.send( JSON.stringify({ "action":"...", "macAddress":_this.macAddress
 
 
 /**
@@ -276,7 +276,7 @@ CylonSphero.prototype.initCylonRobot  =  function()
         _this.mySphero.accelY     = data.yAccel.value[0];
         _this.mySphero.accelOne   = data.accelOne.value[0];
 
-        process.send( JSON.stringify({ "action":"data-streaming", "mySphero":_this.mySphero }) );
+        process.send( JSON.stringify({ "action":"data-streaming", "macAddress":_this.macAddress, "mySphero":_this.mySphero }) );
     });
 
 

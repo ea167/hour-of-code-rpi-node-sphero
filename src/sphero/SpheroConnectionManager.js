@@ -354,21 +354,21 @@ SpheroConnectionManager.prototype.startNewCylonSphero  =  function(port, macAddr
     this.activeSpherosMap[macAddress]   = { "port":port, "macAddress":macAddress, "name":name, "color":color };     // Array of Objects { port: , macAddress:, color:... }
     this.childProcessesMap[macAddress]  = childProc;
 
-    // --- Communication between forked process and this master process.  msg = { type:, macAddress:, ...}
+    // --- Communication between forked process and this master process.  msg = { action:, macAddress:, ...}
     var _this = this;
     childProc.on('message', function(msg) {
         var dataObj = JSON.parse(msg);
         if (dataObj.action == "data-streaming") {
             console.log( "\nDEBUG in SpheroConnectionManager.childProc.on.MESSAGE data-streaming" );
 
-            var mySphero = JSON.parse( msg.mySphero );
+            var mySphero = JSON.parse( dataObj.mySphero );
             if (!mySphero || !mySphero.name) {
                 console.error( "\nERROR in startNewCylonSpherochildProc.on.MESSAGE data-streaming: mySphero INVALID!!");
                 console.error( msg );
                 return;
             }
             // Store it and send the info to other processes
-            _this.mySpherosMap[ msg.macAddress ] = mySphero;                // Key = macAddress, Object = mySphero
+            _this.mySpherosMap[ dataObj.macAddress ] = mySphero;                // Key = macAddress, Object = mySphero
             //
             for (var cpKey in this.childProcessesMap) {
                 this.childProcessesMap[cpKey].send( JSON.stringify({ "action":"other-sphero", "otherSphero":mySphero }) );
