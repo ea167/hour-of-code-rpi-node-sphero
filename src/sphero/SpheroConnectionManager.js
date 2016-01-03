@@ -361,7 +361,7 @@ SpheroConnectionManager.prototype.startNewCylonSphero  =  function(port, macAddr
         if (dataObj.action == "data-streaming") {
             console.log( "\nDEBUG in SpheroConnectionManager.childProc.on.MESSAGE data-streaming" );
 
-            var mySphero = JSON.parse( dataObj.mySphero );
+            var mySphero = dataObj.mySphero;
             if (!mySphero || !mySphero.name) {
                 console.error( "\nERROR in startNewCylonSpherochildProc.on.MESSAGE data-streaming: mySphero INVALID!!");
                 console.error( msg );
