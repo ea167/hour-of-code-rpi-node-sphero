@@ -52,6 +52,9 @@ UserCodingWSP.prototype.onConnectionEstablished = function() {
     SE.on('activeSpherosMap', function(){ _this.sendActiveSpherosMap(); } );
     //SE.on('activeSpherosMap', function(_this) { return function(){ _this.sendActiveSpherosMap(); } }(this) );
 
+    SE.on('data-streaming', function(){ _this.sendMySpherosMap(); } );
+
+
     /*
         var _this = this;
         var closureFuncSendWords = this.closureFuncSendWords = function () {
@@ -171,15 +174,28 @@ UserCodingWSP.prototype.onMessage = function(data, flags) {
  */
 UserCodingWSP.prototype.sendActiveSpherosMap = function()
 {
-    try {
-        this.ws.send( JSON.stringify( {
-            "action": "activeSpherosMap",
-            "activeSpherosMap": global.spheroConnectionManager.activeSpherosMap
-        }) );
-    }
-    catch (exc) { console.error( "\nTRY-CATCH ERROR in UserCodingWSP.sendActiveSpherosMap: " + exc.stack + "\n" ); }
-    return;
+     try {
+         this.ws.send( JSON.stringify( {
+             "action": "activeSpherosMap",
+             "activeSpherosMap": global.spheroConnectionManager.activeSpherosMap
+         }) );
+     }
+     catch (exc) { console.error( "\nTRY-CATCH ERROR in UserCodingWSP.sendActiveSpherosMap: " + exc.stack + "\n" ); }
+     return;
 };
+
+UserCodingWSP.prototype.sendMySpherosMap = function()
+{
+     try {
+         this.ws.send( JSON.stringify( {
+             "action": "data-streaming",
+             "mySpherosMap": global.spheroConnectionManager.mySpherosMap
+         }) );
+     }
+     catch (exc) { console.error( "\nTRY-CATCH ERROR in UserCodingWSP.sendMySpherosMap: " + exc.stack + "\n" ); }
+     return;
+};
+
 
 
 /***

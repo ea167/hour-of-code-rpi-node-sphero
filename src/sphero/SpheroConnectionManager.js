@@ -373,9 +373,8 @@ SpheroConnectionManager.prototype.startNewCylonSphero  =  function(port, macAddr
             for (var cpKey in this.childProcessesMap) {
                 this.childProcessesMap[cpKey].send( JSON.stringify({ "action":"other-sphero", "otherSphero":mySphero }) );
             }
-            //
-            // TODO: Send to browser
-            //
+            // Send to browser
+            SE.emit("data-streaming");
             return;
         }
 
