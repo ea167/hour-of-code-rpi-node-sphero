@@ -30,7 +30,7 @@
       "morgan": "~1.6.1",
       "serialport": "^2.0.5",
       "serve-favicon": "~2.3.0",
-      "ws": "^0.8.0"
+      "ws": "^6.1.4"
   },
   "devDependencies": {
       "browserify": "^10.2.4",
